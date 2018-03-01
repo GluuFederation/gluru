@@ -1,0 +1,23 @@
+{% autoescape off %}
+
+Hello Support Team,
+{% if support_plan %}
+Ticket #{{ticket_id}}, {{ticket_title}}, has been added by {{ticket_created_by}}, a named contact associated with {{ticket_created_by_comp}}, a {{support_plan}} support customer.
+{% else %}
+Ticket #{{ticket_id}}, {{ticket_title}}, has been added by {{ticket_created_by}}, a community user on Gluu support.
+{% endif %}
+{{ticket_body_txt|safe}}
+
+Simply reply to this email to add a comment. If you need to include attachments, update the ticket directly.
+
+
+Thank you,
+
+Gluu Support
+
+----
+
+Ticket Link: {{ticket_link}}
+
+You are receiving this message because you are a staff member.
+{% endautoescape %}

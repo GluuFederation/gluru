@@ -1,0 +1,24 @@
+{% extends 'emails/base_template.html' %}
+{% load gluu_tags %}
+{% block content %}
+<div class="message_container">
+	<p> Hello {{ticket_created_for}},</p>
+	<!--<p>{{ticket_created_by}} has added a ticket #{{ticket_id}}, <a href="{{ticket_link}}">{{ticket_title}}</a>, on your behalf.</p>-->
+	<p>
+		Ticket #{{ticket_id}}, <a href="{{ticket_link}}">{{ticket_title}}</a>, has been added by {{ticket_created_by}} from {{ticket_created_by_comp}} on behalf of {{ticket_created_for}} from {{ticket_created_for_comp}}, a Gluu {{support_plan}} support customer.
+	</p>
+	<p>Issue Type: {{issue_type}}</p>
+	<div class="ticket_body">
+		{{ticket_body|safe}}
+	</div>
+
+
+	<p>Simply reply to this email to add a comment. If you need to include attachments, <a href="{{ticket_link}}">update the ticket directly</a>.</p>
+
+	<p>Thank you,<br/>
+	Gluu Support</p>
+
+	<p>You are receiving this message because you are a supported contact at {{ticket_created_for_comp}}, a Gluu customer.</p>
+
+</div>
+{% endblock %}

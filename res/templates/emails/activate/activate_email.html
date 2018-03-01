@@ -1,0 +1,63 @@
+{% extends 'emails/base_template.html' %}
+{% block content %}
+
+<div class="message_container">
+    <p>Hello {{ user.first_name }},</p>
+
+    <p>Thank you for activating your Gluu support account.</p>
+
+    {% if user.is_company_admin %}
+    <p>You have been assigned the role of admin user for {{company}}’s Gluu support account.</p>
+    <p>As an account admin on Gluu support you can:
+        <ul>
+        <li>Open private tickets, interact with your colleagues private tickets, include attachments, and expect guaranteed responses from Gluu staff;</li>
+        <li>Schedule meetings with Gluu as specified in your support contract;</li>
+        <li>Manage your organization’s named contacts and admin contacts as specified in your support contract;</li>
+        <li>Authorize a certified Gluu partner organization to access and enlist Gluu support on your organization’s behalf.</li>
+        </ul>
+    </p>
+    <p>
+        Thank you,<br/>
+        Gluu Support
+    </p>
+    <p>If you have questions about the support portal, review the <a href="https://support.gluu.org/docs/user-guide">user guide</a> or reply to this email.</p>
+    {% elif user.is_named %}
+    <p>You have been assigned the role of named user for {{company}}’s Gluu support account.</p>
+    <p>As a named contact on Gluu Support you can:
+        <ul>
+        <li>Open private tickets, interact with your colleagues private tickets, include attachments, and expect guaranteed responses from Gluu staff;</li>
+        <li>Schedule meetings with Gluu as specified in your support contract.</li>
+        </ul>
+    </p>
+    <p>
+        Thank you,<br/>
+        Gluu Support
+    </p>
+    <p>
+        If you have questions about the support portal, review the <a href="https://support.gluu.org/docs/user-guide">user guide</a> or reply to this email.
+    </p>
+    {% elif user.is_admin %}
+    <p>You have been assigned the role of staff user.</p>
+    <p>You can now see and help respond to customer and community issues on Gluu support.</p>
+    <p>
+        Thank you,<br/>
+        Gluu Support
+    </p>
+    <p>If you have questions about the support portal, review the <a href="https://support.gluu.org/docs/user-guide">user guide</a> or reach out to Will on skype: willow9886</p>
+    {% else %}
+    <p>You have been assigned the role of community user.</p>
+    <p>You can now open and respond to public tickets on <a href="https://support.gluu.org/">Gluu support</a>.</p>
+    <p>We do our best to respond to all community support tickets but responses are not guranteed.</p>
+    <p>To receive guaranteed responses, private support, and enhanced access to Gluu's team,
+        review our <a href="https://www.gluu.org/gluu-server/pricing/">VIP support</a> offerings.</p>
+    <p>
+        Thank you,<br/>
+        Gluu Support
+    </p>
+
+    <p>p.s. If your organization is already a Gluu customer, contact your Gluu admin contact to request that they elevate your privilege following <a href="https://support.gluu.org/docs/user-guide/#managing-named-contacts">these instructions</a>.</p>
+
+    {% endif %}
+</div>
+
+{% endblock %}

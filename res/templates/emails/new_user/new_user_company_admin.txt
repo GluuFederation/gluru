@@ -1,0 +1,15 @@
+{% autoescape off %}
+
+Hello {{admin.first_name}},
+
+{{user.first_name}} {{user.last_name}} ({{user.email}}) has registered on Gluu Support as a community user (not associated with your customer account).
+
+If you want to add {{user.first_name}} {{user.last_name}} to your organization’s Gluu Support account, simply add their email on your company dashboard (https://support.gluu.org/company_users/).
+
+
+Thank you,
+Gluu Support
+
+p.s. you are receiving this notification because you are an admin contact at {{admin.company}}, a Gluu customer.
+
+{% endautoescape %}

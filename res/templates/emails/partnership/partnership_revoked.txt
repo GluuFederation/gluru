@@ -1,0 +1,7 @@
+Hello,
+
+Your organization has been removed as a partner from {{company}} on Gluu Support.
+If you think this is an error, please reach out to {{company_admin}}.
+
+Thank you,
+Gluu Support

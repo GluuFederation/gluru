@@ -1,0 +1,18 @@
+{% autoescape off %}
+Hi {{ticket_created_by.first_name}},
+
+Ticket #{{ticket_id}}, "{{ticket_title}}", has been assigned to {{ticket_assigned_to}} from Gluu.
+
+We will evaluate your request and respond shortly.
+
+
+Thank you!
+
+Gluu Support
+
+----
+
+Ticket Link: {{ticket_link}}
+
+{% endautoescape %}
+

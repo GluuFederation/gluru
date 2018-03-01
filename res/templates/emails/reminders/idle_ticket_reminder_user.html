@@ -1,0 +1,21 @@
+{% extends 'emails/base_template.html' %}
+{% block content %}
+
+<div class="message_container">
+	<p>Hello {{ticket.owned_by}},</p>
+	<p>
+		Gluu support ticket #{{ticket.id}} was last updated {{time_passed}} ago.
+	</p>
+	<p>
+		You can visit it here: <a href="{{ticket_link}}">{{ticket.title}}</a>
+	</p>
+	<p>
+		Update the ticket to stop idle notifications. If this issue is resolved, please <a href="{{close_ticket_link}}"> close the ticket</a>.
+	</p>
+	<p>
+	    Thank you,<br/>
+	    Gluu Support
+	</p>
+</div>
+
+{% endblock %}

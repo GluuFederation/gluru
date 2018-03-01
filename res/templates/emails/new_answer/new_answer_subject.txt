@@ -1,0 +1,1 @@
+New response on Gluu ticket #{{ticket_id}}: "{{ticket_title|safe}}"

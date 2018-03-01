@@ -1,0 +1,25 @@
+{% autoescape off %}
+
+Hello Gluu,
+
+A new user has registered on {{site_name}}:
+
+First Name: {{user.first_name}}
+
+Last Name: {{user.last_name}}
+
+Email: {{user.email}}
+
+Company: {{user.company}}
+
+Job Title: {{user.job_title}}
+
+Mobile Phone Number: {{user.mobile_number}}
+
+Role: {{user.crm_type}}{% if user.is_company_admin %}; company admin {% endif %}
+
+Thank you,
+
+Gluu Support
+
+{% endautoescape %}

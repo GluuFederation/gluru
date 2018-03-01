@@ -1,0 +1,1 @@
+Gluu support ticket reopened: ticket #{{ticket_id}} "{{ticket_title|safe}}"

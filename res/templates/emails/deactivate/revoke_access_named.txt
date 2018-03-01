@@ -1,0 +1,8 @@
+Hello,
+
+You have been removed from {{company}} on Gluu Support.
+
+If you think this is an error, please contact your organization's Gluu Server admin.
+
+Thank you,
+Gluu Support

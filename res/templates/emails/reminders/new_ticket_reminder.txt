@@ -1,0 +1,11 @@
+Hello Gluu Staff,
+
+Gluu support ticket #{{ticket.id}} has been added by {{ticket.owned_by}} from {{ticket.owned_by.get_company}}, a Gluu {{support_plan}} support customer.
+
+You can visit it here: {{ticket_link}}
+
+{{ticket.description|safe}}
+
+Thank you,
+
+Gluu Support

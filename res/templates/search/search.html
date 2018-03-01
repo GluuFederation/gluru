@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load gluu_tags %}
+{% load highlight %}
+
+{% block content %}
+<div class="page-header">
+    {% if query %}
+    <h3>{% trans 'Search results for' %}: <strong>{{query}}</strong></h3>
+    {% else %}
+    <h3>{% trans 'Search results' %}</h3>
+    {% endif %}
+</div>
+<div class="search-section">
+    <div class="col-md-12">
+        <div class="row">
+            <form id="search_homepage" role="form" action="{% url 'haystack_search' %}" method="get">
+                <div class="form-group col-md-12">
+                    <div class="row">
+                        <div class="col-md-9 search-field">
+                            {{form.q}}
+                            <span class="loader-div">
+                                <img src="/static/img/search-loader.gif"/>
+                            </span>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-default" type="submit">Search</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-3">
+                            {{form.category}}
+                        </div>
+                        <div class="col-md-3">
+                            {{form.status}}
+                        </div>
+                        <div class="col-md-3">
+                            {{form.server_version}}
+                        </div>
+                        <div class="col-md-3">
+                            {{form.os_version}}
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+        <div id="preview"></div>
+
+
+        {% if tickets %}
+        <div>
+            <ul class="nav nav-tabs">
+                {% for tab in tabs %}
+                <li class="{% if tab.target == active_tab %}active{% endif %}" data-target="{{tab.target}}">
+                    <a data-toggle="tab" href="#{{tab.target}}">{{tab.title}}</a>
+                </li>
+                {% endfor %}
+            </ul>
+
+            <div class="tab-content">
+                {% for tab in tabs_content %}
+                <div id="{{tab.section}}" class="tab-pane fade in {% if tab.section == active_tab %}active{% endif %}">
+                    <div class="col-md-12">
+                        <div class="row search-results">
+                            {% for result in tab.tickets %}
+                            {% if result.object %}
+                            <div class="search-div">
+                                <div class="col-md-1 answer-sec">
+                                    <div class="row">
+                                        <p>
+                                            <span class="answer-count">{{ result.object.ticket_answers.count }}</span>
+                                            <span>Answers</span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-md-11 detail-div">
+                                    <h5 class="">
+                                        <a href="{{ result.object|linkify }}"
+                                           class="title">{% highlight result.object.title with query %}</a>
+                                    </h5>
+                                    <p>{% highlight result.object.description with query max_length 500 %}</p>
+                                    <div class="bottom-info">
+                                        <div class="label-sec">
+                                            <span class="label label-info">{{result.object.get_ticket_category_display}}</span>
+                                            <span class="label label-{{result.object.status|slugify|lower}}">{{result.object.status}}</span>
+                                        </div>
+                                        <div class="date-sec">
+                                            <span>asked on <span
+                                                    class="date">{{result.object.date_added|date:"M d 'y"}}</span></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div class="row">
+                <div class="col-md-2 pull-left">
+                    <div class="filter-panel" style="margin: 20px 0;">
+                        <div class="text-filter-box">
+                            <i class="fa fa-search  jplist-icon"></i>
+                            <select class="jplist-select form-control" data-control-type="sort-select"
+                                    data-control-name="sort"
+                                    data-control-action="sort">
+                                <option data-path="default">Sort by</option>
+                                <option data-path=".title" data-order="asc" data-type="text">Title A-Z</option>
+                                <option data-path=".title" data-order="desc" data-type="text">Title Z-A</option>
+                                <option data-path=".answer-count" data-order="asc" data-type="number">Answers
+                                    Count asc</option>
+                                <option data-path=".answer-count" data-order="desc" data-type="number">Answers
+                                    Count desc</option>
+                                <option data-path=".date" data-order="asc" data-type="datetime">Date asc</option>
+                                <option data-path=".date" data-order="desc" data-type="datetime">Date desc</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-10">
+                    <ul class="pagination" style="float:right">
+                        {% if tickets.has_previous %}
+                        <li>
+                            <a data-href="?q={{query}}&amp;category={{form.category.value}}&amp;status={{form.status.value}}&amp;server_version={{form.server_version.value}}&amp;os_version={{form.os_version.value}}&amp;tab=&amp;page=1">&laquo;</a>
+                        </li>
+                        <li>
+                            <a data-href="?q={{query}}&amp;category={{form.category.value}}&amp;status={{form.status.value}}&amp;server_version={{form.server_version.value}}&amp;os_version={{form.os_version.value}}&amp;tab=&amp;page={{page_obj.previous_page_number}}">&lsaquo;</a>
+                        </li>
+                        {% endif %}
+                        {% if tickets.paginator.num_pages < 10 %}
+                        {% for p in tickets.paginator.page_range %}
+                        <li {% if p == tickets.number %}class="active" {% endif %}>
+                            <a {% if p == tickets.number %}name="{{p}}"
+                               {% else %}data-href="?q={{query}}&amp;category={{form.category.value}}&amp;status={{form.status.value}}&amp;server_version={{form.server_version.value}}&amp;os_version={{form.os_version.value}}&amp;tab=&amp;page={{p}}"
+                               {% endif %}>{{p}}</a>
+                        </li>
+                        {% endfor %}
+                        {% endif %}
+                        {% if tickets.has_next %}
+                        <li>
+                            <a data-href="?q={{query}}&amp;category={{form.category.value}}&amp;status={{form.status.value}}&amp;server_version={{form.server_version.value}}&amp;os_version={{form.os_version.value}}&amp;tab=&amp;page={{tickets.next_page_number}}">&rsaquo;</a>
+                        </li>
+                        <li>
+                            <a data-href="?q={{query}}&amp;category={{form.category.value}}&amp;status={{form.status.value}}&amp;server_version={{form.server_version.value}}&amp;os_version={{form.os_version.value}}&amp;tab=&amp;page={{tickets.paginator.num_pages}}">&raquo;</a>
+                        </li>
+                        {% endif %}
+                        <button style="margin-left:20px" type="button" class="btn btn-default btn-default">
+                            Page <strong>{{ tickets.number }}</strong> of {{ tickets.paginator.num_pages }}
+                        </button>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        {% if query %}
+        <div>
+            <div class="alert alert-warning" role="alert">{% trans 'There are no tickets matching' %}: <strong>{{query}}</strong>
+                !
+            </div>
+        </div>
+        {% else %}
+        <div class="alert alert-warning" role="alert">{% trans 'Please enter a keyword' %}</div>
+        {% endif %}
+        {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+
+{% block headcss %}
+<link href="{{ STATIC_URL }}css/autocomplete-styles.css" rel="stylesheet">
+{% endblock headcss %}
+
+{% block js %}
+<script src="/static/js/jquery.autocomplete.js" language="javascript" type="text/javascript"></script>
+<script src="/static/js/jplist.min.js" language="javascript" type="text/javascript"></script>
+<script src="/static/js/live_search.js" language="javascript" type="text/javascript"></script>
+<script>
+    $('document').ready(function(){
+       $('.search-section').jplist({
+          itemsBox: '.search-results',
+          itemPath: '.search-div',
+          panelPath: '.filter-panel'
+       });
+
+       $('.pagination li a').click(function(){
+          window.location.href = $(this).attr('data-href').replace( 'tab=', 'tab=' + $('.nav-tabs li.active').attr( 'data-target' ) );
+       });
+    });
+</script>
+{% endblock js %}

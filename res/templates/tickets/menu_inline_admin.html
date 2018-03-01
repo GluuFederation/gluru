@@ -1,0 +1,149 @@
+{% load i18n %}
+<script>
+    //Mobile sidebar JS animation
+    $('body').delegate('.side-show-btn','click',function(){
+        $(this).toggleClass('active-sideShow');
+        $('body').toggleClass('FixBody');
+        $('.sidebar_overlay').toggleClass('active-sidebarOverlay');
+        $('.toggleSideBar').toggleClass('active-toggleSideBar');
+        $('.glyphicon-indent-left').toggleClass('glyphicon-indent-right');
+    });
+</script>
+
+<a href="#" class="side-show-btn"><span class="glyphicon glyphicon-indent-left"></span> </a>
+<div class="side-bar-m">
+    <div class="sidebar_overlay"></div>
+<div class="col-md-3 toggleSideBar" xmlns="http://www.w3.org/1999/html">
+    <div class="well well-sm well__33">
+        <form action="{% url 'edit_ticket_inline' ticket.id %}" method="post" role="form" id="ticket_info">{% csrf_token %}
+            <span class="pull-left lable__ticket"><strong>Ticket #{{ticket.id}}</strong></span>
+            <a type="button" href="{% url 'edit_ticket' ticket.id %}" class="icon__Set pull-right"><span class="pencil" data-toggle="tooltip" data-original-title="Edit Ticket"></span></a>
+            <a type="button" href="{% url 'history_ticket' ticket.title|slugify ticket.id %}" style="margin-left:5px;margin-right:9px;" class="icon__Set pull-right"><span class="history" data-toggle="tooltip" data-original-title="Ticket History"></span></a>
+            <div class="clearfix"></div>
+            <hr />
+            <div class="clearfix"></div>
+            <label class="info-left-result">Created by:</label>
+            <p class="info-right-result">
+                <a href="{% url 'profile:dashboard' 'all-tickets'%}?created_by={{ticket.created_by.id}}">
+                    {{ticket.created_by}}
+                </a>
+            </p>
+            <div class="clearfix"></div>
+
+            <label class="info-left-result">Organization:</label>
+            <p class="info-right-result"> <a href="/dashboard/all-tickets/?company={{organization}}">{{organization}}</a></p>
+            <div class="clearfix"></div>
+
+            {% if ticket.created_for %}
+
+                <label class="info-left-result">On behalf of:</label>
+                <p class="info-right-result">
+                    <a href="{% url 'profile:dashboard' 'all-tickets'%}?created_by={{ticket.created_for.id}}">
+                        {{ticket.created_for}}
+                    </a>
+                </p>
+                <div class="clearfix"></div>
+
+            {% endif %}
+
+
+            <label class="info-left-result select-a">Status:</label>
+            <p class="info-right-result form_edit">{{ticket_form.status}}</p>
+            <div class="clearfix custom__clearfix"></div>
+
+            <label class="info-left-result select-a">Assigned to:</label>
+            <p class="info-right-result form_edit">{{ticket_form.assigned_to}}</p>
+            <div class="clearfix"></div>
+
+            <!-- <label class="info-left-result"></label> -->
+            <p class="pull-right assigned__to">
+                {% if ticket.assigned_to %}
+                    <a href="{% url 'profile:dashboard' 'all-tickets'%}?assigned_to={{ticket.assigned_to.id}}">
+                        All assigned to {{ticket.assigned_to}}
+                    </a>
+                {% else %}
+                    <a href="{% url 'profile:dashboard' 'unassigned'%}">
+                        All unassigned tickets
+                    </a>
+                {% endif%}
+            </p>
+            <div class="clearfix"></div>
+
+            {% if ticket.issue_type %}
+                <label class="info-left-result">Issue Type:</label>
+                <p class="info-right-result">{{ticket.get_issue_type_display}}</p>
+                <div class="clearfix"></div>
+            {% endif %}
+
+            <label class="info-left-result">Category:</label>
+            <p class="info-right-result">{{ticket.get_ticket_category_display}}</p>
+            <div class="clearfix"></div>
+
+            <label class="info-left-result">Added:</label>
+            <p class="info-right-result">{{ticket.date_added|date:"D d M Y"}}</p>
+            <div class="clearfix"></div>
+
+            <label class="info-left-result">Updated:</label>
+            <p class="info-right-result">{{ticket.date_modified|date:"D d M Y"}}</p>
+            <div class="clearfix"></div>
+
+            <br />
+            <a type="button" onclick="if (confirm('Are you sure that you want to delete this ticket?') == true){return true;}else{return false}" href="{% url 'delete_ticket' ticket.id %}" class="btn btn-s btn-danger pull-left gluu-remove-icon">
+                {% trans 'Delete' %}
+            </a>
+
+            {% if ticket.status != 'closed' %}
+                <a type="button" onclick="if (confirm('Are you sure that you want to close this ticket?') == true){return true;}else{return false}" href="{% url 'close_ticket' ticket.id %}" class="close_ticket btn btn-s btn-primary pull-left gluu-remove-icon">
+                    {% trans 'Close' %}
+                </a>
+            {% endif %}
+
+
+
+            <button type="submit" class="btn btn-s btn-primary pull-left gluu-remove-icon" value="Save">
+                {% trans 'Save' %}
+            </button>
+
+            <div class="clearfix"></div>
+        </form>
+    </div>
+
+    <div class="well well-sm well__33 profile-info">
+
+        <h4 class="userName__FL">{{ name_first_letter }}</h4>
+        <h5 class="userName__lable">
+             <a href="{% url 'profile:dashboard' 'all-tickets'%}?created_by={{ticket.owned_by.id}}">
+                {{ticket.owned_by}}
+            </a>
+        </h5>
+        <h5 class="userName__lable">
+            <a href="mailto:{{ticket.owned_by.email}}">{{ticket.owned_by.email}}</a>
+        </h5>
+        <div class="clearfix"></div>
+
+        <label class="info-left-result">Role:</label>
+        <p class="info-right-result">
+        {% if ticket.owned_by.is_named %}
+            Named User
+        {% else %}
+            {{ticket.owned_by.get_type|title}}
+        {% endif %}
+        </p>
+        <div class="clearfix"></div>
+
+        <label class="info-left-result">Organization:</label>
+        {% if ticket.owned_by.get_company %}
+            <a  class="info-right-resu*lt info-right-result" href="{% url 'profile:dashboard' 'all-tickets'%}?company={{ticket.owned_by.get_company}}">{{ticket.owned_by.get_company}}</a>
+        {% else %}
+            <p class="info-right-result">n/a</p>
+        {% endif %}
+        <div class="clearfix"></div>
+
+
+        <div id="support-plan">
+        </div>
+
+    </div>
+</div>
+</div>
+

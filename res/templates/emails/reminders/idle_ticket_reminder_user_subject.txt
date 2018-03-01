@@ -1,0 +1,1 @@
+Gluu support ticket #{{ticket.id}} is idle!

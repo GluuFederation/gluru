@@ -1,0 +1,24 @@
+Hello,
+
+You have been invited by {{invited_by}} to join {{company}}’s Gluu support account.
+
+As a named contact on Gluu support you can:
+
+- Open private tickets, interact with your colleagues private tickets, include attachments, and expect guaranteed responses from Gluu staff;
+- Schedule meetings with Gluu as specified in your support contract;
+
+{% if not existing %}
+Please create an account on Gluu Support to proceed:({{invitation_link}})
+{% else %}
+Please sign in to your account to accept the invitation:({{invitation_link}})
+{% endif %}
+
+Thank you,
+Gluu Support
+
+If you have questions about the support portal, review the user guide (https://support.gluu.org/docs/user-guide/) or reply to this email.
+
+
+
+
+

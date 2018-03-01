@@ -1,0 +1,1 @@
+You are assigned Gluu support ticket #{{ticket_id}}

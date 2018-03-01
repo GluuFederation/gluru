@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load gluu_tags %}
+{% block main_id %}id="dashboard"{% endblock main_id %}
+{% block content %}
+    <div class="page-header">
+        <h3>{% trans "History" %}: {{ticket.title}}</h3>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <span style="font-size:medium">Created by <strong>{{ticket.created_by}}</strong> {% if ticket.created_for %} on behalf of <strong>{{ticket.owned_by}} {% endif %} </strong> on <strong>{{ticket.date_added}}</strong></span>
+            <a type="button" style="margin-bottom:5px;margin-left:5px" href="{% url 'edit_ticket' ticket.id %}" class="btn btn-xs btn-primary pull-right">{% trans 'Edit ticket' %}</a>
+            <a type="button" style="margin-bottom:5px;" href="{{ticket|linkify}}" class="btn btn-xs btn-primary pull-right">{% trans 'View ticket' %}</a>
+
+            <table class="table table-striped table-bordered">
+                <tr>
+                    <th style="width:20%">Changed by</th>
+                    <th style="width:10%">Field name</th>
+                    <th>Before value</th>
+                    <th>After value</th>
+                    <th style="width:17%">Date changed</th>
+                </tr>
+                {% if history %}
+                    {% for h in history %}
+                    <tr>
+                        <td>{{h.created_by}}</td>
+                        <td>{{h.field_name}}</td>
+                        <td>{{h.before_value|truncatechars:20}}</td>
+                        <td>{{h.after_value|truncatechars:20}}</td>
+                        <td>{{h.date_added}}</td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr><td colspan="5" >{% trans 'This ticket has not been changed.' %}</td></tr>
+                {% endif %}
+            </table>
+        </div>
+    </div>
+{% endblock content %}

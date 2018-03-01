@@ -1,0 +1,92 @@
+{% load i18n %}
+<script>
+    //Mobile sidebar JS animation
+    $('body').delegate('.side-show-btn','click',function(){
+        $(this).toggleClass('active-sideShow');
+        $('body').toggleClass('FixBody');
+        $('.sidebar_overlay').toggleClass('active-sidebarOverlay');
+        $('.toggleSideBar').toggleClass('active-toggleSideBar');
+        $('.glyphicon-indent-left').toggleClass('glyphicon-leftClose');
+    });
+</script>
+<a href="#" class="side-show-btn"><span class="glyphicon glyphicon-indent-left"></span> </a>
+<div class="side-bar-m">
+    <div class="sidebar_overlay"></div>
+<div class="col-md-3 toggleSideBar">
+    <div class="well well-sm well__33">
+        <form action="" method="post" role="form" id="ticket_info">{% csrf_token %}
+            <span class="pull-left lable__ticket"><strong>Ticket #{{ticket.id}}</strong></span>
+            {% if has_edit_rights %}
+                <a type="button" href="{% url 'edit_ticket' ticket.id %}" style="margin-left:5px;margin-right:9px;" class="icon__Set pull-right"><span class="pencil" data-toggle="tooltip" data-original-title="Edit Ticket"></span></a>
+                <a type="button" href="{% url 'history_ticket' ticket.title|slugify ticket.id %}" class="icon__Set pull-right"><span class="history" data-toggle="tooltip" data-original-title="Ticket History"></span></a>
+            {% endif %}
+            <div class="clearfix"></div>
+            <hr />
+            <div class="clearfix"></div>
+
+            <label class="info-left-result">Created by:</label>
+            <p class="info-right-result">{{ticket.created_by}}</p>
+            <div class="clearfix"></div>
+            {% if user_organization == organization %}
+                <label class="info-left-result">Organization:</label>
+                <p class="info-right-result"> <a href="/dashboard/all-tickets/?company={{organization}}">{{organization}}</a></p>
+                <div class="clearfix"></div>
+            {% endif %}
+
+            {% if ticket.created_for %}
+                <label class="info-left-result">On behalf of:</label>
+                <p class="info-right-result">{{ticket.created_for}}</p>
+                <div class="clearfix"></div>
+            {% endif %}
+
+            <label class="info-left-result">Status:</label>
+            <p class="info-right-result">{{ticket.get_status_display}}</p>
+            <div class="clearfix"></div>
+
+            {% if user_organization == organization %}
+                <label class="info-left-result">Assigned to:</label>
+                <p class="info-right-result">{{ticket.assigned_to}}</p>
+                <div class="clearfix"></div>
+            {% endif %}
+
+            {% if ticket.issue_type %}
+                <label class="info-left-result">Issue Type:</label>
+                <p class="info-right-result">{{ticket.get_issue_type_display}}</p>
+                <div class="clearfix"></div>
+            {% endif %}
+
+            <label class="info-left-result">Category:</label>
+            <p class="info-right-result">{{ticket.get_ticket_category_display}}</p>
+            <div class="clearfix"></div>
+
+            <label class="info-left-result">Added:</label>
+            <p class="info-right-result">{{ticket.date_added|date:"D d M Y"}}</p>
+            <div class="clearfix"></div>
+
+            <label class="info-left-result">Updated:</label>
+            <p class="info-right-result">{{ticket.date_modified|date:"D d M Y"}}</p>
+            <div class="clearfix"></div>
+            <br />
+            {% if has_delete_rights %}
+                <a type="button" onclick="if (confirm('Are you sure that you want to delete this ticket?') == true){return true;}else{return false}" href="{% url 'delete_ticket' ticket.id %}" class="gluu-remove-icon btn btn-danger pull-left gluu-remove-icon">
+                    </span> {% trans 'Delete' %}
+                </a>
+            {% endif %}
+            {% if has_edit_rights %}
+
+                {% if ticket.status != 'closed' %}
+                    <a type="button" onclick="if (confirm('Are you sure that you want to close this ticket?') == true){return true;}else{return false}" href="{% url 'close_ticket' ticket.id %}" class="gluu-remove-icon close_ticket btn btn-primary pull-left gluu-remove-icon">
+                        {% trans 'Close' %}
+                    </a>
+                {% else %}
+                    <a type="button" onclick="if (confirm('Are you sure that you want to reopen this ticket?') == true){return true;}else{return false}" href="{% url 'close_ticket' ticket.id %}" class="gluu-remove-icon btn btn-primary pull-left gluu-remove-icon">
+                        {% trans 'Reopen' %}
+                    </a>
+                {% endif %}
+            {% endif %}
+            <div class="clearfix"></div>
+        </form>
+    </div>
+</div>
+</div>
+

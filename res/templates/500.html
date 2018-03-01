@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block content %}
+<div class="row" style="text-align:center">
+        <img src="{{STATIC_URL}}img/404bg.png" />
+</div>
+<div class="row" style="text-align:center">
+    <p>{% trans "Looks like something went wrong!" %}<br /> {% trans "Please contact support@gluu.org." %}</p>
+    <a href="/" type="button" class="btn btn-primary" role="button">Home</a>
+</div>
+<br />
+{% endblock content %}

@@ -1,0 +1,55 @@
+Hello {{ user.first_name }},
+
+Thank you for activating your Gluu support account.
+
+{% if user.is_company_admin %}
+You have been assigned the role of admin user for {{company}}’s Gluu support account.
+
+As an account admin on Gluu support you can:
+
+- Open private tickets, interact with your colleagues private tickets, include attachments, and expect guaranteed responses from Gluu staff;
+- Schedule meetings with Gluu as specified in your support contract;
+- Manage your organization’s named contacts and admin contacts as specified in your support contract;
+- Authorize a certified Gluu partner organization to access and enlist Gluu support on your organization’s behalf.
+
+Thank you,
+Gluu Support
+
+If you have questions about the support portal, review the user guide ((https://support.gluu.org/docs/user-guide/)) or reply to this email.
+{% elif user.is_named %}
+You have been assigned the role of named for {{company}}’s Gluu support account.
+
+As a named contact on Gluu Support you can:
+
+- Open private tickets, interact with your colleagues private tickets, include attachments, and expect guaranteed responses from Gluu staff;
+- Schedule meetings with Gluu as specified in your support contract.
+
+
+Thank you,
+Gluu Support
+
+If you have questions about the support portal, review the user guide ((https://support.gluu.org/docs/user-guide/)) or reply to this email.
+
+{% elif user.is_admin%}
+You have been assigned the role of staff user.
+
+You can now see and help respond to customer and community issues on Gluu support.
+
+Thank you,
+Gluu Support
+
+If you have questions about the support portal, review the user guide ((https://support.gluu.org/docs/user-guide/)) or reach out to Will on skype: willow9886
+
+{% else %}
+You have been assigned the role of community user.
+
+You can now open and respond to public tickets on Gluu support (https://support.gluu.org/).
+
+If you need guaranteed responses, private support, and enhanced access to Gluu’s team, review our VIP support offerings (https://www.gluu.org/gluu-server/pricing/).
+
+Thank you,
+Gluu Support
+
+p.s. If your organization is already a Gluu customer, contact your Gluu admin contact to request that they elevate your privilege following these instructions (https://support.gluu.org/docs/user-guide/#managing-named-contacts).
+
+{% endif %}

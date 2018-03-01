@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block content %}
+
+<div class="page-header">
+    <h3>{% trans "View Users" %}</h3>
+</div>
+<div class="row">
+    {% include "profiles/dashboard_menu.html" %}
+    <div class="col-md-9">
+        <table id="dashboardtable" width="850" class="compact table table-hover table-dashboard table-striped">
+            <thead>
+            <tr>
+                <th>No</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Number</th>
+                <th>Type</th>
+                <th>Company</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for user in users %}
+            <tr>
+                <td class="user_id">{{user.id}}</td>
+                <td>{{user.first_name}} {{user.last_name}}</td>
+                <td>{{user.email}}</td>
+                {% if user.mobile_number != "" %}
+                    <td>{{user.mobile_number}}</td>
+                {% else %}
+                    <td>N/A</td>
+                {% endif %}
+                    <td>
+                        {% if user.crm_type == "user" %}
+                            <span class="label label-user">{{user.crm_type}}</span>
+                        {% elif user.crm_type == "admin"%}
+                            <span class="label label-admin">{{user.crm_type}}</span>
+                        {% elif user.crm_type == "staff"%}
+                            <span class="label label-staff">{{user.crm_type}}</span>
+                        {% elif user.crm_type == "named" and user.is_company_admin %}
+                            <span class="label label-named">Account Admin</span>
+                        {% elif user.crm_type == "named"%}
+                            <span class="label label-named">{{user.crm_type}}</span>
+                        {% endif %}
+                    </td>
+                {% if user.company != "" %}
+                    <td>{{user.company}}</td>
+                {% else %}
+                    <td>N/A</td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="modal fade" id="detail_modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">User Details</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6" style="margin-left:20px;"><h4>Name:</h4></div>
+                    <div class="col-md-5 name" style="margin-top:10px;">12334</div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-md-6" style="margin-left:20px;"><h4>Email:</h4></div>
+                    <div class="col-md-5 email" style="margin-top:10px;">12334</div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-md-6" style="margin-left:20px;"><h4>Number:</h4></div>
+                    <div class="col-md-5 number" style="margin-top:10px;">12334</div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-md-6" style="margin-left:20px;"><h4>Type:</h4></div>
+                    <div class="col-md-5 type" style="margin-top:10px;">12334</div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-md-6" style="margin-left:20px;"><h4>Company:</h4></div>
+                    <div class="col-md-5 company" style="margin-top:10px;">12334</div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-md-6" style="margin-left:20px;"><h4>Added At:</h4></div>
+                    <div class="col-md-5 added_at" style="margin-top:10px;">12334</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <!--<button type="button" class="btn btn-primary">Save changes</button>-->
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+{% endblock content %}
+{% block js %}
+<script>
+    $('#dashboardtable').DataTable({
+        "processing": true,
+        "paging":   true,
+        "autoWidth": true,
+        "responsive": true,
+        "ordering": true,
+        "info":     true,
+        "searching": true,
+        "scrollX": false,
+        "scrollY": false,
+        "aaSorting" : [[0, 'desc']],
+    });
+
+
+
+</script>
+{% endblock js %}

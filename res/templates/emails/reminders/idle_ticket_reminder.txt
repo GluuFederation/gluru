@@ -1,0 +1,15 @@
+Hello {{recipient}},
+
+Please provide a response to ticket #{{ticket.id}}, which was last updated by {{ticket.modified_by}} more than {{time_passed}} ago. {{ticket.owned_by.get_company}} is a Gluu {{support_plan}} support customer.
+
+You can visit the ticket here: {{ticket_link}}
+
+Please take necessary actions in order to stop receiving idle notifications. {% if ticket.status == 'inprogress' %}You can simply update the status to 'pending input' if further clarification is required.{% else %}Simply update the status to `in progress` if the discussion is in progress.{% endif %} If no action is taken another notification will be sent in approximately {{next_reminder_in}}.
+
+Thank you,
+
+Gluu Support
+
+----
+
+To stop receiving notifications about this ticket, unsubscribe here: {{unsubscribe_link}}

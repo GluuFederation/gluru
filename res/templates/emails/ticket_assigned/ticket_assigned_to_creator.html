@@ -1,0 +1,17 @@
+{% extends 'emails/base_template.html' %}
+{% block content %}
+<div class="message_container">
+	<p> Hi {{ticket_created_by.first_name}},</p>
+	<p> 
+		Ticket #{{ticket_id}}, &quot;<a href="{{ticket_link}}">{{ticket_title}}</a>&quot;, has been assigned to {{ticket_assigned_to}} from Gluu.
+	</p>
+	<p> 
+		We will evaluate your request and respond shortly.
+	</p>
+
+	<p>
+		Thank you!<br />
+		Gluu Support 
+	</p>
+</div>
+{% endblock %}

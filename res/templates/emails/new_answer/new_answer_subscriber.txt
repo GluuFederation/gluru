@@ -1,0 +1,21 @@
+{% autoescape off %}
+
+Hello,
+
+A new response has been added to Gluu Support ticket #{{ticket_id}}, {{ticket_title}}, by {{answer_created_by}} from {{answer_created_by_comp}}.
+
+"{{answer_body|safe}}"
+
+Reply to this email to add a comment. If you need to include an attachment, please update the ticket directly.
+
+Thank you,
+
+Gluu Support
+
+----
+
+Ticket Link: {{ticket_link}}
+
+You are receiving this email because you are subscribed to notifications for this ticket. To opt out of notifications, follow this link: {{subscription_link}}.
+
+{% endautoescape %}

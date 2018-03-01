@@ -1,0 +1,10 @@
+Hello Gluu Staff,
+
+Ticket #{{ticket.id}} has been added by {{ticket.owned_by}} from {{ticket.owned_by.get_company}}, a community user on Gluu support.
+
+You can visit it here: {{ticket_link}}
+
+{{ticket.description|safe}}
+
+Thank you,
+Gluu Support

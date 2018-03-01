@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block content %}>
+
+
+<div class="page-header">
+        <h3>{% trans "Details of the User" {{user.username}}  %}</h3>
+    </div>
+    <div class="row">
+        {% include "profiles/dashboard_menu.html" %}
+        <div class="col-md-9">
+            <table id="dashboardtable" width="850" class="compact table table-hover table-dashboard table-striped">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Number</th>
+                        <th>Type</th>
+                        <th>Added</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <!--{% for user in users %}-->
+                    <tr>
+                        <td>{{user.id}}</td>
+                        <td>{{user.username}}</td>
+                        <td>{{user.email}}</td>
+                        <td>{{user.mobile_number}}</td>
+                        <td>{{user.crm_type}}</td>
+                        <td>{{user.date_joined}}</td>
+                        <td></td>
+                    </tr>
+                <!--{% endfor %}-->
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock content %}
+{% block js %}
+<script>
+    $('#dashboardtable').DataTable({
+        "processing": true,
+        "paging":   true,
+        "autoWidth": true,
+        "responsive": true,
+        "ordering": true,
+        "info":     true,
+        "searching": true,
+        "scrollX": false,
+        "scrollY": false,
+        "aaSorting" : [[0, 'desc']],
+    });
+</script>
+{% endblock js %}

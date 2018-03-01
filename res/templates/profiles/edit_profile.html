@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+{% block content %}
+<div class="page-header">
+    <h3>{% trans "Profile edit" %}</h3>
+</div>
+<div class="row">
+    {% include "profiles/dashboard_menu.html" %}
+    <div class="col-md-9">
+        <div>
+           {% crispy profile_form %}
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="profileIncompleteModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+        <h4>Please update your profile before continuing on Gluu Support.</h4>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Ok</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock content %}
+
+{% block js %}
+  <script>
+    var show_modal = '{{user.profile_incomplete}}'
+  </script>
+	<script src="/static/js/edit_profile.js" language="javascript" type="text/javascript"></script>
+{% endblock js %}

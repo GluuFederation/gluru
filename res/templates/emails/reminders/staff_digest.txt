@@ -1,0 +1,36 @@
+{% load gluu_tags %}
+
+Hello {{user}},
+
+The following tickets on Gluu support are assigned to you. Highlighted tickets are either from enterprise support customers, or are idle tickets that have been inactive for more than 10 days.
+
+{% if named_tickets %}
+Customer Tickets:
+
+{% for ticket in named_tickets %}
+
+{{ticket.title | truncatechars:30 }} by {{ticket.owned_by}} ({{ticket.owned_by.get_company}})
+	- link: {{base_url}}{{ticket | linkify }}
+	- service level: {{ticket.support_plan.support_plan}}
+{% if ticket.issue_type %}
+	- priority: {{ticket.get_issue_type_display}}
+{% endif %}
+	- updated: {{ticket.date_modified | timesince}} ago
+{% endfor %}
+{% endif %}
+
+{% if community_tickets %}
+Community and Staff Tickets:
+
+{% for ticket in community_tickets %}
+{{ticket.title | truncatechars:30 }} by {{ticket.owned_by}} ({{ticket.owned_by.get_company}})
+	- link: {{base_url}}{{ticket | linkify }}
+	- updated: {{ticket.date_modified | timesince}} ago
+{% endfor %}
+{% endif %}
+
+Thank you for your attention to these support tickets.
+
+Gluu Support
+
+p.s. This is an automated email sent every 24 hours. If you notice issues, or have feedback, please send a note to will@gluu.org.

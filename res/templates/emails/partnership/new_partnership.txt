@@ -1,0 +1,8 @@
+Hello,
+
+Your organization has been listed as a partner of {{company}} by {{company_admin}} on Gluu support.
+
+You can now create tickets on behalf of {{company}} and view {{company}}'s private Gluu support tickets.
+
+Thank you,
+Gluu Support

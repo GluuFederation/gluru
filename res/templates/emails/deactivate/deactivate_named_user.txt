@@ -1,0 +1,10 @@
+Hello,
+
+The account associated with this email has been deactivated.
+
+If you need further support from Gluu, please register a new account with a new email on support.gluu.org.
+
+If you think this is an error, please contact your organization's Gluu Server admin.
+
+Thank you,
+Gluu Support

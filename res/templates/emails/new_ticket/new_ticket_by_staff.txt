@@ -1,0 +1,21 @@
+{% autoescape off %}
+
+Hello Support Team,
+
+Ticket #{{ticket_id}}, {{ticket_title}}, has been added by {{ticket_created_by}} a {{ticket_created_by_comp}} staff member.
+
+Issue Type: {{issue_type}}
+
+{{ticket_body_txt|safe}}
+
+Simply reply to this email to add a comment. Markdown and html formatting are supported. If you need to include attachments, please update the ticket directly.
+
+Thank you,
+Gluu Support
+
+----
+
+Ticket Link: {{ticket_link}}
+
+You are receiving this message because you are a staff member.
+{% endautoescape %}

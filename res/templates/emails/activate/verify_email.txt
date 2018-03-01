@@ -1,0 +1,13 @@
+Hello {{ name }},
+
+
+Click the link below to activate your Gluu support account:
+
+{{ activation_link }}
+
+After activating your account you can open and respond to tickets on Gluu support.
+
+Thank you,
+Gluu Support
+
+

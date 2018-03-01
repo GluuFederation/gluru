@@ -1,0 +1,15 @@
+Hello,
+
+You have been invited by {{invited_by}} to be an admin for {{company}}’s Gluu support account.
+
+As an account admin on Gluu support you can:
+
+- Open private tickets, interact with your colleagues private tickets, include attachments, and expect guaranteed responses from Gluu staff;
+- Schedule meetings with Gluu as specified in your support contract;
+- Manage your organization’s named contacts and admin contacts as specified in your support contract;
+- Authorize a certified Gluu partner organization to access and enlist Gluu support on your organization’s behalf.
+
+Thank you,
+Gluu Support
+
+If you have questions about the support portal, review the user guide ((https://support.gluu.org/docs/user-guide/)) or reply to this email.

@@ -1,0 +1,29 @@
+{% extends 'emails/base_template.html' %}
+{% block content %}
+
+<div class="message_container">
+
+    <p>Hello {{admin.first_name}} ,</p>
+
+    <p>
+        {{user.first_name}} {{user.last_name}} ({{user.email}}) has registered on Gluu Support as
+        a <strong>community user</strong>(not associated with your customer account).
+    </p>
+
+    <p>
+        If you want to add {{user.first_name}} {{user.last_name}} to your organization’s Gluu Support account,
+        simply add their email on <a href="https://support.gluu.org/company_users/">your company dashboard</a>.
+
+    </p>
+
+    <p>Thank you, <br/>
+        Gluu Support </p>
+
+    <p>
+        p.s. you are receiving this notification because you are an admin contact at {{admin.company}}, a Gluu
+        customer.
+    </p>
+
+</div>
+
+{% endblock %}
