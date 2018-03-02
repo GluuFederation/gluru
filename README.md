@@ -1,5 +1,7 @@
 # Gluru
-Gluru is a free open source helpdesk ticketing system and knowledge base that is forked from the [Gluu customer and community support portal](https://support.gluu.org).
+Gluru is a free open source helpdesk ticketing system and knowledge base that is forked from the [Gluu customer and community support portal](https://support.gluu.org). 
+
+Gluru is designed to leverage SuiteCRM for high level business logic, for instance, which users are associated with customer organizations, which "plan" or "product" is the user entitled to, etc. Gluru also uses [oxd](https://oxd.gluu.org) to support external authentication at any standard OpenID Provider, like the [Gluu Server](https://gluu.org) (our core free open source product!). 
 
 ### Setup development environment
 
