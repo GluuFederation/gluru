@@ -67,7 +67,7 @@ http://127.0.0.1:8000
    - tracking sent emails
 
 ### Connectors
-   - Connection between Gluu IDP and support portal for authentication 
+   - Gluru uses [oxd](https://oxd.gluu.org) to support user authentication at an externa OpenID Provider (OP), like the [Gluu Server](https://gluu.org/) or Google. 
    - Register New user in Gluu IDP
    - Update user in Gluu IDP
    - Connector file crm_interface.py needs to be updated to communicate with CRM.
