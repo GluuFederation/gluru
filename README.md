@@ -86,6 +86,6 @@ http://127.0.0.1:8000
    - tickets, answer CRUD
 
 ### Note
-   - **This portal is adjusted as per Gluu requirements so please adjust html and email templates accordingly.**
-   - **This support portal only works fine with Gluu IDP and Sugar CRM. If you want to try a different IDP and CRM then change the code accordingly.**
-
+   - This application is adjusted as per Gluu requirements so please adjust html and email templates accordingly.
+   - This application is confirmed to work the [Gluu IDP](https://gluu.org/) or Google for authentication.
+   - This application is designed to leverage SuiteCRM for business logic.
