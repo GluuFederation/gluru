@@ -26,9 +26,9 @@ pip install -r requirements.txt
 ### Other dependencies of gluru
 
 - Update .env file according to your credentials.
-- Integrate your CRM with gluru.
+- Integrate your SuiteCRM with gluru.
 - For more information review crm_interface.py in connectors app.
-- We have four roles of users "user, named, staff and partner".
+- We have four roles of users: user, named, staff and partner.
 - We have four support_plans "Basic, Standard, Premium and Enterprise" integrated with CRM, so you can setup CRM accordingly.
 
 ### Database migration
