@@ -89,5 +89,5 @@ http://127.0.0.1:8000
 
 ### Note
    - This application is adjusted as per Gluu requirements so please adjust html and email templates accordingly.
-   - This application is confirmed to work the [Gluu IDP](https://gluu.org/) or Google for authentication.
+   - This application is confirmed to work with the [Gluu IDP](https://gluu.org/) or Google for authentication.
    - This application is designed to leverage SuiteCRM for business logic.
