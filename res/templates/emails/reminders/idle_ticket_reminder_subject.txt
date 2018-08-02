@@ -1,5 +1,0 @@
-{% if ticket.issue_type == 'outage' %}
-	PRODUCTION OUTAGE at {{ticket.owned_by.get_company}}!
-{% else %}
-	{{ticket.get_issue_type_display}} at {{ticket.owned_by.get_company}} needs a response
-{% endif %}

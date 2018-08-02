@@ -1,1 +1,0 @@
-{{tickets_count}} Gluu support tickets are assigned to you.

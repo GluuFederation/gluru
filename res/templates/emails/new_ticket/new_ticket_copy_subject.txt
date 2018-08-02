@@ -1,1 +1,0 @@
-{{ticket_created_by}} cc’d you on Gluu support ticket #{{ticket_id}}

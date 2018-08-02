@@ -1,1 +1,0 @@
-New Gluu support user: {{user.email}}, {{user.company}}

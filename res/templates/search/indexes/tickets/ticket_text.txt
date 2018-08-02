@@ -1,5 +1,0 @@
-{{ object.title }}
-{{ object.description }}
-{% for answer in object.ticket_answers.all %}
-	{{ answer.answer }}
-{% endfor %}

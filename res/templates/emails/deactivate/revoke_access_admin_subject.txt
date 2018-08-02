@@ -1,1 +1,0 @@
-You have been removed as a company admin for {{company}} on Gluu Support

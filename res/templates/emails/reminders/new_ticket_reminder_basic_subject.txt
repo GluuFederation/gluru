@@ -1,1 +1,0 @@
-New Gluu support ticket: #{{ticket.id}} {{ticket_title}}
