@@ -1,0 +1,5 @@
+Django==2.1
+djangorestframework==3.8.2
+psycopg2==2.7.5
+python-dotenv==0.9.0
+pytz==2018.5
