@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from rest_framework import viewsets, generics, mixins, status
-
+from rest_framework.response import Response
 from rest_framework.permissions import (
     IsAuthenticatedOrReadOnly
 )
@@ -23,7 +23,7 @@ class TicketViewSet(mixins.CreateModelMixin,
 
         category = self.request.query_params.get('category', None)
         if category is not None:
-            queryset = queryset.filter(ticket_category=category)
+            queryset = queryset.filter(category=category)
 
         status = self.request.query_params.get('status', None)
         if status is not None:
@@ -41,8 +41,9 @@ class TicketViewSet(mixins.CreateModelMixin,
     # def create(self, request):
     #     pass
     
-    # def list(self, request):
-    #     pass
+    def list(self, request):
+        serializer = self.serializer_class(self.get_querset(), many=True)
+        return Response(serializer.data)
     
     # def retrieve(self, request):
     #     pass
