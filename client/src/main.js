@@ -11,10 +11,14 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 
 import Icon from 'vue-awesome/components/Icon'
 
+import ApiService from '@/services/common/api.services'
+
 Vue.config.productionTip = false
 
 Vue.use(BootstrapVue)
 Vue.component('icon', Icon)
+
+ApiService.init()
 
 /* eslint-disable no-new */
 new Vue({

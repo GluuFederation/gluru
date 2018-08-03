@@ -16,7 +16,7 @@ class TicketViewSet(mixins.CreateModelMixin,
                     mixins.RetrieveModelMixin,
                     viewsets.GenericViewSet):
 
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    # permission_classes = (IsAuthenticatedOrReadOnly,)
     serializer_class = TicketSerializer
     queryset = Ticket.objects.all()
 
@@ -49,12 +49,15 @@ class TicketViewSet(mixins.CreateModelMixin,
 
     def create(self, request):
         serializer_data = request.data.get('ticket', {})
-
+        print(serializer_data)
         serializer = self.serializer_class(
             data=serializer_data
         )
+        
         serializer.is_valid(raise_exception=True)
         serializer.save()
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def list(self, request):
         serializer = self.serializer_class(
@@ -64,8 +67,8 @@ class TicketViewSet(mixins.CreateModelMixin,
 
         return Response(serializer.data)
 
-    # def retrieve(self, request):
-    #     pass
+    def retrieve(self, request):
+        pass
 
-    # def update(self, request):
-    #     pass
+    def update(self, request):
+        pass

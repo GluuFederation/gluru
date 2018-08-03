@@ -2,8 +2,8 @@ import Vue from 'vue'
 import axios from 'axios'
 import VueAxios from 'vue-axios'
 
-import JwtService from '@/common/jwt.service'
-import { API_URL } from '@/common/config'
+import JwtService from '@/services/common/jwt.service'
+import { API_URL } from '@/services/common/config'
 
 const ApiService = {
   init () {
@@ -48,4 +48,3 @@ const ApiService = {
 }
 
 export default ApiService
-

@@ -182,6 +182,6 @@ class Ticket(models.Model):
         return self.title
 
     class Meta:
-        ordering = ['-date_added']
+        # ordering = ['-date_added']
         verbose_name = 'Ticket'
         verbose_name_plural = 'Tickets'
