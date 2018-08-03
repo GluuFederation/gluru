@@ -8,6 +8,8 @@ from rest_framework.permissions import (
 from tickets.models import Ticket
 from tickets.serializers import TicketSerializer
 
+from django.db.models import Q
+
 
 class TicketViewSet(mixins.CreateModelMixin,
                     mixins.ListModelMixin,
@@ -36,6 +38,10 @@ class TicketViewSet(mixins.CreateModelMixin,
         os_version = self.request.query_params.get('os_version', None)
         if os_version is not None:
             queryset = queryset.filter(os_version=os_version)
+
+        search_string = self.request.query_params.get('q', None)
+        if search_string is not None:
+            queryset = queryset.filter(Q(title__icontains=search_string) | Q(description__icontains=search_string))
         return queryset
 
     # def create(self, request):
