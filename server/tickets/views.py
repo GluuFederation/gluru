@@ -27,10 +27,10 @@ class TicketViewSet(mixins.CreateModelMixin,
         if category is not None:
             queryset = queryset.filter(category=category)
 
-        status = self.request.query_params.get('status', None)
+        ticket_status = self.request.query_params.get('status', None)
         if status is not None:
-            queryset = queryset.filter(status=status)
-        
+            queryset = queryset.filter(status=ticket_status)
+
         server_version = self.request.query_params.get('server_version', None)
         if server_version is not None:
             queryset = queryset.filter(server_version=server_version)
@@ -41,7 +41,10 @@ class TicketViewSet(mixins.CreateModelMixin,
 
         search_string = self.request.query_params.get('q', None)
         if search_string is not None:
-            queryset = queryset.filter(Q(title__icontains=search_string) | Q(description__icontains=search_string))
+            queryset = queryset.filter(
+                Q(title__icontains=search_string) |
+                Q(description__icontains=search_string)
+            )
         return queryset
 
     def create(self, request):
@@ -52,11 +55,15 @@ class TicketViewSet(mixins.CreateModelMixin,
         )
         serializer.is_valid(raise_exception=True)
         serializer.save()
-    
+
     def list(self, request):
-        serializer = self.serializer_class(self.get_querset(), many=True)
+        serializer = self.serializer_class(
+            self.get_querset(),
+            many=True
+        )
+
         return Response(serializer.data)
-    
+
     # def retrieve(self, request):
     #     pass
 
