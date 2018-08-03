@@ -1,0 +1,177 @@
+@import 'mixin';
+@import 'color';
+
+$font-stack:   'Open Sans',sans-serif;
+
+body {
+  background: $body-bg;
+  font: normal 0.875rem calibri,arial,tahoma;
+  color: $body-color;
+
+  a {
+    text-decoration: none;
+    color: inherit;
+    &:hover {
+      color: inherit;
+    }
+  }
+}
+
+nav {
+  background: $nav-bg;
+  
+  img {
+    width: 90px;
+  }
+
+  li, a {
+    &:hover, &:active, &:focus {
+      outline: none;
+    }
+  }
+
+  .nav-ticket-btn {
+    @include border-radius(5px);
+    background-color: $bootstrap3-pm-bg;
+    border-color: $bootstrap3-pm-border;
+    margin-right: 5px;
+    a {
+      color: white !important;
+    }
+  }
+
+  .nav-home-btn {
+    @include border-radius(5px);
+    background-color: white;
+    padding: 0 3px;
+  }
+}
+
+.main-container {
+  background: $main-container-bg;
+  padding-bottom: 3.125rem;
+}
+
+.search {
+  @include border-radius(5px);
+  background: $body-bg;
+  padding: 2rem 1rem 1rem 1rem;
+  margin-bottom: 1.25rem;
+  button {
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+  input {
+    margin-bottom: 1rem;
+  }
+
+  select {
+    margin-bottom: 1rem;
+  }
+}
+
+.list-ticket-item {
+  margin-top: 7px;
+  padding-top: 3px;
+  padding-bottom: 7px;
+}
+.community {
+  border-left: 5px solid $ticket-community-border;
+}
+.new_development {
+  border-left: 5px solid $ticket-new-dev-border;
+}
+.pre_production {
+  border-left: 5px solid $ticket-pre-prod-border;
+}
+.minor {
+  border-left: 5px solid $ticket-minor-border;
+}
+
+.badge-new {
+  color: white;
+  background-color: $ticket-badge-new-bg;
+}
+.badge-inprogress {
+  color: white;
+  background-color: $ticket-badge-inprogress-bg;
+}
+.badge-pending {
+  color: white;
+  background-color: $ticket-badge-pending-bg;
+}
+.badge-closed {
+  color: white;
+  background-color: $ticket-badge-closed-bg;
+}
+.badge-user {
+  color: white;
+  background-color: $ticket-badge-user-bg;
+}
+.badge-named {
+  color: white;
+  background-color: $ticket-badge-named-bg;
+}
+
+footer {
+  .container {
+    background: $footer-bg;
+  }
+
+  .top-footer-line {
+    margin: 0 0 25px;
+  }
+
+  .bottom-footer-line {
+    margin: 25px 0 20px;
+  }
+  
+  .list-group-item {
+    background: $footer-bg;
+    border: none;
+  }
+
+  li {
+    list-style-type: none;
+  }
+
+  .social-links {
+    padding-top: 13px;
+
+    li {
+      float: left;
+      padding-right: 10px;
+      
+      a {
+        background: url("assets/img/general-scf4b61754f.png") scroll 0 0 rgba(0, 0, 0, 0);
+        display: block;
+        height: 24px;
+        width: 20px;
+      
+        &.twitter_ic {
+          background-position: -251px -41px;
+        }
+        
+        &.utube_ic {
+          background-position: -271px -17px;
+        }
+        
+        &.in_ic {
+          background-position: -211px -89px;
+        }
+
+        &.slideshare_ic {
+          background-position: -231px -65px;
+        }
+
+        &:hover {
+          text-decoration: none;
+        }
+      }
+    }
+  }
+  
+  .copyright-list {
+    padding-left: 40px;
+  }
+}
