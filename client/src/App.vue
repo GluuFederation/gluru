@@ -1,13 +1,23 @@
 <template>
   <div id="app">
-    <img src="./assets/logo.png">
-    <router-view/>
+    <supp-header></supp-header>
+    <b-container class="main-container">
+      <router-view/>
+    </b-container>
+    <supp-footer></supp-footer>
   </div>
 </template>
 
 <script>
+import SuppHeader from '@/components/SuppHeader'
+import SuppFooter from '@/components/SuppFooter'
+
 export default {
-  name: 'App'
+  name: 'App',
+  components: {
+    SuppHeader,
+    SuppFooter
+  }
 }
 </script>
 
