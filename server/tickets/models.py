@@ -17,7 +17,7 @@ class Ticket(models.Model):
         verbose_name=_('Description')
     )
 
-    ticket_category = models.CharField(
+    category = models.CharField(
         max_length=20,
         blank=False,
         null=False,
@@ -39,7 +39,7 @@ class Ticket(models.Model):
         verbose_name=_('Created for')
     )
 
-    company_association = models.CharField(
+    company = models.CharField(
         max_length=20,
         blank=True,
         null=True,
@@ -107,13 +107,14 @@ class Ticket(models.Model):
         default=False,
         verbose_name=_('Deleted')
     )
-    gluu_server_version = models.CharField(
+
+    server_version = models.CharField(
         max_length=10,
         default='N/A',
         verbose_name=_('Gluu Server Version')
     )
 
-    gluu_server_version_comments = models.CharField(
+    server_version_comments = models.CharField(
         max_length=30,
         blank=True,
         null=True,
