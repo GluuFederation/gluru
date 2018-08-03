@@ -44,8 +44,14 @@ class TicketViewSet(mixins.CreateModelMixin,
             queryset = queryset.filter(Q(title__icontains=search_string) | Q(description__icontains=search_string))
         return queryset
 
-    # def create(self, request):
-    #     pass
+    def create(self, request):
+        serializer_data = request.data.get('ticket', {})
+
+        serializer = self.serializer_class(
+            data=serializer_data
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
     
     def list(self, request):
         serializer = self.serializer_class(self.get_querset(), many=True)
