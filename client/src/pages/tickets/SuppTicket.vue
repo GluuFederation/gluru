@@ -11,11 +11,11 @@
       </div>
       <div class="form-group">
         <label>serverVersion</label>
-        <Select2 v-model="ticket.serverVersion" :options="serverOptions" />
+        <Select2 v-model="ticket.serverVersion" :options="serverOptions" :settings="{ theme: 'bootstrap4' }"/>
       </div>
       <div class="form-group">
         <label>os</label>
-        <Select2 v-model="ticket.osVersion" :options="osOptions"/>
+        <Select2 v-model="ticket.osVersion" :options="osOptions" :settings="{ theme: 'bootstrap4' }"/>
       </div>
       <div class="form-group">
         <label>osVersion</label>
@@ -23,11 +23,11 @@
       </div>
       <div class="form-group">
         <label>issueType</label>
-        <Select2 v-model="ticket.issueType" :options="issueOptions"/>
+        <Select2 v-model="ticket.issueType" :options="issueOptions" :settings="{ theme: 'bootstrap4' }"/>
       </div>
       <div class="form-group">
         <label>category</label>
-        <Select2 v-model="ticket.category" :options="categoryOptions"/>
+        <Select2 v-model="ticket.category" :options="categoryOptions" :settings="{ theme: 'bootstrap4' }"/>
       </div>
       <div class="form-group">
         <label>Title</label>
@@ -43,7 +43,7 @@
       </div>
       <div class="form-group">
         <label>status</label>
-        <Select2 v-model="ticket.status" :options="statusOptions"/>
+        <Select2 v-model="ticket.status" :options="statusOptions" :settings="{ theme: 'bootstrap4' }"/>
       </div>
       <div class="form-group">
         <label>colleagues</label>
@@ -51,7 +51,7 @@
       </div>
       <div class="form-group">
         <label>Privacy</label>
-        <Select2 v-model="ticket.isPrivate" :options="privacyOptions"/>
+        <Select2 v-model="ticket.isPrivate" :options="privacyOptions" :settings="{ theme: 'bootstrap4' }"/>
       </div>
       <div class="form-group">
         <b-button type="submit" variant="info">Submit</b-button>
@@ -64,7 +64,8 @@
 import { mapGetters } from 'vuex'
 import { TICKET_CREATE } from '@/store/actions.type'
 import Select2 from 'v-select2-component'
-
+import 'select2/dist/css/select2.css'
+import 'select2-bootstrap4-theme/dist/select2-bootstrap4.css'
 // import SuppTicketAnswer from '@/components/SuppTicketAnswer'
 // import SuppTicketAnswerEdit from '@/components/SuppTicketAnswerEdit'
 
