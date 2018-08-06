@@ -11,11 +11,11 @@
       </div>
       <div class="form-group">
         <label>serverVersion</label>
-        <b-form-select v-model="ticket.serverVersion" :options="serverOptions"/>
+        <Select2 v-model="ticket.serverVersion" :options="serverOptions" />
       </div>
       <div class="form-group">
         <label>os</label>
-        <b-form-select v-model="ticket.osVersion" :options="osOptions"/>
+        <Select2 v-model="ticket.osVersion" :options="osOptions"/>
       </div>
       <div class="form-group">
         <label>osVersion</label>
@@ -23,11 +23,11 @@
       </div>
       <div class="form-group">
         <label>issueType</label>
-        <b-form-select v-model="ticket.issueType" :options="issueOptions"/>
+        <Select2 v-model="ticket.issueType" :options="issueOptions"/>
       </div>
       <div class="form-group">
         <label>category</label>
-        <b-form-select v-model="ticket.category" :options="categoryOptions"/>
+        <Select2 v-model="ticket.category" :options="categoryOptions"/>
       </div>
       <div class="form-group">
         <label>Title</label>
@@ -43,7 +43,7 @@
       </div>
       <div class="form-group">
         <label>status</label>
-        <b-form-select v-model="ticket.status" :options="statusOptions"/>
+        <Select2 v-model="ticket.status" :options="statusOptions"/>
       </div>
       <div class="form-group">
         <label>colleagues</label>
@@ -51,7 +51,7 @@
       </div>
       <div class="form-group">
         <label>Privacy</label>
-        <b-form-select v-model="ticket.isPrivate" :options="privacyOptions"/>
+        <Select2 v-model="ticket.isPrivate" :options="privacyOptions"/>
       </div>
       <div class="form-group">
         <b-button type="submit" variant="info">Submit</b-button>
@@ -63,6 +63,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import { TICKET_CREATE } from '@/store/actions.type'
+import Select2 from 'v-select2-component'
 
 // import SuppTicketAnswer from '@/components/SuppTicketAnswer'
 // import SuppTicketAnswerEdit from '@/components/SuppTicketAnswerEdit'
@@ -70,66 +71,66 @@ import { TICKET_CREATE } from '@/store/actions.type'
 export default {
   name: 'SuppTicket',
   components: {
-
+    Select2
   },
   data () {
     return {
       serverOptions: [
-        { value: null, text: 'Select Gluu Server Version' },
-        { value: '3.1.2', text: 'Gluu Server 3.1.2' },
-        { value: '3.1.1', text: 'Gluu Server 3.1.1' },
-        { value: '3.1.0', text: 'Gluu Server 3.1.0' },
-        { value: '3.0.2', text: 'Gluu Server 3.0.2' },
-        { value: '3.0.1', text: 'Gluu Server 3.0.1' },
-        { value: '2.4.4.3', text: 'Gluu Server 2.4.4.3' },
-        { value: '2.4.4.2', text: 'Gluu Server 2.4.4.2' },
-        { value: '2.4.4', text: 'Gluu Server 2.4.4' },
-        { value: '2.4.3', text: 'Gluu Server 2.4.3' },
-        { value: '2.4.2', text: 'Gluu Server 2.4.2' },
-        { value: 'Other', text: 'Other' }
+        { id: '', text: 'Select Gluu Server Version' },
+        { id: '3.1.2', text: 'Gluu Server 3.1.2' },
+        { id: '3.1.1', text: 'Gluu Server 3.1.1' },
+        { id: '3.1.0', text: 'Gluu Server 3.1.0' },
+        { id: '3.0.2', text: 'Gluu Server 3.0.2' },
+        { id: '3.0.1', text: 'Gluu Server 3.0.1' },
+        { id: '2.4.4.3', text: 'Gluu Server 2.4.4.3' },
+        { id: '2.4.4.2', text: 'Gluu Server 2.4.4.2' },
+        { id: '2.4.4', text: 'Gluu Server 2.4.4' },
+        { id: '2.4.3', text: 'Gluu Server 2.4.3' },
+        { id: '2.4.2', text: 'Gluu Server 2.4.2' },
+        { id: 'Other', text: 'Other' }
       ],
       categoryOptions: [
-        { value: null, text: 'Select an issue category' },
-        { value: 'installation', text: 'Installation' },
-        { value: 'outages', text: 'Outages' },
-        { value: 'single_sign_on', text: 'Single Sign-On' },
-        { value: 'authentication', text: 'Authentication' },
-        { value: 'authorization', text: 'Authorization' },
-        { value: 'access_management', text: 'Access Management' },
-        { value: 'upgrade', text: 'Upgrade' },
-        { value: 'maintenance', text: 'Maintenance' },
-        { value: 'identity_management', text: 'Identity Management' },
-        { value: 'customization', text: 'Customization' },
-        { value: 'feature_request', text: 'Feature Request' },
-        { value: 'log_out', text: 'Logout' },
-        { value: 'other', text: 'Other' }
+        { id: '', text: 'Select an issue category' },
+        { id: 'installation', text: 'Installation' },
+        { id: 'outages', text: 'Outages' },
+        { id: 'single_sign_on', text: 'Single Sign-On' },
+        { id: 'authentication', text: 'Authentication' },
+        { id: 'authorization', text: 'Authorization' },
+        { id: 'access_management', text: 'Access Management' },
+        { id: 'upgrade', text: 'Upgrade' },
+        { id: 'maintenance', text: 'Maintenance' },
+        { id: 'identity_management', text: 'Identity Management' },
+        { id: 'customization', text: 'Customization' },
+        { id: 'feature_request', text: 'Feature Request' },
+        { id: 'log_out', text: 'Logout' },
+        { id: 'other', text: 'Other' }
       ],
       osOptions: [
-        { value: null, text: 'Select Operating System' },
-        { value: 'Ubuntu', text: 'Ubuntu' },
-        { value: 'CentOS', text: 'CentOS' },
-        { value: 'Rhel', text: 'RHEL' },
-        { value: 'Debian', text: 'Debian' }
+        { id: '', text: 'Select Operating System' },
+        { id: 'Ubuntu', text: 'Ubuntu' },
+        { id: 'CentOS', text: 'CentOS' },
+        { id: 'Rhel', text: 'RHEL' },
+        { id: 'Debian', text: 'Debian' }
       ],
       issueOptions: [
-        { value: null, text: 'Please specify the kind of issue you have encountered' },
-        { value: 'outage', text: 'Production Outage' },
-        { value: 'impaired', text: 'Production Impaired' },
-        { value: 'pre_production', text: 'Pre-Production Issue' },
-        { value: 'minor', text: 'Minor Issue' },
-        { value: 'new_development', text: 'New Development Issue' }
+        { id: '', text: 'Please specify the kind of issue you have encountered' },
+        { id: 'outage', text: 'Production Outage' },
+        { id: 'impaired', text: 'Production Impaired' },
+        { id: 'pre_production', text: 'Pre-Production Issue' },
+        { id: 'minor', text: 'Minor Issue' },
+        { id: 'new_development', text: 'New Development Issue' }
       ],
       statusOptions: [
-        { value: null, text: 'Select a Status' },
-        { value: 'new', text: 'New' },
-        { value: 'assigned', text: 'Assigned' },
-        { value: 'inprogress', text: 'In Progress' },
-        { value: 'pending', text: 'Pending Input' },
-        { value: 'closed', text: 'Closed' }
+        { id: '', text: 'Select a Status' },
+        { id: 'new', text: 'New' },
+        { id: 'assigned', text: 'Assigned' },
+        { id: 'inprogress', text: 'In Progress' },
+        { id: 'pending', text: 'Pending Input' },
+        { id: 'closed', text: 'Closed' }
       ],
       privacyOptions: [
-        { value: false, text: 'Public' },
-        { value: true, text: 'Private' }
+        { id: false, text: 'Public' },
+        { id: true, text: 'Private' }
       ]
     }
   },
