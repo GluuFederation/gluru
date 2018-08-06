@@ -15,11 +15,11 @@
       </div>
       <div class="form-group">
         <label>os</label>
-        <b-form-select v-model="ticket.os" :options="osOptions"/>
+        <b-form-select v-model="ticket.osVersion" :options="osOptions"/>
       </div>
       <div class="form-group">
         <label>osVersion</label>
-        <input type="text" class="form-control" placeholder="Title" v-model="ticket.osVersion">
+        <input type="text" class="form-control" placeholder="Title" v-model="ticket.osVersionName">
       </div>
       <div class="form-group">
         <label>issueType</label>
@@ -39,7 +39,7 @@
       </div>
       <div class="form-group">
         <label>asignee</label>
-        <input type="text" class="form-control" placeholder="Title" v-model="ticket.asignee">
+        <input type="text" class="form-control" placeholder="Title" v-model="ticket.assignee">
       </div>
       <div class="form-group">
         <label>status</label>
@@ -47,11 +47,11 @@
       </div>
       <div class="form-group">
         <label>colleagues</label>
-        <input type="text" class="form-control" placeholder="Title" v-model="ticket.colleagues">
+        <input type="text" class="form-control" placeholder="Title" v-model="ticket.sendCopy">
       </div>
       <div class="form-group">
         <label>Privacy</label>
-        <b-form-select v-model="ticket.privacy" :options="privacyOptions"/>
+        <b-form-select v-model="ticket.isPrivate" :options="privacyOptions"/>
       </div>
       <div class="form-group">
         <b-button type="submit" variant="info">Submit</b-button>
@@ -128,10 +128,8 @@ export default {
         { value: 'closed', text: 'Closed' }
       ],
       privacyOptions: [
-        { value: null, text: '---------' },
-        { value: 'inherit', text: 'Inherit' },
-        { value: 'public', text: 'Public' },
-        { value: 'private', text: 'Private' }
+        { value: false, text: 'Public' },
+        { value: true, text: 'Private' }
       ]
     }
   },

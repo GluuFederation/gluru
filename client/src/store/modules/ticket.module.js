@@ -22,17 +22,19 @@ const initialState = {
     title: '',
     description: '',
     category: null,
-    company: '',
+    createdBy: 'aaa',
     createdFor: '',
-    serverVersion: null,
-    os: null,
-    osVersion: '',
-    issueType: null,
-    asignee: '',
+    company: '',
+    updatedBy: '',
+    assignee: '',
     status: null,
-    colleagues: '',
-    privacy: null,
-    link: ''
+    issueType: null,
+    serverVersion: null,
+    osVersion: null,
+    osVersionName: '',
+    link: '',
+    sendCopy: '',
+    isPrivate: null
   },
   answers: []
 }

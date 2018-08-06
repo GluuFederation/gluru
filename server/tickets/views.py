@@ -69,8 +69,8 @@ class TicketViewSet(mixins.CreateModelMixin,
 
         return Response(serializer.data)
 
-    def retrieve(self, request):
-        pass
+    # def retrieve(self, request):
+    #     pass
 
     def update(self, request):
         pass

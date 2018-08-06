@@ -46,14 +46,14 @@ class Ticket(models.Model):
         verbose_name=_('Company Association')
     )
 
-    modified_by = models.CharField(
+    updated_by = models.CharField(
         max_length=20,
         blank=True,
         null=True,
-        verbose_name=_('Last modified by')
+        verbose_name=_('Last Updated by')
     )
 
-    assigned_to = models.CharField(
+    assignee = models.CharField(
         max_length=20,
         blank=True,
         null=True,
@@ -76,41 +76,11 @@ class Ticket(models.Model):
         verbose_name=_('Issue type')
     )
 
-    answers_no = models.IntegerField(
-        blank=True,
-        default=0,
-        verbose_name=_('Answers number')
-    )
-
-    link_url = models.URLField(
-        max_length=255,
-        blank=True,
-        default='',
-        verbose_name=_('Link URL')
-    )
-
-    send_copy = models.CharField(
-        max_length=255,
-        blank=True,
-        default='',
-        verbose_name=_('Send copy to')
-    )
-
-    is_private = models.BooleanField(
-        blank=True,
-        default=False,
-        verbose_name=_('Private')
-    )
-
-    is_deleted = models.BooleanField(
-        blank=True,
-        default=False,
-        verbose_name=_('Deleted')
-    )
-
     server_version = models.CharField(
         max_length=10,
-        default='N/A',
+        choices=constants.GLUU_SERVER_VERSION,
+        blank=False,
+        default='',
         verbose_name=_('Gluu Server Version')
     )
 
@@ -136,15 +106,36 @@ class Ticket(models.Model):
         verbose_name=_('OS Version')
     )
 
-    date_added = models.DateTimeField(
-        auto_now_add=True,
-        editable=False,
-        verbose_name=_('Added')
+    answers_no = models.IntegerField(
+        blank=True,
+        default=0,
+        verbose_name=_('Answers number')
     )
 
-    date_modified = models.DateTimeField(
-        auto_now=True,
-        verbose_name=_('Modified')
+    link = models.URLField(
+        max_length=255,
+        blank=True,
+        default='',
+        verbose_name=_('Link URL')
+    )
+
+    send_copy = models.CharField(
+        max_length=255,
+        blank=True,
+        default='',
+        verbose_name=_('Send copy to')
+    )
+
+    is_private = models.BooleanField(
+        blank=True,
+        default=False,
+        verbose_name=_('Private')
+    )
+
+    is_deleted = models.BooleanField(
+        blank=True,
+        default=False,
+        verbose_name=_('Deleted')
     )
 
     os_type = models.BooleanField(
@@ -181,21 +172,19 @@ class Ticket(models.Model):
     created_at = models.DateTimeField(
         auto_now_add=True,
         editable=False,
-        verbose_name=_('Added'),
-        help_text=_('Added date')
+        verbose_name=_('Created At')
     )
 
     updated_at = models.DateTimeField(
         auto_now=True,
-        verbose_name=_('Modified'),
-        help_text=_('Modified date')
+        verbose_name=_('Updated At')
     )
 
     def __str__(self):
         return self.title
 
     class Meta:
-        # ordering = ['-date_added']
+        ordering = ['-created_at']
         verbose_name = 'Ticket'
         verbose_name_plural = 'Tickets'
 
