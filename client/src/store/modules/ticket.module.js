@@ -21,20 +21,20 @@ const initialState = {
   ticket: {
     title: '',
     description: '',
-    category: null,
+    category: '',
     createdBy: 'aaa',
     createdFor: '',
     company: '',
     updatedBy: '',
     assignee: '',
-    status: null,
-    issueType: null,
-    serverVersion: null,
-    osVersion: null,
+    status: '',
+    issueType: '',
+    serverVersion: '',
+    osVersion: '',
     osVersionName: '',
     link: '',
     sendCopy: '',
-    isPrivate: null
+    isPrivate: ''
   },
   answers: []
 }

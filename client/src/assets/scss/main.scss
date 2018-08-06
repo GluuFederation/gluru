@@ -50,6 +50,25 @@ nav {
 .main-container {
   background: $main-container-bg;
   padding-bottom: 3.125rem;
+
+  select {
+    &.errors {
+      border: 1px solid red;
+    }
+  }
+
+  input {
+    &.errors {
+      border: 1px solid red;
+    }    
+  }
+
+  span {
+    &.errors {
+      color: red;
+      font-size: small;
+    }
+  }
 }
 
 .search {
