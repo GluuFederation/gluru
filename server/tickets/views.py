@@ -1,12 +1,14 @@
 from django.shortcuts import render
 from rest_framework import viewsets, generics, mixins, status
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework.permissions import (
     IsAuthenticatedOrReadOnly
 )
 
 from tickets.models import Ticket
 from tickets.serializers import TicketSerializer
+from tickets import constants
 
 from django.db.models import Q
 
@@ -53,7 +55,7 @@ class TicketViewSet(mixins.CreateModelMixin,
         serializer = self.serializer_class(
             data=serializer_data
         )
-        
+
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
@@ -72,3 +74,19 @@ class TicketViewSet(mixins.CreateModelMixin,
 
     def update(self, request):
         pass
+
+
+# This constants data is over 1Kbytes.
+# I think we can create another constant variable on frontend side for better performance.
+# Yes, of course, it is a little hard to maintain for duplicate the contant variable.
+# But if the constant don't change frequently, it is okay.
+# class ConstantsView(APIView):
+#     def get(self, request):
+#         content = {
+#             'serverVersions': constants.GLUU_SERVER_VERSION,
+#             'os': constants.OS_VERSION,
+#             'issueTypes': constants.ISSUE_TYPE,
+#             'categories': constants.ISSUE_CATEGORY,
+#             'status': constants.TICKET_STATUS
+#         }
+#         return Response(content)

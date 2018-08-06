@@ -1,2 +1,5 @@
 export const SET_TICKET = 'setTicket'
 export const SET_ANSWERS = 'setAnswers'
+export const SET_COMPANIES = 'setCompanies'
+export const SET_USERS = 'setUsers'
+export const SET_CONSTANT = 'setConstant'

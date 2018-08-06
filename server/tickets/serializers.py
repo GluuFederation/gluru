@@ -8,11 +8,12 @@ class TicketSerializer(serializers.ModelSerializer):
         model = Ticket
         fields = ('title', 'description', 'category')
 
+
 class AnswerSerializer(serializers.ModelSerializer):
-    
+
     class Meta:
-        model = AnswerSerializer
-        
+        model = Answer
+
     def create(self, valdiated_data):
         ticket = self.context['ticket']
 

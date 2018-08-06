@@ -217,7 +217,7 @@ class Answer(models.Model):
         default='',
         verbose_name=_('Link URL')
     )
-    
+
     privacy = models.CharField(
         max_length=255,
         choices=constants.ANSWER_PRIVACY,
@@ -254,11 +254,7 @@ class Answer(models.Model):
     )
 
     def __str__(self):
-        try:
-            return self.ticket.title
-        except ObjectDoesNotExist:
-            log_error('Answer without a ticket: {}'.format(self.id))
-            return '{}'.format(self.id)
+        return self.ticket.title
 
     class Meta:
         ordering = ['created_at']

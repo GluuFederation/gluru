@@ -66,7 +66,6 @@ export const actions = {
   },
 
   [TICKET_CREATE] ({ state }) {
-    console.log('create')
     return TicketService.create(state.ticket)
   },
 
