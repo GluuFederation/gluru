@@ -185,3 +185,82 @@ class Ticket(models.Model):
         # ordering = ['-date_added']
         verbose_name = 'Ticket'
         verbose_name_plural = 'Tickets'
+
+
+class Answer(models.Model):
+
+    answer = models.TextField(
+        blank=False,
+        null=False,
+        verbose_name=_('Answer')
+    )
+
+    ticket = models.ForeignKey(
+        Ticket,
+        on_delete=models.CASCADE,
+        related_name='ticket_answers',
+        verbose_name=_('Ticket'),
+        help_text=_('Ticket')
+    )
+
+    created_by = models.CharField(
+        max_length=20,
+        blank=False,
+        null=False,
+        verbose_name=_('Created by'),
+        help_text=_('Answer added by user')
+    )
+
+    link_url = models.URLField(
+        max_length=255,
+        blank=True,
+        default='',
+        verbose_name=_('Link URL')
+    )
+    
+    privacy = models.CharField(
+        max_length=255,
+        choices=constants.ANSWER_PRIVACY,
+        default='inherit',
+        blank=True,
+        verbose_name=_('Privacy')
+    )
+
+    send_copy = models.CharField(
+        max_length=255,
+        blank=True,
+        default='',
+        verbose_name=_('Send copy to')
+    )
+
+    is_deleted = models.BooleanField(
+        blank=True,
+        default=False,
+        verbose_name=_('Deleted'),
+        help_text=_('The answer is deleted?')
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        editable=False,
+        verbose_name=_('Added'),
+        help_text=_('Added date')
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name=_('Modified'),
+        help_text=_('Modified date')
+    )
+
+    def __str__(self):
+        try:
+            return self.ticket.title
+        except ObjectDoesNotExist:
+            log_error('Answer without a ticket: {}'.format(self.id))
+            return '{}'.format(self.id)
+
+    class Meta:
+        ordering = ['created_at']
+        verbose_name = 'answer'
+        verbose_name_plural = 'answers'
