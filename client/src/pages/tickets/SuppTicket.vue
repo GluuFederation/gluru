@@ -1,6 +1,6 @@
 <template>
   <div>
-    <form>
+    <form v-on:submit.prevent="onSubmit">
       <div class="form-group">
         <label>Title</label>
         <input type="text" class="form-control" placeholder="Title" v-model="ticket.title">
@@ -11,7 +11,7 @@
       </div>
       <div class="form-group">
         <label>category</label>
-        <input type="text" class="form-control" placeholder="Title" v-model="ticket.category">
+        <b-form-select v-model="serverSelected" :options="categoryOptions"/>
       </div>
       <div class="form-group">
         <label>company</label>
@@ -23,11 +23,11 @@
       </div>
       <div class="form-group">
         <label>serverVersion</label>
-        <input type="text" class="form-control" placeholder="Title" v-model="ticket.serverVersion">
+        <b-form-select v-model="serverSelected" :options="serverOptions"/>
       </div>
       <div class="form-group">
         <label>os</label>
-        <input type="text" class="form-control" placeholder="Title" v-model="ticket.os">
+        <b-form-select v-model="osSelected" :options="osOptions"/>
       </div>
       <div class="form-group">
         <label>osVersion</label>
@@ -35,11 +35,14 @@
       </div>
       <div class="form-group">
         <label>issueType</label>
-        <input type="text" class="form-control" placeholder="Title" v-model="ticket.issueType">
+        <b-form-select v-model="issueSelected" :options="issueOptions"/>
       </div>
       <div class="form-group">
         <label>asignee</label>
         <input type="text" class="form-control" placeholder="Title" v-model="ticket.asignee">
+      </div>
+      <div class="form-group">
+        <b-button type="submit" variant="info">Submit</b-button>
       </div>
     </form>
   </div>
@@ -57,13 +60,84 @@ export default {
   components: {
 
   },
+  data () {
+    return {
+      serverSelected: null,
+      serverOptions: [
+        { value: null, text: 'Select Gluu Server Version' },
+        { value: '3.1.2', text: 'Gluu Server 3.1.2' },
+        { value: '3.1.1', text: 'Gluu Server 3.1.1' },
+        { value: '3.1.0', text: 'Gluu Server 3.1.0' },
+        { value: '3.0.2', text: 'Gluu Server 3.0.2' },
+        { value: '3.0.1', text: 'Gluu Server 3.0.1' },
+        { value: '2.4.4.3', text: 'Gluu Server 2.4.4.3' },
+        { value: '2.4.4.2', text: 'Gluu Server 2.4.4.2' },
+        { value: '2.4.4', text: 'Gluu Server 2.4.4' },
+        { value: '2.4.3', text: 'Gluu Server 2.4.3' },
+        { value: '2.4.2', text: 'Gluu Server 2.4.2' },
+        { value: 'Other', text: 'Other' }
+      ],
+      categorySelected: null,
+      categoryOptions: [
+        { value: null, text: 'Select an issue category' },
+        { value: 'installation', text: 'Installation' },
+        { value: 'outages', text: 'Outages' },
+        { value: 'single_sign_on', text: 'Single Sign-On' },
+        { value: 'authentication', text: 'Authentication' },
+        { value: 'authorization', text: 'Authorization' },
+        { value: 'access_management', text: 'Access Management' },
+        { value: 'upgrade', text: 'Upgrade' },
+        { value: 'maintenance', text: 'Maintenance' },
+        { value: 'identity_management', text: 'Identity Management' },
+        { value: 'customization', text: 'Customization' },
+        { value: 'feature_request', text: 'Feature Request' },
+        { value: 'log_out', text: 'Logout' },
+        { value: 'other', text: 'Other' }
+      ],
+      osSelected: null,
+      osOptions: [
+        { value: null, text: 'Select Operating System' },
+        { value: 'Ubuntu', text: 'Ubuntu' },
+        { value: 'CentOS', text: 'CentOS' },
+        { value: 'Rhel', text: 'RHEL' },
+        { value: 'Debian', text: 'Debian' }
+      ],
+      issueSelected: null,
+      issueOptions: [
+        { value: null, text: 'Please specify the kind of issue you have encountered' },
+        { value: 'outage', text: 'Production Outage' },
+        { value: 'impaired', text: 'Production Impaired' },
+        { value: 'pre_production', text: 'Pre-Production Issue' },
+        { value: 'minor', text: 'Minor Issue' },
+        { value: 'new_development', text: 'New Development Issue' }
+      ],
+      statusSelected: null,
+      statusOptions: [
+        { value: null, text: 'Select a Status' },
+        { value: 'new', text: 'New' },
+        { value: 'assigned', text: 'Assigned' },
+        { value: 'inprogress', text: 'In Progress' },
+        { value: 'pending', text: 'Pending Input' },
+        { value: 'closed', text: 'Closed' }
+      ],
+      privacySelected: null,
+      privacyOptions: [
+        { value: 'null', text: '---------' },
+        { value: 'inherit', text: 'Inherit' },
+        { value: 'public', text: 'Public' },
+        { value: 'private', text: 'Private' }
+      ]
+    }
+  },
   computed: {
     ...mapGetters([
       'ticket'
     ])
   },
-  mounted () {
-    this.$store.dispatch(TICKET_CREATE)
+  methods: {
+    onSubmit () {
+      console.log('aaa')
+    }
   }
 }
 </script>
