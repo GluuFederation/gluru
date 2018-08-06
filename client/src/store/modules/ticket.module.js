@@ -34,7 +34,7 @@ const initialState = {
     osVersionName: '',
     link: '',
     sendCopy: '',
-    isPrivate: ''
+    isPrivate: false
   },
   answers: []
 }

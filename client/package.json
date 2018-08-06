@@ -20,6 +20,7 @@
     "mavon-editor": "^2.6.15",
     "select2-bootstrap4-theme": "^1.0.0",
     "v-select2-component": "^0.3.0",
+    "vee-validate": "^2.1.0-beta.7",
     "vue": "^2.5.2",
     "vue-awesome": "^3.0.5",
     "vue-axios": "^2.1.2",

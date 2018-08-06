@@ -8,7 +8,7 @@ import store from '@/store'
 import BootstrapVue from 'bootstrap-vue'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
-
+import VeeValidate from 'vee-validate'
 import Icon from 'vue-awesome/components/Icon'
 
 import ApiService from '@/services/common/api.services'
@@ -16,6 +16,7 @@ import ApiService from '@/services/common/api.services'
 Vue.config.productionTip = false
 
 Vue.use(BootstrapVue)
+Vue.use(VeeValidate)
 Vue.component('icon', Icon)
 
 ApiService.init()

@@ -3,51 +3,74 @@
     <form v-on:submit.prevent="onSubmit">
       <div class="form-group">
         <label>company</label>
-        <input type="text" class="form-control" placeholder="Title" v-model="ticket.company">
+        <input name="company" type="text" class="form-control" placeholder="Company"
+          v-model="ticket.company" v-validate="'required'" :class="{'errors': errors.has('company')}">
+        <span v-show="errors.has('company')" class="errors">{{ errors.first('company') }}</span>
       </div>
       <div class="form-group">
         <label>createdFor</label>
-        <input type="text" class="form-control" placeholder="Title" v-model="ticket.createdFor">
+        <input name="referer" type="text" class="form-control" placeholder="Created For"
+          v-model="ticket.createdFor">
       </div>
       <div class="form-group">
         <label>serverVersion</label>
-        <Select2 v-model="ticket.serverVersion" :options="serverOptions" :settings="{ theme: 'bootstrap4' }"/>
+        <Select2 name="serverVersion" v-model="ticket.serverVersion" :options="serverOptions" :settings="{ theme: 'bootstrap4' }"
+          v-validate="'required'" :class="{ 'errors': errors.has('serverVersion')}"/>
+        <span v-show="errors.has('serverVersion')" class="errors">{{ errors.first('serverVersion') }}</span>
       </div>
       <div class="form-group">
         <label>os</label>
-        <Select2 v-model="ticket.osVersion" :options="osOptions" :settings="{ theme: 'bootstrap4' }"/>
+        <Select2 name="osVersion" v-model="ticket.osVersion" :options="osOptions" :settings="{ theme: 'bootstrap4' }"
+          v-validate="'required'" :class="{ 'errors': errors.has('osVersion')}"/>
+        <span v-show="errors.has('osVersion')" class="errors">{{ errors.first('osVersion') }}</span>
       </div>
       <div class="form-group">
         <label>osVersion</label>
-        <input type="text" class="form-control" placeholder="Title" v-model="ticket.osVersionName">
+        <input name="osVersionName" type="text" class="form-control" placeholder="Os Verson"
+          v-model="ticket.osVersionName" v-validate="'required'" :class="{ 'errors': errors.has('osVersionName')}">
+        <span v-show="errors.has('osVersionName')" class="errors">{{ errors.first('osVersionName') }}</span>
       </div>
       <div class="form-group">
         <label>issueType</label>
-        <Select2 v-model="ticket.issueType" :options="issueOptions" :settings="{ theme: 'bootstrap4' }"/>
+        <Select2 name="issueType" v-model="ticket.issueType" :options="issueOptions" :settings="{ theme: 'bootstrap4' }"
+          v-validate="'required'" :class="{ 'errors': errors.has('issueType')}"/>
+        <span v-show="errors.has('issueType')" class="errors">{{ errors.first('issueType') }}</span>
       </div>
       <div class="form-group">
         <label>category</label>
-        <Select2 v-model="ticket.category" :options="categoryOptions" :settings="{ theme: 'bootstrap4' }"/>
+        <Select2 name="category" v-model="ticket.category" :options="categoryOptions" :settings="{ theme: 'bootstrap4' }"
+          v-validate="'required'" :class="{ 'errors': errors.has('category')}"/>
+        <span v-show="errors.has('category')" class="errors">{{ errors.first('category') }}</span>
       </div>
       <div class="form-group">
         <label>Title</label>
-        <input type="text" class="form-control" placeholder="Title" v-model="ticket.title">
+        <input name="title" type="text" class="form-control" placeholder="Title"
+          v-model="ticket.title" v-validate="'required'" :class="{ 'errors': errors.has('title')}">
+        <span v-show="errors.has('title')" class="errors">{{ errors.first('title') }}</span>
       </div>
       <div class="form-group">
         <label>description</label>
-        <input type="text" class="form-control" placeholder="Title" v-model="ticket.description">
+        <input name="description" type="text" class="form-control" placeholder="Title"
+          v-model="ticket.description" v-validate="'required'" :class="{ 'errors': errors.has('description')}">
+        <span v-show="errors.has('description')" class="errors">{{ errors.first('description') }}</span>
       </div>
       <div class="form-group">
         <label>asignee</label>
-        <input type="text" class="form-control" placeholder="Title" v-model="ticket.assignee">
+        <input name="assignee" type="text" class="form-control" placeholder="Title"
+          v-model="ticket.assignee" v-validate="'required'" :class="{ 'errors': errors.has('assignee') }">
+        <span v-show="errors.has('assignee')" class="errors">{{ errors.first('assignee') }}</span>
       </div>
       <div class="form-group">
         <label>status</label>
-        <Select2 v-model="ticket.status" :options="statusOptions" :settings="{ theme: 'bootstrap4' }"/>
+        <Select2 name="status" v-model="ticket.status" :options="statusOptions" :settings="{ theme: 'bootstrap4' }"
+          v-validate="'required'" :class="{ 'errors': errors.has('status')}"/>
+        <span v-show="errors.has('status')" class="errors">{{ errors.first('status') }}</span>
       </div>
       <div class="form-group">
         <label>colleagues</label>
-        <input type="text" class="form-control" placeholder="Title" v-model="ticket.sendCopy">
+        <input name="colleagues" type="text" class="form-control" placeholder="Title"
+          v-model="ticket.sendCopy" v-validate="'required'" :class="{ 'errors': errors.has('colleagues') }">
+        <span v-show="errors.has('colleagues')" class="errors">{{ errors.first('colleagues') }}</span>
       </div>
       <div class="form-group">
         <label>Privacy</label>
