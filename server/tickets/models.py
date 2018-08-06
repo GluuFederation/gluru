@@ -178,6 +178,19 @@ class Ticket(models.Model):
         verbose_name=_('Default Gluu'),
     )
 
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        editable=False,
+        verbose_name=_('Added'),
+        help_text=_('Added date')
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name=_('Modified'),
+        help_text=_('Modified date')
+    )
+
     def __str__(self):
         return self.title
 

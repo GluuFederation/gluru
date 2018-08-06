@@ -4,4 +4,4 @@ from tickets.models import Ticket
 
 @admin.register(Ticket)
 class TicketAdmin(admin.ModelAdmin):
-    pass
+     list_display = ('id', 'title', 'created_by', 'created_at')

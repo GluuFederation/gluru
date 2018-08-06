@@ -19,19 +19,19 @@ import AnswerService from '@/services/answer'
 
 const initialState = {
   ticket: {
-    title: 'title',
-    description: 'description',
-    category: 'installation',
+    title: '',
+    description: '',
+    category: null,
     company: '',
     createdFor: '',
-    serverVersion: '',
-    os: '',
+    serverVersion: null,
+    os: null,
     osVersion: '',
-    issueType: '',
+    issueType: null,
     asignee: '',
-    status: '',
+    status: null,
     colleagues: '',
-    private: '',
+    privacy: null,
     link: ''
   },
   answers: []

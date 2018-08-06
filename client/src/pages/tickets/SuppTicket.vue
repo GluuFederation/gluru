@@ -2,18 +2,6 @@
   <div>
     <form v-on:submit.prevent="onSubmit">
       <div class="form-group">
-        <label>Title</label>
-        <input type="text" class="form-control" placeholder="Title" v-model="ticket.title">
-      </div>
-      <div class="form-group">
-        <label>description</label>
-        <input type="text" class="form-control" placeholder="Title" v-model="ticket.description">
-      </div>
-      <div class="form-group">
-        <label>category</label>
-        <b-form-select v-model="serverSelected" :options="categoryOptions"/>
-      </div>
-      <div class="form-group">
         <label>company</label>
         <input type="text" class="form-control" placeholder="Title" v-model="ticket.company">
       </div>
@@ -23,11 +11,11 @@
       </div>
       <div class="form-group">
         <label>serverVersion</label>
-        <b-form-select v-model="serverSelected" :options="serverOptions"/>
+        <b-form-select v-model="ticket.serverVersion" :options="serverOptions"/>
       </div>
       <div class="form-group">
         <label>os</label>
-        <b-form-select v-model="osSelected" :options="osOptions"/>
+        <b-form-select v-model="ticket.os" :options="osOptions"/>
       </div>
       <div class="form-group">
         <label>osVersion</label>
@@ -35,11 +23,35 @@
       </div>
       <div class="form-group">
         <label>issueType</label>
-        <b-form-select v-model="issueSelected" :options="issueOptions"/>
+        <b-form-select v-model="ticket.issueType" :options="issueOptions"/>
+      </div>
+      <div class="form-group">
+        <label>category</label>
+        <b-form-select v-model="ticket.category" :options="categoryOptions"/>
+      </div>
+      <div class="form-group">
+        <label>Title</label>
+        <input type="text" class="form-control" placeholder="Title" v-model="ticket.title">
+      </div>
+      <div class="form-group">
+        <label>description</label>
+        <input type="text" class="form-control" placeholder="Title" v-model="ticket.description">
       </div>
       <div class="form-group">
         <label>asignee</label>
         <input type="text" class="form-control" placeholder="Title" v-model="ticket.asignee">
+      </div>
+      <div class="form-group">
+        <label>status</label>
+        <b-form-select v-model="ticket.status" :options="statusOptions"/>
+      </div>
+      <div class="form-group">
+        <label>colleagues</label>
+        <input type="text" class="form-control" placeholder="Title" v-model="ticket.colleagues">
+      </div>
+      <div class="form-group">
+        <label>Privacy</label>
+        <b-form-select v-model="ticket.privacy" :options="privacyOptions"/>
       </div>
       <div class="form-group">
         <b-button type="submit" variant="info">Submit</b-button>
@@ -62,7 +74,6 @@ export default {
   },
   data () {
     return {
-      serverSelected: null,
       serverOptions: [
         { value: null, text: 'Select Gluu Server Version' },
         { value: '3.1.2', text: 'Gluu Server 3.1.2' },
@@ -77,7 +88,6 @@ export default {
         { value: '2.4.2', text: 'Gluu Server 2.4.2' },
         { value: 'Other', text: 'Other' }
       ],
-      categorySelected: null,
       categoryOptions: [
         { value: null, text: 'Select an issue category' },
         { value: 'installation', text: 'Installation' },
@@ -94,7 +104,6 @@ export default {
         { value: 'log_out', text: 'Logout' },
         { value: 'other', text: 'Other' }
       ],
-      osSelected: null,
       osOptions: [
         { value: null, text: 'Select Operating System' },
         { value: 'Ubuntu', text: 'Ubuntu' },
@@ -102,7 +111,6 @@ export default {
         { value: 'Rhel', text: 'RHEL' },
         { value: 'Debian', text: 'Debian' }
       ],
-      issueSelected: null,
       issueOptions: [
         { value: null, text: 'Please specify the kind of issue you have encountered' },
         { value: 'outage', text: 'Production Outage' },
@@ -111,7 +119,6 @@ export default {
         { value: 'minor', text: 'Minor Issue' },
         { value: 'new_development', text: 'New Development Issue' }
       ],
-      statusSelected: null,
       statusOptions: [
         { value: null, text: 'Select a Status' },
         { value: 'new', text: 'New' },
@@ -120,9 +127,8 @@ export default {
         { value: 'pending', text: 'Pending Input' },
         { value: 'closed', text: 'Closed' }
       ],
-      privacySelected: null,
       privacyOptions: [
-        { value: 'null', text: '---------' },
+        { value: null, text: '---------' },
         { value: 'inherit', text: 'Inherit' },
         { value: 'public', text: 'Public' },
         { value: 'private', text: 'Private' }
@@ -136,7 +142,7 @@ export default {
   },
   methods: {
     onSubmit () {
-      console.log('aaa')
+      this.$store.dispatch(TICKET_CREATE)
     }
   }
 }
