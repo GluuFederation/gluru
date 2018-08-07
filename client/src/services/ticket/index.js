@@ -3,23 +3,23 @@ import ApiService from '@/services/common/api.services'
 const TicketService = {
   query (params) {
     return ApiService
-      .query('tickets/', { params: params }
+      .query('tickets', { params: params }
       )
   },
 
   get (slug) {
     return ApiService
-      .get('tickets/', slug)
+      .get('tickets', slug)
   },
 
   create (params) {
     return ApiService
-      .post('tickets/', { ticket: params })
+      .post('tickets', { ticket: params })
   },
 
   update (slug, params) {
     return ApiService
-      .update('tickets/', slug, { ticket: params })
+      .update('tickets', slug, { ticket: params })
   },
 
   destory (slug) {

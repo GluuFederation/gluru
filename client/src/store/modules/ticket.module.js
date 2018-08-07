@@ -44,6 +44,9 @@ export const state = Object.assign({}, initialState)
 export const getters = {
   ticket (state) {
     return state.ticket
+  },
+  answers (state) {
+    return state.answers
   }
 }
 
@@ -55,7 +58,8 @@ export const actions = {
 
     return TicketService.get(ticketSlug)
       .then(({ data }) => {
-        context.commit(SET_TICKET, data.ticket)
+        console.log(data)
+        context.commit(SET_TICKET, data)
         return data
       })
   },
@@ -63,7 +67,7 @@ export const actions = {
   [FETCH_ANSWERS] (context, ticketSlug) {
     return AnswerService.get(ticketSlug)
       .then(({ data }) => {
-        context.commit(SET_ANSWERS, data.comments)
+        context.commit(SET_ANSWERS, data)
       })
   },
 
@@ -105,7 +109,7 @@ export const mutations = {
   },
 
   [SET_ANSWERS] (state, answers) {
-    state.answers = answers
+    state.answers = answers.results
   }
 }
 

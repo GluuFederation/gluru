@@ -14,8 +14,9 @@ export default new Router({
       component: () => import('@/pages/tickets/SuppTicketEdit')
     },
     {
-      path: '/ticket/:id',
-      component: () => import('@/pages/tickets/SuppTicket')
+      path: '/ticket/:ticketId',
+      component: () => import('@/pages/tickets/SuppTicket'),
+      props: true
     }
   ]
 })
