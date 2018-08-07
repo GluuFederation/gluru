@@ -1,10 +1,10 @@
-import ApiService from '@/services/common/api.services'
+import APIService from '@/services/common/api.services'
 
-const SearchService = {
+const SearchAPIService = {
   query (params) {
-    return ApiService
+    return APIService
       .query('search', { params: params })
   },
 }
 
-export default SearchService
+export default SearchAPIService

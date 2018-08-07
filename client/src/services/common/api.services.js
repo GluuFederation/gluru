@@ -5,7 +5,7 @@ import VueAxios from 'vue-axios'
 import JwtService from '@/services/common/jwt.service'
 import { API_URL } from '@/services/common/config'
 
-const ApiService = {
+const APIService = {
   init () {
     Vue.use(VueAxios, axios)
     Vue.axios.defaults.baseURL = API_URL
@@ -19,7 +19,7 @@ const ApiService = {
     return Vue.axios
       .get(resource, params)
       .catch((error) => {
-        throw new Error(`[Gluu] ApiService ${error}`)
+        throw new Error(`[Gluu] APIService ${error}`)
       })
   },
 
@@ -49,9 +49,9 @@ const ApiService = {
     return Vue.axios
       .delete(resource)
       .catch((error) => {
-        throw new Error(`[Gluu] ApiService ${error}`)
+        throw new Error(`[Gluu] APIService ${error}`)
       })
   }
 }
 
-export default ApiService
+export default APIService

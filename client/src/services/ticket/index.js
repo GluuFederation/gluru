@@ -1,31 +1,31 @@
-import ApiService from '@/services/common/api.services'
+import APIService from '@/services/common/api.services'
 
-const TicketService = {
+const TicketAPIService = {
   query (params) {
-    return ApiService
+    return APIService
       .query('tickets', { params: params }
       )
   },
 
   get (slug) {
-    return ApiService
+    return APIService
       .get('tickets', slug)
   },
 
   create (params) {
-    return ApiService
+    return APIService
       .post('tickets', { ticket: params })
   },
 
   update (slug, params) {
-    return ApiService
+    return APIService
       .update('tickets', slug, { ticket: params })
   },
 
   destory (slug) {
-    return ApiService
+    return APIService
       .delete(`tickets/${slug}`)
   }
 }
 
-export default TicketService
+export default TicketAPIService

@@ -1,4 +1,4 @@
-import SearchService from '@/services/search'
+import SearchAPIService from '@/services/search'
 import {
   FETCH_TICKETS
 } from '@/store/actions.type'
@@ -31,7 +31,7 @@ export const getters = {
 export const actions = {
   [FETCH_TICKETS] (context, params) {
     context.commit(FETCH_TICKETS_START)
-    return SearchService.query(params)
+    return SearchAPIService.query(params)
       .then(({data}) => {
         context.commit(FETCH_TICKETS_END, data )
       })

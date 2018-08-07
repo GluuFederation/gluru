@@ -14,8 +14,8 @@ import {
   SET_ANSWERS
 } from '@/store/mutations.type'
 
-import TicketService from '@/services/ticket'
-import AnswerService from '@/services/answer'
+import TicketAPIService from '@/services/ticket'
+import AnswerAPIService from '@/services/answer'
 
 const initialState = {
   ticket: {
@@ -56,7 +56,7 @@ export const actions = {
       return context.commit(SET_TICKET, prevTicket)
     }
 
-    return TicketService.get(ticketSlug)
+    return TicketAPIService.get(ticketSlug)
       .then(({ data }) => {
         console.log(data)
         context.commit(SET_TICKET, data)
@@ -65,26 +65,26 @@ export const actions = {
   },
 
   [FETCH_ANSWERS] (context, ticketSlug) {
-    return AnswerService.get(ticketSlug)
+    return AnswerAPIService.get(ticketSlug)
       .then(({ data }) => {
         context.commit(SET_ANSWERS, data)
       })
   },
 
   [TICKET_CREATE] ({ state }) {
-    return TicketService.create(state.ticket)
+    return TicketAPIService.create(state.ticket)
   },
 
   [TICKET_UPDATE] ({ state }) {
-    return TicketService.update(state.ticket.slug, state.ticket)
+    return TicketAPIService.update(state.ticket.slug, state.ticket)
   },
 
   [TICKET_DELETE] (context, slug) {
-    return TicketService.destroy(slug)
+    return TicketAPIService.destroy(slug)
   },
 
   [ANSWER_CREATE] (context, payload) {
-    return AnswerService
+    return AnswerAPIService
       .post(payload.slug, payload.comment)
       .then(() => { context.dispatch(FETCH_ANSWERS, payload.slug) })
   },
@@ -94,7 +94,7 @@ export const actions = {
   },
 
   [ANSWER_DELETE] (context, payload) {
-    return AnswerService
+    return AnswerAPIService
       .destroy(payload.ticketId, payload.answerId)
       .then(() => {
         // context.dispatch(FETCH_ANSWERS, payload.ticketId)

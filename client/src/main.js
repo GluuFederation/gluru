@@ -11,7 +11,7 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 import VeeValidate from 'vee-validate'
 import Icon from 'vue-awesome/components/Icon'
 
-import ApiService from '@/services/common/api.services'
+import APIService from '@/services/common/api.services'
 
 Vue.config.productionTip = false
 
@@ -19,7 +19,7 @@ Vue.use(BootstrapVue)
 Vue.use(VeeValidate)
 Vue.component('icon', Icon)
 
-ApiService.init()
+APIService.init()
 
 /* eslint-disable no-new */
 new Vue({

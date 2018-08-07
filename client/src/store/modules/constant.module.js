@@ -1,4 +1,4 @@
-import ApiService from '@/services/common/api.services'
+import APIService from '@/services/common/api.services'
 
 import {
   FETCH_COMPANIES,
@@ -40,7 +40,7 @@ export const actions = {
 
   },
   [FETCH_CONSTANT] (context) {
-    return ApiService.get('constants')
+    return APIService.get('constants')
       .then(({ data }) => {
         context.commit(SET_CONSTANT, data)
       })

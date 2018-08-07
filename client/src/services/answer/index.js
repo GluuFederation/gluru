@@ -1,22 +1,22 @@
-import ApiService from '@/services/common/api.services'
+import APIService from '@/services/common/api.services'
 
-const AnswerService = {
+const AnswerAPIService = {
   get (slug) {
     if (typeof slug !== 'string') {
-      throw new Error('[Gluu] AnswerService.get() ticket slug required to fetch answers')
+      throw new Error('[Gluu] AnswerAPIService.get() ticket slug required to fetch answers')
     }
-    return ApiService.get('tickets', `${slug}/answers`)
+    return APIService.get('tickets', `${slug}/answers`)
   },
 
   post (slug, payload) {
-    return ApiService.post(
+    return APIService.post(
       `tickets/${slug}/answers`, { answer: { body: payload } })
   },
 
   destroy (slug, answerId) {
-    return ApiService
+    return APIService
       .delete(`tickets/${slug}/answers/${answerId}`)
   }
 }
 
-export default AnswerService
+export default AnswerAPIService
