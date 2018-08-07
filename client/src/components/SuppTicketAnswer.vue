@@ -27,7 +27,7 @@
     </div>
     <div class="card-footer">
       <div class="float-right">
-        <b-button variant="info">
+        <b-button variant="info" v-on:click="deleteComment(7, 1)">
           <icon name="trash-alt"></icon>Delete
         </b-button>
         <b-button variant="info">
@@ -44,8 +44,22 @@ import 'vue-awesome/icons/copy'
 import 'vue-awesome/icons/edit'
 import 'vue-awesome/icons/trash-alt'
 
+import {
+  ANSWER_DELETE
+} from '@/store/actions.type'
+
 export default {
-  name: 'SuppTicketAnswer'
+  name: 'SuppTicketAnswer',
+  props: {
+    ticketId: { type: String, required: true },
+    answer: { type: Object, required: true }
+  },
+  methods: {
+    deleteComment (ticketId, answerId) {
+      console.log('delete comment')
+      this.$store.dispatch(ANSWER_DELETE, { ticketId, answerId })
+    }
+  }
 }
 </script>
 

@@ -104,7 +104,7 @@ class AnswerListCreateAPIView(generics.ListCreateAPIView):
 
 class AnswerDestroyAPIView(generics.DestroyAPIView):
 
-    permission_classes = (IsAuthenticatedOrReadOnly, )
+    # permission_classes = (IsAuthenticatedOrReadOnly, )
     queryset = Answer.objects.all()
 
     def destroy(self, request, ticket_id=None, answer_id=None):

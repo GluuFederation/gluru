@@ -91,9 +91,10 @@ export const actions = {
 
   [ANSWER_DELETE] (context, payload) {
     return AnswerService
-      .destroy(payload.slug, payload.answerId)
+      .destroy(payload.ticketId, payload.answerId)
       .then(() => {
-        context.dispatch(FETCH_ANSWERS, payload.slug)
+        // context.dispatch(FETCH_ANSWERS, payload.ticketId)
+        console.log('Deleted successfully')
       })
   }
 }

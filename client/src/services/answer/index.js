@@ -1,5 +1,6 @@
 import ApiService from '@/services/common/api.services'
-const AnswersService = {
+
+const AnswerService = {
   get (slug) {
     if (typeof slug !== 'string') {
       throw new Error('[Gluu] AnswerService.get() ticket slug required to fetch answers')
@@ -18,4 +19,4 @@ const AnswersService = {
   }
 }
 
-export default AnswersService
+export default AnswerService

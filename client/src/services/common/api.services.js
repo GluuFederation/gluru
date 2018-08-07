@@ -36,14 +36,21 @@ const ApiService = {
       .post(`${resource}`, params)
   },
 
+  update (resource, slug, params) {
+    return Vue.axios.put(`${resource}/${slug}`, params)
+  },
+
   put (resource, params) {
     return Vue.axios
       .put(`${resource}`, params)
   },
 
-  update (resource, params) {
+  delete (resource) {
     return Vue.axios
-      .update(`${resource}`, params)
+      .delete(resource)
+      .catch((error) => {
+        throw new Error(`[Gluu] ApiService ${error}`)
+      })
   }
 }
 

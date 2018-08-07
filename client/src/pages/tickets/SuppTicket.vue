@@ -1,6 +1,9 @@
 <template>
   <div>
-    <supp-ticket-answer></supp-ticket-answer>
+    <supp-ticket-answer
+      ticketId="a"
+      :answer="{}"
+    ></supp-ticket-answer>
     <supp-ticket-answer-edit></supp-ticket-answer-edit>
   </div>
 </template>
