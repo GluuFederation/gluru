@@ -80,6 +80,7 @@ class TicketViewSet(mixins.CreateModelMixin,
 
 
 class AnswerListCreateAPIView(generics.ListCreateAPIView):
+
     permission_classes = (IsAuthenticatedOrReadOnly, )
     queryset = Answer.objects.select_related(
         'ticket'
@@ -101,9 +102,25 @@ class AnswerListCreateAPIView(generics.ListCreateAPIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
+class AnswerDestroyAPIView(generics.DestoryAPIView):
+
+    permission_classes = (IsAuthenticatedOrReadOnly, )
+    queryset = Answer.objects.all()
+
+    def destroy(self, request, ticket_id=None, answer_id=None):
+        try:
+            answer = Answer.objects.get(pk=answer_id)
+        except Answer.DoesNotExist:
+            raise NotFound('An answer with this ID does not exist')
+
+        answer.delete()
+
+        return Response(None, status=status.HTTP_204_NO_CONTENT)
+
+
 # This constants data is over 1Kbytes.
-# I think we can create another constant variable on frontend side for better performance.
-# Yes, of course, it is a little hard to maintain for duplicate the contant variable.
+# We can create same constant variable on frontend side for better performance.
+# It seems to be a little hard to maintain for duplicate the contant variable.
 # But if the constant don't change frequently, it is okay.
 # class ConstantsView(APIView):
 #     def get(self, request):
