@@ -33,7 +33,7 @@ export const actions = {
     context.commit(FETCH_TICKETS_START)
     return SearchAPIService.query(params)
       .then(({data}) => {
-        context.commit(FETCH_TICKETS_END, data )
+        context.commit(FETCH_TICKETS_END, data)
       })
   }
 }
