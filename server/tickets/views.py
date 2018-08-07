@@ -22,7 +22,7 @@ class TicketViewSet(mixins.CreateModelMixin,
     serializer_class = TicketSerializer
     queryset = Ticket.objects.all()
 
-    def get_querset(self):
+    def get_queryset(self):
         queryset = self.queryset
 
         category = self.request.query_params.get('category', None)
@@ -30,7 +30,7 @@ class TicketViewSet(mixins.CreateModelMixin,
             queryset = queryset.filter(category=category)
 
         ticket_status = self.request.query_params.get('status', None)
-        if status is not None:
+        if ticket_status is not None:
             queryset = queryset.filter(status=ticket_status)
 
         server_version = self.request.query_params.get('server_version', None)
@@ -62,12 +62,14 @@ class TicketViewSet(mixins.CreateModelMixin,
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def list(self, request):
+        page = self.paginate_queryset(self.get_queryset())
+
         serializer = self.serializer_class(
-            self.get_querset(),
+            page,
             many=True
         )
 
-        return Response(serializer.data)
+        return self.get_paginated_response(serializer.data)
 
     # def retrieve(self, request):
     #     pass
