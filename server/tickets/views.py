@@ -102,7 +102,7 @@ class AnswerListCreateAPIView(generics.ListCreateAPIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-class AnswerDestroyAPIView(generics.DestoryAPIView):
+class AnswerDestroyAPIView(generics.DestroyAPIView):
 
     permission_classes = (IsAuthenticatedOrReadOnly, )
     queryset = Answer.objects.all()

@@ -13,6 +13,7 @@ class AnswerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Answer
+        fields = '__all__'
 
     def create(self, valdiated_data):
         ticket = self.context['ticket']
