@@ -1,13 +1,14 @@
 from django.shortcuts import render
 from rest_framework import viewsets, generics, mixins, status
+from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import (
     IsAuthenticatedOrReadOnly
 )
 
-from tickets.models import Ticket
-from tickets.serializers import TicketSerializer
+from tickets.models import Ticket, Answer
+from tickets.serializers import TicketSerializer, AnswerSerializer
 from tickets import constants
 
 from django.db.models import Q
@@ -76,6 +77,28 @@ class TicketViewSet(mixins.CreateModelMixin,
 
     def update(self, request):
         pass
+
+
+class AnswerListCreateAPIView(generics.ListCreateAPIView):
+    permission_classes = (IsAuthenticatedOrReadOnly, )
+    queryset = Answer.objects.select_related(
+        'ticket'
+    )
+    serializer_class = AnswerSerializer
+
+    def create(self, request, ticket_id=None):
+        data = request.data.get('answer', {})
+        context = {}
+        try:
+            context['ticket'] = Ticket.objects.get(pk=ticket_id)
+        except Ticket.DoesNotExist:
+            raise NotFound('A ticket with this id does not exist')
+
+        serializer = self.serializer_class(data=data, context=context)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 # This constants data is over 1Kbytes.
