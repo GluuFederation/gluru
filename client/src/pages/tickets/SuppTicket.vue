@@ -1,5 +1,6 @@
 <template>
   <div>
+    <supp-ticket-answer></supp-ticket-answer>
     <form v-on:submit.prevent="onSubmit">
       <div class="form-group">
         <label>company</label>
@@ -89,13 +90,14 @@ import { TICKET_CREATE } from '@/store/actions.type'
 import Select2 from 'v-select2-component'
 import 'select2/dist/css/select2.css'
 import 'select2-bootstrap4-theme/dist/select2-bootstrap4.css'
-// import SuppTicketAnswer from '@/components/SuppTicketAnswer'
+import SuppTicketAnswer from '@/components/SuppTicketAnswer'
 // import SuppTicketAnswerEdit from '@/components/SuppTicketAnswerEdit'
 
 export default {
   name: 'SuppTicket',
   components: {
-    Select2
+    Select2,
+    SuppTicketAnswer
   },
   data () {
     return {
