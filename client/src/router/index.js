@@ -17,6 +17,10 @@ export default new Router({
       path: '/ticket/:ticketId',
       component: () => import('@/pages/tickets/SuppTicket'),
       props: true
+    },
+    {
+      path: '/search',
+      component: () => import('@/pages/search/SuppSearch')
     }
   ]
 })
