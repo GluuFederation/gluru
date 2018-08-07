@@ -165,7 +165,12 @@ export default {
   },
   methods: {
     onSubmit () {
-      this.$store.dispatch(TICKET_CREATE)
+      this.$validator.validate().then(result => {
+        if (!result) {
+          return
+        }
+        this.$store.dispatch(TICKET_CREATE)
+      })
     }
   }
 }
