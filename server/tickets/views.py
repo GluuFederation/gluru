@@ -34,11 +34,11 @@ class TicketViewSet(mixins.CreateModelMixin,
         if ticket_status is not None:
             queryset = queryset.filter(status=ticket_status)
 
-        server_version = self.request.query_params.get('server_version', None)
+        server_version = self.request.query_params.get('server', None)
         if server_version is not None:
             queryset = queryset.filter(server_version=server_version)
 
-        os_version = self.request.query_params.get('os_version', None)
+        os_version = self.request.query_params.get('os', None)
         if os_version is not None:
             queryset = queryset.filter(os_version=os_version)
 

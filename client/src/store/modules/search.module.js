@@ -43,10 +43,10 @@ export const mutations = {
     state.isLoading = true
   },
 
-  [FETCH_TICKETS_END] (state, { tickets, ticketsCount }) {
+  [FETCH_TICKETS_END] (state, data) {
     state.isLoading = false
-    state.tickets = tickets
-    state.ticketsCount = ticketsCount
+    state.tickets = data.results
+    state.ticketsCount = data.count
   }
 }
 

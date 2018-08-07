@@ -1,9 +1,9 @@
 <template>
   <div class="search">
-    <b-form>
+    <b-form @submit.prevent="onSubmit">
       <b-row class="text-center">
         <b-col v-bind:class="where === 'home'? 'col-md-7' : 'col-md-9'">
-          <input type="text" class="form-control" id="id_q">
+          <input type="text" class="form-control" id="id_q" v-model="queryString">
         </b-col>
         <b-col md="3" v-if="where === 'home'">
           <b-form-select v-model="categorySelected" :options="categoryOptions"/>
@@ -32,6 +32,7 @@
 </template>
 
 <script>
+import { FETCH_TICKETS } from '@/store/actions.type'
 export default {
   name: 'SuppSearchBar',
   props: {
@@ -40,6 +41,7 @@ export default {
   },
   data () {
     return {
+      queryString: '',
       categorySelected: null,
       categoryOptions: [
         { value: null, text: 'Select a Category' },
@@ -88,6 +90,17 @@ export default {
         { value: 'Rhel', text: 'RHEL' },
         { value: 'Debian', text: 'Debian' }
       ]
+    }
+  },
+  methods: {
+    onSubmit () {
+      this.$store.dispatch(FETCH_TICKETS, {
+        status: this.statusSelected,
+        category: this.categorySelected,
+        server: this.versionSelected,
+        os: this.osSelected,
+        q: this.queryString
+      })
     }
   }
 }
