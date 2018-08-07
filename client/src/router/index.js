@@ -7,10 +7,14 @@ export default new Router({
   routes: [
     {
       path: '/',
-      redirect: '/ticket'
+      redirect: '/add-ticket'
     },
     {
-      path: '/ticket',
+      path: '/add-ticket',
+      component: () => import('@/pages/tickets/SuppTicketEdit')
+    },
+    {
+      path: '/ticket/:id',
       component: () => import('@/pages/tickets/SuppTicket')
     }
   ]
