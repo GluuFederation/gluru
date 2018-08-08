@@ -9,7 +9,7 @@ class Ticket(models.Model):
         max_length=255
     )
 
-    description = models.TextField()
+    body = models.TextField()
 
     category = models.CharField(
         max_length=constants.CHOICE_MAX_LENGTH,
@@ -218,7 +218,7 @@ class TicketProduct(models.Model):
 
 class Answer(models.Model):
 
-    answer = models.TextField()
+    body = models.TextField()
 
     ticket = models.ForeignKey(
         Ticket,

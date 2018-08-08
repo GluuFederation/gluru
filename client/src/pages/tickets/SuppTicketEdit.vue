@@ -50,9 +50,9 @@
       </div>
       <div class="form-group">
         <label>description</label>
-        <input name="description" type="text" class="form-control" placeholder="Title"
-          v-model="ticket.description" v-validate="'required'" :class="{ 'errors': errors.has('description')}">
-        <span v-show="errors.has('description')" class="errors">{{ errors.first('description') }}</span>
+        <input name="body" type="text" class="form-control" placeholder="Title"
+          v-model="ticket.body" v-validate="'required'" :class="{ 'errors': errors.has('body')}">
+        <span v-show="errors.has('body')" class="errors">{{ errors.first('body') }}</span>
       </div>
       <div class="form-group">
         <label>asignee</label>

@@ -20,7 +20,7 @@ import AnswerAPIService from '@/services/answer'
 const initialState = {
   ticket: {
     title: '',
-    description: '',
+    body: '',
     category: '',
     createdBy: 'aaa',
     createdFor: '',
