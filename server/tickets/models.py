@@ -18,7 +18,7 @@ class Ticket(models.Model):
     )
 
     category = models.CharField(
-        max_length=20,
+        max_length=2,
         blank=False,
         null=False,
         choices=constants.ISSUE_CATEGORY,
@@ -61,7 +61,7 @@ class Ticket(models.Model):
     )
 
     status = models.CharField(
-        max_length=100,
+        max_length=2,
         choices=constants.TICKET_STATUS,
         blank=False,
         default='new',
@@ -69,8 +69,8 @@ class Ticket(models.Model):
     )
 
     issue_type = models.CharField(
-        max_length=20,
-        choices=constants.ISSUE_TYPE_CREATE,
+        max_length=2,
+        choices=constants.ISSUE_TYPE,
         blank=True,
         default='',
         verbose_name=_('Issue type')
@@ -94,7 +94,7 @@ class Ticket(models.Model):
 
     os_version = models.CharField(
         choices=constants.OS_VERSION,
-        max_length=8,
+        max_length=2,
         blank=True,
         null=True,
         verbose_name=_('Which OS are you using?')
@@ -198,7 +198,7 @@ class TicketProduct(models.Model):
     )
 
     product = models.CharField(
-        max_length=20,
+        max_length=3,
         choices=constants.PRODUCT,
         blank=True,
         default='',
@@ -215,7 +215,7 @@ class TicketProduct(models.Model):
     )
 
     product_os_version = models.CharField(
-        max_length=20,
+        max_length=2,
         choices=constants.PRODUCT_OS_VERSION,
         blank=True,
         default='',
