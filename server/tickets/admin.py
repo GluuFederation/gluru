@@ -1,5 +1,5 @@
 from django.contrib import admin
-from tickets.models import Ticket, Answer, TicketProduct
+from .models import Ticket, Answer, TicketProduct, NotficationContact
 
 
 @admin.register(Ticket)
@@ -17,4 +17,11 @@ class AnswerAdmin(admin.ModelAdmin):
     list_display = (
         'id', 'ticket', 'privacy', 'created_by', 'created_at',
         'updated_at', 'is_deleted'
+    )
+
+
+@admin.register(NotficationContact)
+class NotficationContactAdmin(admin.ModelAdmin):
+    list_display = (
+        'id', 'name', 'number', 'priority', 'enabled'
     )
