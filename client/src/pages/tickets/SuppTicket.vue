@@ -1,18 +1,25 @@
 <template>
   <div>
-    <supp-ticket-answer
-      v-for="(answer, index) in answers"
+    <h1> {{ ticket.title }} </h1>
+    <supp-ticket-panel
+      :isTicket="true"
       :ticketId="ticketId"
-      :answer="answer"
+      :data="ticket">
+    </supp-ticket-panel>
+    <supp-ticket-panel
+      v-for="(answer, index) in answers"
+      :isTicket="false"
+      :ticketId="ticketId"
+      :data="answer"
       :key="index">
-    </supp-ticket-answer>
+    </supp-ticket-panel>
     <supp-ticket-answer-edit></supp-ticket-answer-edit>
   </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
-import SuppTicketAnswer from '@/components/SuppTicketAnswer'
+import SuppTicketPanel from '@/components/SuppTicketPanel'
 import SuppTicketAnswerEdit from '@/components/SuppTicketAnswerEdit'
 import { FETCH_TICKET, FETCH_ANSWERS } from '@/store/actions.type'
 
@@ -20,12 +27,12 @@ export default {
   name: 'SuppTicket',
   props: {
     ticketId: {
-      type: String,
+      type: Number,
       required: true
     }
   },
   components: {
-    SuppTicketAnswer,
+    SuppTicketPanel,
     SuppTicketAnswerEdit
   },
   computed: {

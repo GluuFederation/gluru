@@ -12,7 +12,10 @@
         </h6>
       </div>
       <div class="float-right">
-        <b-button variant="info">
+        <p v-if="isTicket">
+          2 responses
+        </p>
+        <b-button variant="info" v-else>
           <icon name="copy"></icon>Copy
         </b-button>
       </div>
@@ -22,7 +25,7 @@
         <img src="https://secure.gravatar.com/avatar/6814702d0fdfe4df707d6a0b32d4e9a6.jpg?s=80&amp;amp;r=g" alt="William Lowe gravatar">
       </div>
       <div style="padding-left: 100px;">
-          fdsafdasfdasfdasfdafdasfdsafdasfda
+          {{ data.body }}
       </div>
     </div>
     <div class="card-footer">
@@ -49,10 +52,20 @@ import {
 } from '@/store/actions.type'
 
 export default {
-  name: 'SuppTicketAnswer',
+  name: 'SuppTicketPanel',
   props: {
-    ticketId: { type: String, required: true },
-    answer: { type: Object, required: true }
+    isTicket: {
+      type: Boolean,
+      required: true
+    },
+    ticketId: {
+      type: Number,
+      required: true
+    },
+    data: {
+      type: Object,
+      required: true
+    }
   },
   methods: {
     deleteComment (ticketId, answerId) {

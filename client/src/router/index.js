@@ -15,8 +15,9 @@ export default new Router({
     },
     {
       path: '/ticket/:ticketId',
+      name: 'ticket',
       component: () => import('@/pages/tickets/SuppTicket'),
-      props: true
+      props: (route) => ({ ticketId: parseInt(route.params.ticketId) })
     },
     {
       path: '/search',
