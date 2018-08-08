@@ -2,8 +2,8 @@ import APIService from '@/services/common/api.services'
 
 const AnswerAPIService = {
   get (slug) {
-    if (typeof slug !== 'string') {
-      throw new Error('[Gluu] AnswerAPIService.get() ticket slug required to fetch answers')
+    if (typeof slug !== 'number') {
+      throw new Error('[Gluu] AnswerAPIService.get() ticket id required to fetch answers')
     }
     return APIService.get('tickets', `${slug}/answers`)
   },

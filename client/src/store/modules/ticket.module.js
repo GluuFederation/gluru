@@ -58,7 +58,6 @@ export const actions = {
 
     return TicketAPIService.get(ticketSlug)
       .then(({ data }) => {
-        console.log(data)
         context.commit(SET_TICKET, data)
         return data
       })
