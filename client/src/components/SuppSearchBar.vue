@@ -45,27 +45,28 @@ export default {
       categorySelected: null,
       categoryOptions: [
         { value: null, text: 'Select a Category' },
-        { value: 'OUTAGE', text: 'Outages' },
-        { value: 'IDNTY', text: 'Identity Management' },
-        { value: 'SSO', text: 'Single Sign-On' },
-        { value: 'MFA', text: 'Authentication' },
-        { value: 'ACCESS', text: 'Access Management' },
-        { value: 'CUSTOM', text: 'Customization' },
-        { value: 'FEATURE', text: 'Feature Request' },
-        { value: 'INSTALLATION', text: 'Installation' },
-        { value: 'UPGRADE', text: 'Upgrade' },
-        { value: 'MAINTENANCE', text: 'Maintenance' },
-        { value: 'OTHER', text: 'Other' },
-        { value: 'LOGOUT', text: 'Log Out' }
+        { id: 'IN', text: 'Installation' },
+        { id: 'OA', text: 'Outages' },
+        { id: 'SO', text: 'Single Sign-On' },
+        { id: 'AU', text: 'Authentication' },
+        { id: 'AZ', text: 'Authorization' },
+        { id: 'AM', text: 'Access Management' },
+        { id: 'UG', text: 'Upgrade' },
+        { id: 'MT', text: 'Maintenance' },
+        { id: 'IM', text: 'Identity Management' },
+        { id: 'CZ', text: 'Customization' },
+        { id: 'FR', text: 'Feature Request' },
+        { id: 'LO', text: 'Logout' },
+        { id: 'OH', text: 'Other' }
       ],
       statusSelected: null,
       statusOptions: [
         { value: null, text: 'Select a Status' },
-        { value: 'new', text: 'New' },
-        { value: 'assigned', text: 'Assigned' },
-        { value: 'inprogress', text: 'In Progress' },
-        { value: 'pending', text: 'Pending Input' },
-        { value: 'closed', text: 'Closed' }
+        { id: 'NW', text: 'New' },
+        { id: 'AS', text: 'Assigned' },
+        { id: 'IP', text: 'In Progress' },
+        { id: 'PI', text: 'Pending Input' },
+        { id: 'CL', text: 'Closed' }
       ],
       versionSelected: null,
       versionOptions: [
@@ -85,10 +86,10 @@ export default {
       osSelected: null,
       osOptions: [
         { value: null, text: 'Select Operating System' },
-        { value: 'Ubuntu', text: 'Ubuntu' },
-        { value: 'CentOS', text: 'CentOS' },
-        { value: 'Rhel', text: 'RHEL' },
-        { value: 'Debian', text: 'Debian' }
+        { id: 'UT', text: 'Ubuntu' },
+        { id: 'CO', text: 'CentOS' },
+        { id: 'RH', text: 'RHEL' },
+        { id: 'DB', text: 'Debian' }
       ]
     }
   },

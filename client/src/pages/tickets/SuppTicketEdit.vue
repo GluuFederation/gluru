@@ -113,42 +113,42 @@ export default {
       ],
       categoryOptions: [
         { id: '', text: 'Select an issue category' },
-        { id: 'installation', text: 'Installation' },
-        { id: 'outages', text: 'Outages' },
-        { id: 'single_sign_on', text: 'Single Sign-On' },
-        { id: 'authentication', text: 'Authentication' },
-        { id: 'authorization', text: 'Authorization' },
-        { id: 'access_management', text: 'Access Management' },
-        { id: 'upgrade', text: 'Upgrade' },
-        { id: 'maintenance', text: 'Maintenance' },
-        { id: 'identity_management', text: 'Identity Management' },
-        { id: 'customization', text: 'Customization' },
-        { id: 'feature_request', text: 'Feature Request' },
-        { id: 'log_out', text: 'Logout' },
-        { id: 'other', text: 'Other' }
+        { id: 'IN', text: 'Installation' },
+        { id: 'OA', text: 'Outages' },
+        { id: 'SO', text: 'Single Sign-On' },
+        { id: 'AU', text: 'Authentication' },
+        { id: 'AZ', text: 'Authorization' },
+        { id: 'AM', text: 'Access Management' },
+        { id: 'UG', text: 'Upgrade' },
+        { id: 'MT', text: 'Maintenance' },
+        { id: 'IM', text: 'Identity Management' },
+        { id: 'CZ', text: 'Customization' },
+        { id: 'FR', text: 'Feature Request' },
+        { id: 'LO', text: 'Logout' },
+        { id: 'OH', text: 'Other' }
       ],
       osOptions: [
         { id: '', text: 'Select Operating System' },
-        { id: 'Ubuntu', text: 'Ubuntu' },
-        { id: 'CentOS', text: 'CentOS' },
-        { id: 'Rhel', text: 'RHEL' },
-        { id: 'Debian', text: 'Debian' }
+        { id: 'UT', text: 'Ubuntu' },
+        { id: 'CO', text: 'CentOS' },
+        { id: 'RH', text: 'RHEL' },
+        { id: 'DB', text: 'Debian' }
       ],
       issueOptions: [
         { id: '', text: 'Please specify the kind of issue you have encountered' },
-        { id: 'outage', text: 'Production Outage' },
-        { id: 'impaired', text: 'Production Impaired' },
-        { id: 'pre_production', text: 'Pre-Production Issue' },
-        { id: 'minor', text: 'Minor Issue' },
-        { id: 'new_development', text: 'New Development Issue' }
+        { id: 'PO', text: 'Production Outage' },
+        { id: 'PI', text: 'Production Impaired' },
+        { id: 'PP', text: 'Pre-Production Issue' },
+        { id: 'MI', text: 'Minor Issue' },
+        { id: 'NI', text: 'New Development Issue' }
       ],
       statusOptions: [
         { id: '', text: 'Select a Status' },
-        { id: 'new', text: 'New' },
-        { id: 'assigned', text: 'Assigned' },
-        { id: 'inprogress', text: 'In Progress' },
-        { id: 'pending', text: 'Pending Input' },
-        { id: 'closed', text: 'Closed' }
+        { id: 'NW', text: 'New' },
+        { id: 'AS', text: 'Assigned' },
+        { id: 'IP', text: 'In Progress' },
+        { id: 'PI', text: 'Pending Input' },
+        { id: 'CL', text: 'Closed' }
       ],
       privacyOptions: [
         { id: false, text: 'Public' },

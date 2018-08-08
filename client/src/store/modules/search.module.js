@@ -31,7 +31,7 @@ export const getters = {
 export const actions = {
   [FETCH_TICKETS] (context, params) {
     context.commit(FETCH_TICKETS_START)
-    return SearchAPIService.query(params)
+    return SearchAPIService.query(params.filters)
       .then(({data}) => {
         context.commit(FETCH_TICKETS_END, data)
       })

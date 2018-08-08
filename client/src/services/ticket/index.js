@@ -14,7 +14,7 @@ const TicketAPIService = {
 
   create (params) {
     return APIService
-      .post('tickets', { ticket: params })
+      .post('tickets/', { ticket: params })
   },
 
   update (slug, params) {
