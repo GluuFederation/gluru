@@ -1,5 +1,8 @@
 from django.utils.translation import ugettext_lazy as _
 
+CHOICE_MAX_LENGTH = 2
+VERSION_CHOICE_MAX_LENGTH = 10
+UUID_MAX_LENGTH = 20
 TICKET_STATUS = (
     ('', 'Select a Status'),
     ('NW', _('New')),
@@ -19,7 +22,6 @@ ISSUE_TYPE = (
 )
 
 ISSUE_CATEGORY = (
-    ('', 'Select an issue category'),
     ('IN', 'Installation'),
     ('OA', 'Outages'),
     ('SO', 'Single Sign-On'),
@@ -61,6 +63,13 @@ PRODUCT_OS_VERSION = (
     ('BO', 'Both')
 )
 
+PRODUCT = (
+    ('', 'Select a Product'),
+    ('OD', 'OXD'),
+    ('SG', 'Super Gluu'),
+    ('CM', 'Cluster Manager')
+)
+
 GLUU_SERVER_VERSION = (
     ('', 'Select Gluu Server Version'),
     ('3.1.2', 'Gluu Server 3.1.2'),
@@ -74,13 +83,6 @@ GLUU_SERVER_VERSION = (
     ('2.4.3', 'Gluu Server 2.4.3'),
     ('2.4.2', 'Gluu Server 2.4.2'),
     ('Other', 'Other')
-)
-
-PRODUCT = (
-    ('', 'Select a Product'),
-    ('OSD', 'OXD'),
-    ('SUP', 'Super Gluu'),
-    ('CLU', 'Cluster Manager')
 )
 
 Product_Version = (

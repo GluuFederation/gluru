@@ -5,104 +5,84 @@ from tickets import constants
 
 class Ticket(models.Model):
     title = models.CharField(
-        max_length=255,
-        blank=False,
-        null=False,
-        verbose_name=_('Title')
+        max_length=255
     )
 
-    description = models.TextField(
-        blank=False,
-        null=False,
-        verbose_name=_('Description')
-    )
+    description = models.TextField()
 
     category = models.CharField(
-        max_length=2,
-        blank=False,
-        null=False,
+        max_length=constants.CHOICE_MAX_LENGTH,
         choices=constants.ISSUE_CATEGORY,
+        default='IN',
         verbose_name=_('Category')
     )
 
     created_by = models.CharField(
-        max_length=20,
-        blank=False,
-        null=False,
-        verbose_name=_('Created by')
+        max_length=constants.UUID_MAX_LENGTH
     )
 
     created_for = models.CharField(
-        max_length=20,
+        max_length=constants.UUID_MAX_LENGTH,
         blank=True,
-        null=True,
-        verbose_name=_('Created for')
+        null=True
     )
 
     company = models.CharField(
-        max_length=20,
+        max_length=constants.UUID_MAX_LENGTH,
         blank=True,
         null=True,
         verbose_name=_('Company Association')
     )
 
     updated_by = models.CharField(
-        max_length=20,
+        max_length=constants.UUID_MAX_LENGTH,
         blank=True,
         null=True,
         verbose_name=_('Last Updated by')
     )
 
     assignee = models.CharField(
-        max_length=20,
+        max_length=constants.UUID_MAX_LENGTH,
         blank=True,
-        null=True,
-        verbose_name=_('Assigned to')
+        null=True
     )
 
     status = models.CharField(
-        max_length=2,
+        max_length=constants.CHOICE_MAX_LENGTH,
         choices=constants.TICKET_STATUS,
-        blank=False,
-        default='new',
-        verbose_name=_('Status')
+        default='NW'
     )
 
     issue_type = models.CharField(
-        max_length=2,
+        max_length=constants.CHOICE_MAX_LENGTH,
         choices=constants.ISSUE_TYPE,
-        blank=True,
-        default='',
-        verbose_name=_('Issue type')
+        default=''
     )
 
     server_version = models.CharField(
-        max_length=10,
+        max_length=constants.VERSION_CHOICE_MAX_LENGTH,
         choices=constants.GLUU_SERVER_VERSION,
-        blank=False,
         default='',
-        verbose_name=_('Gluu Server Version')
+        help_text=_('Gluu Server Version')
     )
 
     server_version_comments = models.CharField(
         max_length=30,
         blank=True,
         null=True,
-        verbose_name=_('Gluu Server Version Comments')
-
+        help_text=_('Gluu Server Version Comments')
     )
 
     os_version = models.CharField(
+        max_length=constants.CHOICE_MAX_LENGTH,
         choices=constants.OS_VERSION,
-        max_length=2,
-        blank=True,
-        null=True,
-        verbose_name=_('Which OS are you using?')
+        default='',
+        verbose_name=_('OS'),
+        help_text=_('Which OS are you using?')
     )
 
-    os_version_name = models.FloatField(
-        blank=True,
-        null=True,
+    os_version_name = models.CharField(
+        max_length=10,
         verbose_name=_('OS Version')
     )
 
@@ -115,14 +95,12 @@ class Ticket(models.Model):
     link = models.URLField(
         max_length=255,
         blank=True,
-        default='',
         verbose_name=_('Link URL')
     )
 
     send_copy = models.CharField(
         max_length=255,
         blank=True,
-        default='',
         verbose_name=_('Send copy to')
     )
 
@@ -141,17 +119,17 @@ class Ticket(models.Model):
     os_type = models.BooleanField(
         blank=True,
         default=False,
-        verbose_name=_('Is it 64-bit hardware?')
+        help_text=_('Is it 64-bit hardware?')
     )
 
     ram = models.BooleanField(
         blank=True,
         default=False,
-        verbose_name=_('Does the server have at least 4GB RAM?')
+        help_text=_('Does the server have at least 4GB RAM?')
     )
 
     visits = models.IntegerField(
-        blank=False,
+        blank=True,
         default=0,
         verbose_name=_('Ticket visits')
     )
@@ -159,8 +137,7 @@ class Ticket(models.Model):
     meta_keywords = models.CharField(
         max_length=500,
         blank=True,
-        null=True,
-        verbose_name=_('Meta keywords')
+        null=True
     )
 
     set_default_gluu = models.BooleanField(
@@ -171,13 +148,11 @@ class Ticket(models.Model):
 
     created_at = models.DateTimeField(
         auto_now_add=True,
-        editable=False,
-        verbose_name=_('Created At')
+        editable=False
     )
 
     updated_at = models.DateTimeField(
-        auto_now=True,
-        verbose_name=_('Updated At')
+        auto_now=True
     )
 
     def __str__(self):
@@ -185,50 +160,45 @@ class Ticket(models.Model):
 
     class Meta:
         ordering = ['-created_at']
-        verbose_name = 'Ticket'
-        verbose_name_plural = 'Tickets'
 
 
 class TicketProduct(models.Model):
     ticket = models.ForeignKey(
         Ticket,
+        on_delete=models.CASCADE,
         related_name='products',
-        blank=False,
-        null=False
     )
 
     product = models.CharField(
-        max_length=3,
+        max_length=constants.CHOICE_MAX_LENGTH,
         choices=constants.PRODUCT,
-        blank=True,
-        default='',
-        verbose_name=_('Product')
+        blank=True
     )
 
-
-    product_version = models.CharField(
-        max_length=20,
+    version = models.CharField(
+        max_length=constants.VERSION_CHOICE_MAX_LENGTH,
         choices=constants.Product_Version,
         blank=True,
-        default='',
         verbose_name=_('Product Version')
     )
 
-    product_os_version = models.CharField(
-        max_length=2,
+    os_version = models.CharField(
+        max_length=constants.CHOICE_MAX_LENGTH,
         choices=constants.PRODUCT_OS_VERSION,
         blank=True,
-        default='',
         verbose_name=_('Product OS Version')
 
     )
-    product_os_version_name = models.FloatField(
+
+    os_version_name = models.CharField(
+        max_length=10,
         blank=True,
         null=True,
         verbose_name=_('Product OS Version')
     )
 
-    ios_version_name = models.FloatField(
+    ios_version_name = models.CharField(
+        max_length=10,
         blank=True,
         null=True,
         verbose_name=_('iOS Version')
@@ -237,54 +207,38 @@ class TicketProduct(models.Model):
     created_at = models.DateTimeField(
         auto_now_add=True,
         editable=False,
-        verbose_name=_('Created At'),
-        help_text=_('Created At')
     )
 
     updated_at = models.DateTimeField(
         auto_now=True,
-        verbose_name=_('Updated At'),
-        help_text=_('Updated At')
     )
 
 
 class Answer(models.Model):
-
-    answer = models.TextField(
-        blank=False,
-        null=False,
-        verbose_name=_('Answer')
-    )
+    answer = models.TextField()
 
     ticket = models.ForeignKey(
         Ticket,
         on_delete=models.CASCADE,
         related_name='ticket_answers',
-        verbose_name=_('Ticket'),
-        help_text=_('Ticket')
     )
 
     created_by = models.CharField(
         max_length=20,
-        blank=False,
-        null=False,
-        verbose_name=_('Created by'),
         help_text=_('Answer added by user')
     )
 
     link_url = models.URLField(
         max_length=255,
         blank=True,
-        default='',
         verbose_name=_('Link URL')
     )
 
     privacy = models.CharField(
-        max_length=255,
+        max_length=constants.CHOICE_MAX_LENGTH,
         choices=constants.ANSWER_PRIVACY,
-        default='inherit',
-        blank=True,
-        verbose_name=_('Privacy')
+        default='IH',
+        blank=True
     )
 
     send_copy = models.CharField(
@@ -303,21 +257,15 @@ class Answer(models.Model):
 
     created_at = models.DateTimeField(
         auto_now_add=True,
-        editable=False,
-        verbose_name=_('Added'),
-        help_text=_('Added date')
+        editable=False
     )
 
     updated_at = models.DateTimeField(
-        auto_now=True,
-        verbose_name=_('Modified'),
-        help_text=_('Modified date')
+        auto_now=True
     )
 
     def __str__(self):
         return self.ticket.title
 
     class Meta:
-        ordering = ['created_at']
-        verbose_name = 'answer'
-        verbose_name_plural = 'answers'
+        ordering = ['-created_at']
