@@ -4,6 +4,7 @@ from tickets import constants
 
 
 class Ticket(models.Model):
+
     title = models.CharField(
         max_length=255
     )
@@ -163,6 +164,7 @@ class Ticket(models.Model):
 
 
 class TicketProduct(models.Model):
+
     ticket = models.ForeignKey(
         Ticket,
         on_delete=models.CASCADE,
@@ -215,12 +217,13 @@ class TicketProduct(models.Model):
 
 
 class Answer(models.Model):
+
     answer = models.TextField()
 
     ticket = models.ForeignKey(
         Ticket,
         on_delete=models.CASCADE,
-        related_name='ticket_answers',
+        related_name='answers',
     )
 
     created_by = models.CharField(
