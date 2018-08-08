@@ -5,6 +5,20 @@
       :ticket="ticket"
       :key="ticket.id + index">
     </supp-ticket-preview>
+    <paginate
+      v-model="currentPage"
+      :page-count="itemsPerPage"
+      :prev-text="'Prev'"
+      :next-text="'Next'"
+      :container-class="'pagination'"
+      :page-class="'page-item'"
+      :prev-class="'page-item'"
+      :next-class="'page-item'"
+      :page-link-class="'page-link'"
+      :prev-link-class="'page-link'"
+      :next-link-class="'page-link'"
+      :active-class="'active'">
+    </paginate>
   </div>
 </template>
 
@@ -12,11 +26,13 @@
 import { mapGetters } from 'vuex'
 import SuppTicketPreview from '@/components/SuppTicketPreview'
 import { FETCH_TICKETS } from '@/store/actions.type'
+import Paginate from 'vuejs-paginate'
 
 export default {
   name: 'SuppTicketList',
   components: {
-    SuppTicketPreview
+    SuppTicketPreview,
+    Paginate
   },
   props: {
     status: {
@@ -39,9 +55,10 @@ export default {
       type: String,
       required: false
     },
-    itemPerPage: {
+    itemsPerPage: {
       type: Number,
-      required: false
+      required: false,
+      default: 2
     }
   },
   data () {
@@ -52,8 +69,8 @@ export default {
   computed: {
     listConfig () {
       const filters = {
-        offset: (this.currentPage - 1) * this.itemPerPage,
-        limit: this.itemPerPage
+        offset: (this.currentPage - 1) * this.itemsPerPage,
+        limit: this.itemsPerPage
       }
 
       if (this.status) {
@@ -79,18 +96,24 @@ export default {
         filters
       }
     },
-    pages () {
-
-    },
     ...mapGetters([
       'tickets',
       'ticketsCount',
       'isLoading'
     ])
   },
+  watch: {
+    currentPage (newValue) {
+      this.listConfig.filters.offset = (newValue - 1) * this.itemsPerPage
+      this.fetchTickets()
+    }
+  },
+  mounted () {
+    this.fetchTickets()
+  },
   methods: {
     fetchTickets () {
-      this.$store.dispatch(FETCH_TICKETS, this.listConfig())
+      this.$store.dispatch(FETCH_TICKETS, this.listConfig)
     }
   }
 }
