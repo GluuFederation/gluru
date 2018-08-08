@@ -189,6 +189,65 @@ class Ticket(models.Model):
         verbose_name_plural = 'Tickets'
 
 
+class TicketProduct(models.Model):
+    ticket = models.ForeignKey(
+        Ticket,
+        related_name='products',
+        blank=False,
+        null=False
+    )
+
+    product = models.CharField(
+        max_length=20,
+        choices=constants.PRODUCT,
+        blank=True,
+        default='',
+        verbose_name=_('Product')
+    )
+
+
+    product_version = models.CharField(
+        max_length=20,
+        choices=constants.Product_Version,
+        blank=True,
+        default='',
+        verbose_name=_('Product Version')
+    )
+
+    product_os_version = models.CharField(
+        max_length=20,
+        choices=constants.PRODUCT_OS_VERSION,
+        blank=True,
+        default='',
+        verbose_name=_('Product OS Version')
+
+    )
+    product_os_version_name = models.FloatField(
+        blank=True,
+        null=True,
+        verbose_name=_('Product OS Version')
+    )
+
+    ios_version_name = models.FloatField(
+        blank=True,
+        null=True,
+        verbose_name=_('iOS Version')
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        editable=False,
+        verbose_name=_('Created At'),
+        help_text=_('Created At')
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name=_('Updated At'),
+        help_text=_('Updated At')
+    )
+
+
 class Answer(models.Model):
 
     answer = models.TextField(
