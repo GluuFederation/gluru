@@ -29,8 +29,10 @@
       </div>
     </div>
     <div class="card-footer">
-      <div class="float-right">
-        <b-button variant="info" v-on:click="deleteComment(7, 1)">
+      <div v-if="isTicket">
+      </div>
+      <div class="float-right" v-else>
+        <b-button variant="info" v-on:click="deleteAnswer(ticketId, data.id)">
           <icon name="trash-alt"></icon>Delete
         </b-button>
         <b-button variant="info">
@@ -68,8 +70,7 @@ export default {
     }
   },
   methods: {
-    deleteComment (ticketId, answerId) {
-      console.log('delete comment')
+    deleteAnswer (ticketId, answerId) {
       this.$store.dispatch(ANSWER_DELETE, { ticketId, answerId })
     }
   }

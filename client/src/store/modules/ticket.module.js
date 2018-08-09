@@ -96,8 +96,7 @@ export const actions = {
     return AnswerAPIService
       .destroy(payload.ticketId, payload.answerId)
       .then(() => {
-        // context.dispatch(FETCH_ANSWERS, payload.ticketId)
-        console.log('Deleted successfully')
+        context.dispatch(FETCH_ANSWERS, payload.ticketId)
       })
   }
 }

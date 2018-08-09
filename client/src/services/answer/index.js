@@ -13,9 +13,9 @@ const AnswerAPIService = {
       `tickets/${slug}/answers`, { answer: payload })
   },
 
-  destroy (slug, answerId) {
+  destroy (ticketId, answerId) {
     return APIService
-      .delete(`tickets/${slug}/answers/${answerId}`)
+      .delete(`tickets/${ticketId}/answers/${answerId}`)
   }
 }
 

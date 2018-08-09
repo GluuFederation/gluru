@@ -14,6 +14,7 @@ class AnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Answer
         fields = (
+            'id',
             'body',
             'created_by',
             'privacy'
