@@ -35,7 +35,7 @@
         <b-button variant="info" v-on:click="deleteAnswer(ticketId, data.id)">
           <icon name="trash-alt"></icon>Delete
         </b-button>
-        <b-button variant="info">
+        <b-button variant="info" v-on:click="editAnswer(ticketId, data.id)">
           <icon name="edit"></icon>Edit
         </b-button>
       </div>
@@ -50,6 +50,7 @@ import 'vue-awesome/icons/edit'
 import 'vue-awesome/icons/trash-alt'
 
 import {
+  ANSWER_EDIT,
   ANSWER_DELETE
 } from '@/store/actions.type'
 
@@ -72,6 +73,10 @@ export default {
   methods: {
     deleteAnswer (ticketId, answerId) {
       this.$store.dispatch(ANSWER_DELETE, { ticketId, answerId })
+    },
+    editAnswer (ticketId, answerId) {
+      console.log(ticketId, answerId)
+      this.$store.dispatch(ANSWER_EDIT, { ticketId, answerId })
     }
   }
 }

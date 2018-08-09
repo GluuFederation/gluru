@@ -13,6 +13,11 @@ const AnswerAPIService = {
       `tickets/${slug}/answers`, { answer: payload })
   },
 
+  update (ticketId, answerId, payload) {
+    return APIService
+      .update(`tickets/${ticketId}/answers`, answerId, { answer: payload })
+  },
+
   destroy (ticketId, answerId) {
     return APIService
       .delete(`tickets/${ticketId}/answers/${answerId}`)

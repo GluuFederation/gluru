@@ -5,7 +5,7 @@ import {
   TICKET_UPDATE,
   TICKET_DELETE,
   ANSWER_CREATE,
-  ANSWER_UPDATE,
+  ANSWER_EDIT,
   ANSWER_DELETE
 } from '@/store/actions.type'
 
@@ -88,8 +88,11 @@ export const actions = {
       .then(() => { context.dispatch(FETCH_ANSWERS, payload.ticketId) })
   },
 
-  [ANSWER_UPDATE] (context, payload) {
-
+  [ANSWER_EDIT] (context, params) {
+    const answer = context.state.answers.find(x => x.id === params.answerId)
+    return AnswerAPIService
+      .update(params.ticketId, params.answerId, answer)
+      .then(() => { context.dispatch(FETCH_ANSWERS, params.ticketId) })
   },
 
   [ANSWER_DELETE] (context, payload) {
