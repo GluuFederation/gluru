@@ -53,7 +53,7 @@
 {% endblock content %}
 {% block js %}
 	<script>	
-	    docs = {{documents}};
+	  docs = {{documents}};
       basicTicket = "{{ticket.owned_by.is_basic}}";
 	</script>
 
@@ -126,6 +126,26 @@
     </div>
 </script>
 <script>
+
+    allCategories = gatherAllCategories();
+    function gatherAllCategories(){
+        allCategories = {};
+        $('#id_ticket_category option').each(function(){
+            allCategories[$(this).text().trim()] = $(this).val();
+        });
+        return allCategories;
+    }
+    $('#id_issue_type').change(function(e){
+
+        selectedIssueValue = $(this).find('option:selected').val();
+		$("#id_ticket_category").select2("val","");
+        if (selectedIssueValue == 'outage'){
+            $('#div_id_ticket_category').addClass('hidden');
+            if(selectedIssueValue == 'outage'){
+                $("#id_ticket_category option[value='"+allCategories['Outages']+"']").prop('selected', true);
+            }
+        }
+    });
     var manualUploader = new qq.FineUploader({
         element: document.getElementById('fine-uploader-manual-trigger'),
         template: 'qq-template-manual-trigger',
@@ -146,5 +166,84 @@
 
 
 </script>
+<link rel="stylesheet" href="{{STATIC_URL}}css/simplemde.min.css">
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css">
+<script src="{{STATIC_URL}}js/simplemde.min.js"></script>
+
+<script>
+   $(".os_version").on("change", function(){
+        if($(this).val() == "Other"){
+            $("#div_id_os_name").removeClass("hidden");
+            $("#div_id_gluu_server_version").removeClass("col-md-4");
+            $("#div_id_gluu_server_version").addClass("col-md-3");
+            $("#div_id_os_version").removeClass("col-md-4");
+            $("#div_id_os_version").addClass("col-md-3");
+            $("#div_id_os_version_name").removeClass("col-md-4");
+            $("#div_id_os_version_name").addClass("col-md-3");
+            $("#div_id_os_name").removeClass("col-md-4");
+            $("#div_id_os_name").addClass("col-md-3");
+        }else{
+            $("#div_id_os_name").addClass("hidden");
+            $("#id_os_name").val("N/A");
+            $("#div_id_gluu_server_version").addClass("col-md-4");
+            $("#div_id_gluu_server_version").removeClass("col-md-3");
+            $("#div_id_os_version").addClass("col-md-4");
+            $("#div_id_os_version").removeClass("col-md-3");
+            $("#div_id_os_version_name").addClass("col-md-4");
+            $("#div_id_os_version_name").removeClass("col-md-3");
+            $("#div_id_os_name").addClass("col-md-4");
+            $("#div_id_os_name").removeClass("col-md-3");
+        }
+    });
+    if($("#id_os_version").val() == "Other"){
+        $("#div_id_os_name").removeClass("hidden");
+        $("#div_id_gluu_server_version").removeClass("col-md-4");
+        $("#div_id_gluu_server_version").addClass("col-md-3");
+        $("#div_id_os_version").removeClass("col-md-4");
+        $("#div_id_os_version").addClass("col-md-3");
+        $("#div_id_os_version_name").removeClass("col-md-4");
+        $("#div_id_os_version_name").addClass("col-md-3");
+        $("#div_id_os_name").removeClass("col-md-4");
+        $("#div_id_os_name").addClass("col-md-3");
+    }else{
+        $("#div_id_os_name").addClass("hidden");
+        $("#id_os_name").val("N/A");
+        $("#div_id_gluu_server_version").addClass("col-md-4");
+        $("#div_id_gluu_server_version").removeClass("col-md-3");
+        $("#div_id_os_version").addClass("col-md-4");
+        $("#div_id_os_version").removeClass("col-md-3");
+        $("#div_id_os_version_name").addClass("col-md-4");
+        $("#div_id_os_version_name").removeClass("col-md-3");
+        $("#div_id_os_name").addClass("col-md-4");
+        $("#div_id_os_name").removeClass("col-md-3");
+    }
+
+    if( $("#id_os_version").val() == "" && $("#id_os_version").val() == null )
+        $("#div_id_os_name").removeClass("hidden");
+    else if($("#id_os_name").val() != "N/A")
+        $("#div_id_os_name").removeClass("hidden");
+
+   var simplemde = new SimpleMDE({
+   autofocus: true,
+    blockStyles: {
+        bold: "__",
+        italic: "_"
+    },
+    element: document.getElementById("id_description"),
+    insertTexts: {
+        horizontalRule: ["", "\n\n-----\n\n"],
+        image: ["![](http://", ")"],
+        link: ["[", "](http://)"],
+        table: ["", "\n\n| Column 1 | Column 2 | Column 3 |\n| -- | -- | -- |\n| Text  | Text | Text |\n\n"],
+    },
+    placeholder: "## Expected behavior\n\n## Actual behavior\n\n## Minimized example \n *Minimal, complete configuration that reproduces the behavior.* \n\n ## Configuration and Log files\n *Config and logs for the minimized example, provided as attachments or linked to a service like pastebin.*",
+    shortcuts: {
+        drawTable: "Cmd-Alt-T"
+    },
+    showIcons: ["code", "table"],
+});
+$( ".CodeMirror" ).resizable({maxWidth:"728",minWidth:"728"});
+</script>
+
 
 {% endblock js %}

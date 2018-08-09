@@ -14,15 +14,36 @@
     </div>
 </div>
 
+<!-- Modal -->
+<div class="modal fade" id="resetOxdForm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+        <h4>Are you sure you want to reset this form?</h4>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="confirm_reset" data-dismiss="modal" class="btn btn-primary">Confirm</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 {% endblock content %}
 
 {% block js %}
 <script>
 $(document).ready(function(){
+    $("#id_client_authorization_redirect_uri").attr("data-toggle","tooltip");
+    $("#id_client_authorization_redirect_uri").attr("title", "Please add a valid callback url otherwise login process breaks.");
+    $("#id_client_post_logout_redirect_uri").attr("data-toggle","tooltip");
+    $("#id_client_post_logout_redirect_uri").attr("title",'Please add a valid logout url otherwise logout redirection changed.');
     $("#submit-id-save").click(function(e){
         e.preventDefault();
         var all_ok = true;
+        var host = $(location).attr('host');
+        var authorization_redirect_uri = $("#id_client_authorization_redirect_uri").val().split("/");
+        var post_logout_uri = $("#id_client_post_logout_redirect_uri").val().split("/");
         if($("#id_oxd_host").val()==""){
            $("#id_oxd_host").parent().parent().addClass("has-error");
            $("#id_oxd_host").parent().parent().find(".controls > .help-block").remove();
@@ -71,6 +92,18 @@ $(document).ready(function(){
             $("#id_client_authorization_redirect_uri").parent().parent().removeClass("has-error");
             $("#id_client_authorization_redirect_uri").parent().parent().find(".controls > .help-block").remove();
         }
+        if(authorization_redirect_uri[2]!=host){
+           $("#id_client_authorization_redirect_uri").parent().parent().addClass("has-error");
+           $("#id_client_authorization_redirect_uri").parent().parent().find(".controls > .help-block").remove();
+           $('<p  class="help-block"><strong>Please enter correct domain name.</strong></p>').appendTo($("#id_client_authorization_redirect_uri").parent().parent().find(".controls"));
+           $("#id_client_authorization_redirect_uri").focus();
+           all_ok = false;
+
+        }
+        else{
+            $("#id_client_authorization_redirect_uri").parent().parent().removeClass("has-error");
+            $("#id_client_authorization_redirect_uri").parent().parent().find(".controls > .help-block").remove();
+        }
         if($("#id_client_post_logout_redirect_uri").val()==""){
            $("#id_client_post_logout_redirect_uri").parent().parent().addClass("has-error");
            $("#id_client_post_logout_redirect_uri").parent().parent().find(".controls > .help-block").remove();
@@ -83,70 +116,75 @@ $(document).ready(function(){
             $("#id_client_post_logout_redirect_uri").parent().parent().removeClass("has-error");
             $("#id_client_post_logout_redirect_uri").parent().parent().find(".controls > .help-block").remove();
         }
-        if($("#id_client_scope").val()==""){
-           $("#id_client_scope").parent().parent().addClass("has-error");
-           $("#id_client_scope").parent().parent().find(".controls > .help-block").remove();
-           $('<p  class="help-block"><strong>This field is required.</strong></p>').appendTo($("#id_client_scope").parent().parent().find(".controls"));
-           $("#id_client_scope").focus();
+        if(post_logout_uri[2]!=host){
+           $("#id_client_post_logout_redirect_uri").parent().parent().addClass("has-error");
+           $("#id_client_post_logout_redirect_uri").parent().parent().find(".controls > .help-block").remove();
+           $('<p  class="help-block"><strong>Please enter correct domain name.</strong></p>').appendTo($("#id_client_post_logout_redirect_uri").parent().parent().find(".controls"));
+           $("#id_client_post_logout_redirect_uri").focus();
            all_ok = false;
 
         }
         else{
-            $("#id_client_scope").parent().parent().removeClass("has-error");
-            $("#id_client_scope").parent().parent().find(".controls > .help-block").remove();
+            $("#id_client_post_logout_redirect_uri").parent().parent().removeClass("has-error");
+            $("#id_client_post_logout_redirect_uri").parent().parent().find(".controls > .help-block").remove();
         }
-        if($("#id_client_id").val()==""){
-           $("#id_client_id").parent().parent().addClass("has-error");
-           $("#id_client_id").parent().parent().find(".controls > .help-block").remove();
-           $('<p  class="help-block"><strong>This field is required.</strong></p>').appendTo($("#id_client_id").parent().parent().find(".controls"));
-           $("#id_client_id").focus();
+        if($("#id_client_name").val()==""){
+           $("#id_client_name").parent().parent().addClass("has-error");
+           $("#id_client_name").parent().parent().find(".controls > .help-block").remove();
+           $('<p  class="help-block"><strong>This field is required.</strong></p>').appendTo($("#id_client_name").parent().parent().find(".controls"));
+           $("#id_client_name").focus();
            all_ok = false;
 
         }
         else{
-            $("#id_client_id").parent().parent().removeClass("has-error");
-            $("#id_client_id").parent().parent().find(".controls > .help-block").remove();
+            $("#id_client_name").parent().parent().removeClass("has-error");
+            $("#id_client_name").parent().parent().find(".controls > .help-block").remove();
         }
-        if($("#id_client_secret").val()==""){
-           $("#id_client_secret").parent().parent().addClass("has-error");
-           $("#id_client_secret").parent().parent().find(".controls > .help-block").remove();
-           $('<p  class="help-block"><strong>This field is required.</strong></p>').appendTo($("#id_client_secret").parent().parent().find(".controls"));
-           $("#id_client_secret").focus();
-           all_ok = false;
-
-        }
-        else{
-            $("#id_client_secret").parent().parent().removeClass("has-error");
-            $("#id_client_secret").parent().parent().find(".controls > .help-block").remove();
-        }
-        if($("#id_client_grant_types").val()==""){
-           $("#id_client_grant_types").parent().parent().addClass("has-error");
-           $("#id_client_grant_types").parent().parent().find(".controls > .help-block").remove();
-           $('<p  class="help-block"><strong>This field is required.</strong></p>').appendTo($("#id_client_grant_types").parent().parent().find(".controls"));
-           $("#id_client_grant_types").focus();
-           all_ok = false;
-
-        }
-        else{
-            $("#id_client_grant_types").parent().parent().removeClass("has-error");
-            $("#id_client_grant_types").parent().parent().find(".controls > .help-block").remove();
-        }
-        if($("#id_client_id_issued_at").val()==""){
-           $("#id_client_id_issued_at").parent().parent().addClass("has-error");
-           $("#id_client_id_issued_at").parent().parent().find(".controls > .help-block").remove();
-           $('<p  class="help-block"><strong>This field is required.</strong></p>').appendTo($("#id_client_id_issued_at").parent().parent().find(".controls"));
-           $("#id_client_id_issued_at").focus();
-           all_ok = false;
-
-        }
-        else{
-            $("#id_client_id_issued_at").parent().parent().removeClass("has-error");
-            $("#id_client_id_issued_at").parent().parent().find(".controls > .help-block").remove();
-        }
-
+        $("#id_client_scope").val("openid,profile,email");
+        $("#id_client_grant_types").val("authorization_code,client_credentials");
         if(all_ok){
             $(".oxd_form").submit();
         }
+
+    });
+
+    $("#button-id-reset").click(function(){
+        $modal = $('#resetOxdForm');
+        $modal.modal('show');
+
+    });
+
+    $("#confirm_reset").click(function(){
+        var csrf = getCookie('csrftoken');
+        $.ajax({
+            type: "POST",
+            url: "/reset_oxd_values/",
+            data:{'csrfmiddlewaretoken':csrf}
+            }).done(function(response){
+            console.log(response);
+        });
+        $("input:radio").removeAttr("checked");
+        $("#id_oxd_host").val("");
+        $("#id_oxd_port").val("");
+        $("#id_oxd_id").val("");
+        $("#id_client_op_host").val("");
+        $("#id_client_authorization_redirect_uri").val("");
+        $("#id_client_post_logout_redirect_uri").val("");
+        $("#id_client_scope").val("");
+        $("#id_client_name").val("");
+        $("#id_client_id").val("");
+        $("#id_client_secret").val("");
+        $("#id_client_grant_types").val("");
+        $("#id_client_id_issued_at").val("");
+    });
+
+    $("#id_oxd_https_extension_1").click(function(){
+        $("#id_oxd_host").val("localhost");
+        $("#id_oxd_port").val("8099");
+    });
+    $("#id_oxd_https_extension_2").click(function(){
+        $("#id_oxd_host").val("");
+        $("#id_oxd_port").val("");
 
     });
 });

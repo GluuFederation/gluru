@@ -7,7 +7,11 @@
 <div class="form-area registered-info">
     <div class="col-md-8 form-left-area register">
         <div class="page-header">
+            {% if registration_form.email %}
             <h3>{% trans "Register for Gluu Support" %} </h3>
+            {% else %}
+            <h3>{% trans "Complete your account registration" %} </h3>
+            {% endif %}
         </div>
            {% crispy registration_form %}
     </div>
@@ -38,6 +42,19 @@
 {% block js %}
 <script>
     $(document).ready(function() {
+        if($("#id_company").val() == ""){
+            $("#id_company").removeAttr("readonly");
+        }else{
+            $("#id_company").css("background", "#eee");
+        }
+        $(document).delegate("#edit-co", "click",function(){
+            $("#id_company").removeAttr("readonly");
+            $("#id_company").css("background", "#f9f9f8");
+        });
+        $( "#div_id_company label" ).after( "<p id='edit-co' class='pull-right'><span class='glyphicon glyphicon-edit'></span></p>" );
+        $("#submit-id-save").on("click", function(){
+            $("#id_company").removeAttr("readonly");
+        });
         $('#hint_id_email').removeClass('help-block');
         $('#id_timezone').select2();
     });

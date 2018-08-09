@@ -1,0 +1,6 @@
+Hello {{ user.first_name }},
+
+You are already part of Gluu team.
+You can conitnue using Gluu Portal with the already registered Gluu email {{user.email}}.
+Thank you
+Gluu Support

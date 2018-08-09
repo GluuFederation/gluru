@@ -5,7 +5,6 @@ Ticket #{{ticket_id}}, "{{ticket_title}}", has been assigned to {{ticket_assigne
 
 We will evaluate your request and respond shortly.
 
-
 Thank you!
 
 Gluu Support
@@ -15,4 +14,3 @@ Gluu Support
 Ticket Link: {{ticket_link}}
 
 {% endautoescape %}
-

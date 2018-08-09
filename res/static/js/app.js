@@ -26,16 +26,22 @@ App = {
             selector: '[data-toggle="tooltip"]',
             html: true,
             placement: 'top auto'
-            });
-	$( window ).scroll(function() {
+        });
+
+        $('.icon').tooltip({
+            html: true,
+            placement: 'top auto',
+            delay: { "show": 50, "hide": 5000 }
+        });
+
+        $( window ).scroll(function() {
             $( ".icon" ).tooltip("hide");
         });
-	$(document).click(function(){
+        $(document).click(function(){
             $( ".icon" ).tooltip("hide");
         });
     },
 }
-
 
 /**
  *  Initors
@@ -55,7 +61,6 @@ App.initors = {
                     type: 'POST',
                     dataType: 'json',
                     "data": function ( d ) {
-
                       return $.extend( {}, d, {
                         "csrfmiddlewaretoken": getCookie('csrftoken')
                       } );
@@ -70,6 +75,10 @@ App.initors = {
             "scrollX": false,
             "scrollY": false,
             "aaSorting" : [[0, 'desc']],
+        });
+        table.on('page.dt', function() {
+          $("html, body").animate({ scrollTop: 0 },"fast");
+          $("th:first-child").focus();
         });
         $('#dashboardtable').find('tr').on('hover', function(){
             $(this).css({'color':'#c9c9c9', 'opacity':'0.7'});
@@ -219,19 +228,17 @@ App.initors = {
                 data: "csrfmiddlewaretoken="+csrf
             }).done(function( msg ) {
                 $('#send_alerts').html(msg['msg_html']);
-                swal(msg['msg'],{
-                 icon:"success",
-                });
+                alert(msg['msg']);
             });
         });
     }
-
 }
 
 /**
  *  Initialize
  */
-jQuery(document).ready(function(){
+jQuery(document).ready(function()
+{
     App.initialise();
 
 });

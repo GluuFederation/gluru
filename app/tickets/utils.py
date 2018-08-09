@@ -6,12 +6,12 @@ from tickets import constants
 
 
 def generate_ticket_link(ticket):
-    if ticket:
-        return reverse('view_ticket', kwargs={
-            'category': slugify(ticket.get_ticket_category_display()),
-            'id': ticket.id,
-            'title': slugify(ticket.title)
-        })
+
+    return reverse('view_ticket', kwargs={
+        'category': slugify(ticket.get_ticket_category_display()),
+        'id': ticket.id,
+        'title': slugify(ticket.title)
+    })
 
 
 def product_select_list(product):
@@ -73,16 +73,19 @@ def gluu_os_version_list(gluu_os_version):
     return html
 
 
-def get_last_ticket_data(user):
-    ticket = Ticket.objects.filter(created_by=user).order_by('-id')[:1]
-    data = []
-    for t in ticket:
-        data.append(t.gluu_server_version)
-        data.append(t.os_version)
-        data.append(t.os_version_name)
-        data.append(t.gluu_server_version_comments)
-    return data
-
+def get_last_ticket_data(user):
+    try:
+        ticket = Ticket.objects.filter(created_by=user).order_by('-id')[:1]
+        data = []
+        for t in ticket:
+            data.append(t.gluu_server_version)
+            data.append(t.os_version)
+            data.append(t.os_version_name)
+            data.append(t.gluu_server_version_comments)
+            data.append(t.os_name)
+        return data
+    except:
+        return []
 
 
 stopwords = ['a', 'about', 'above', 'across', 'after', 'afterwards']

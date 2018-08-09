@@ -9,6 +9,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         {% if ticket.description %}
         <meta name="description" content="{{ticket.description|slice:':150'}}">
+        {% else %}
+        <meta name="description" content="Please login to view.">
         {% endif %}
         {% if keyword_array %}
         <meta name="keywords" content="{% for keywords in keyword_array %}{{keywords}}, {% endfor %}gluu support">
@@ -34,15 +36,13 @@
         <link href="{{ STATIC_URL }}css/select2-bootstrap.css" rel="stylesheet">
         <link href="{{ STATIC_URL }}css/chosen.min.css" rel="stylesheet">
         <link href="{{ STATIC_URL }}css/fine-uploader-new.css" rel="stylesheet">
-        <link href="{{ STATIC_URL }}css/bootstrap-tagsinput.css" rel="stylesheet">
         <link href="{{ STATIC_URL }}css/style.css" rel="stylesheet">
         {% block headcss %}{% endblock headcss %}
         {% endcompress %}
 
         {% compress js %}
-
         <script src="{{STATIC_URL}}js/jquery.js" language="javascript" type="text/javascript"></script>
-        <script src="{{STATIC_URL}}js/jquery-ui.min.js" language="javascript" type="text/javascript"></script>
+        <script src="{{STATIC_URL}}js/jquery-ui.js" language="javascript" type="text/javascript"></script>
         <script src="{{STATIC_URL}}js/chosen.jquery.min.js" language="javascript" type="text/javascript"></script>
         <script src="{{STATIC_URL}}js/bootstrap.min.js" language="javascript" type="text/javascript"></script>
         <script src="{{STATIC_URL}}js/datatables.min.js" language="javascript" type="text/javascript"></script>
@@ -61,8 +61,9 @@
           <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
           <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
         <![endif]-->
+        <script src='https://www.google.com/recaptcha/api.js'></script>
     </head>
-    <body class="form-section-page">
+    <body>
         <div id="show_alert" style="display: none; height: 35px; margin-bottom: 0; padding: 5px; position: relative; text-align: center; top: 0; width: 100%; z-index: 100001;" class="alert alert-success alert-dismissible" role="alert">
           <button id="close_alert" type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
           {% trans "This system is currently in Beta. Please report any issues or feedback to" %} <a href="mailto:support@gluu.org">support@gluu.org</a>
@@ -104,13 +105,13 @@
                     {% else %}
 
                         <a role="button" class="btn btn-success btn-white navbar-btn navbar-right btn-nav-color navbar-gluu-button" type="button" href="{% url 'profile:register'%}">Register</a>
-                        <a role="button" class="btn btn-success btn-white navbar-btn navbar-right btn-nav-color navbar-gluu-button" type="button" href="{% url 'social:begin' 'gluu' %}?next={{ request.path }}">Login</a>
-                    {% endif %}
+                        <a role="button" class="btn btn-success btn-white navbar-btn navbar-right btn-nav-color navbar-gluu-button" type="button" href="/authorize">Login</a>
+                    {% endif %}                   
                     <ul class="nav navbar-nav navbar-right">
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Docs <b class="caret"></b></a>
                             <ul class="dropdown-menu">
-                                <li><a href="https://devsup.gluu.org/dev-docs" target="_blank">Support Portal</a></li>
+                                <li><a href="https://support.gluu.org/docs" target="_blank">Support Portal</a></li>
                                 <li class="divider"></li>
                                 <li><a href="https://gluu.org/docs" target="_blank">Gluu Server CE</a></li>
                                 <li class="divider"></li>

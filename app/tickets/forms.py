@@ -40,7 +40,19 @@ class UserTicketForm(forms.ModelForm):
         choices=constants.Product_Version,
         required=False
     )
-
+    product_os_version = forms.ChoiceField(
+        label=_('Operating System'),
+        choices=constants.PRODUCT_OS_VERSION,
+        required=False
+    )
+    product_os_version_name = forms.FloatField(
+        label=_('OS Version'),
+        required=False
+    )
+    ios_version_name = forms.FloatField(
+        label = _('iOS Version'),
+        required=False
+    )
     os_version = forms.ChoiceField(
         label=_('Operating System'),
         choices=constants.OS_VERSION
@@ -50,13 +62,8 @@ class UserTicketForm(forms.ModelForm):
         label=_('OS Version')
     )
 
-    product_os_version = forms.ChoiceField(
-        label =_('Operating System'),
-        choices = constants.PRODUCT_OS_VERSION,
-        required=False
-    )
-    product_os_version_name =  forms.FloatField(
-        label = _('OS Version'),
+    os_name = forms.CharField(
+        label = _('Other Operating System'),
         required=False
     )
 
@@ -65,16 +72,11 @@ class UserTicketForm(forms.ModelForm):
         required=False
     )
 
-    set_default_product = forms.BooleanField(
-        label=_('Set as Default (Static Text)'),
-        required=False,
-
+    set_default_gluu = forms.BooleanField(
+        label=_('Set as Default'),
+        required = False
     )
 
-    # set_default_gluu = forms.BooleanField(
-    #     label=_('Set as Default'),
-    #     required = False
-    # )
 
     description = forms.CharField(
         widget=forms.Textarea,
@@ -82,13 +84,9 @@ class UserTicketForm(forms.ModelForm):
             'This field supports <a target="_blank" href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet">markdown formatting.</a>'
         )
     )
-    # description_copy = forms.CharField(
-    #     widget=AdminPagedownWidget()
-    # )
     ticket_category = forms.ChoiceField(
-        label=_('Issue Category'),
-        choices=constants.ISSUE_CATEGORY,
-        required= False
+        label=_('Choose a category'),
+        choices=constants.TICKET_CATEGORY
     )
 
     classification_layout = Layout(
@@ -98,13 +96,13 @@ class UserTicketForm(forms.ModelForm):
                 Field('gluu_server_version_comments', wrapper_class='col-md-3 hidden',  css_class='gluu_server_version_comments'),
                 Field('os_version',wrapper_class='col-md-4 ', css_class="os_version "),
                 Field('os_version_name',wrapper_class='col-md-4 os_version_icon', placeholder="Which OS are you using?", css_class="os_version_name "),
-                css_class='gluu_layout_div'
+				Field('os_name', wrapper_class='col-md-4 hidden', placeholder='Which OS are you using?', css_class="os_name "),                
+				css_class='gluu_layout_div'
             ),
             Div(
                HTML('<div class="col-md-6 add-product ">'),
-               StrictButton('Add Product',css_class='add_product_btn'),
+               StrictButton('Add Product',css_class='add_product_btn '),
                HTML('</div>'),
-               # Field('set_default_gluu',  css_class='div_set_default '),
                css_class= 'default_product_div'
         ),
             css_class='main_gluu_div'
@@ -121,9 +119,8 @@ class UserTicketForm(forms.ModelForm):
                 Field('product_os_version',wrapper_class='col-md-3 ', css_class="product_os_version "),
                 Field('product_os_version_name',wrapper_class='col-md-2  os_version_icon ', placeholder="os version", css_class="product_os_version_name"),
                 Field('ios_version_name',wrapper_class='col-md-1 hidden os_version_icon', placeholder="ios version", css_class="ios_version_name"),
-                HTML('<div class="col-md-1 remove"><a class="delete_product_row hidden" href="javascript:void(0);"></a></div>'),
-                Field('set_default_product',css_class='div_set_default', wrapper_class='hidden'),
-                css_class='product_layout_div'
+                HTML('<div class="col-md-1 remove"><a class="delete_product_row hidden" href="javascript:void(0);"></a><a class="delete_product_row mobile hidden" href="javascript:void(0);">Remove Product</a></div>'),
+                css_class='product_layout_div layout_sec '
 
              ),
 
@@ -137,14 +134,13 @@ class UserTicketForm(forms.ModelForm):
         Div(
             Field(
                 'title',
-                placeholder='Ticket title',wrapper_class='col-md-12'
+                placeholder='Ticket title', wrapper_class='col-md-12'
             ),
-
         css_class= 'layout_sec'
         ),
         Div(
             Field(
-                'description',wrapper_class='col-md-12',
+                'description', wrapper_class='col-md-12',
                 placeholder='Ticket description.. please include enough ' +
                 'information for someone to reproduce your issue, ' +
                 'including all relevant logs.',
@@ -161,9 +157,6 @@ class UserTicketForm(forms.ModelForm):
         css_class= 'layout_sec'
         ),
     )
-
-
-
 
     additional_layout = Layout(
         Div(
@@ -195,30 +188,22 @@ class UserTicketForm(forms.ModelForm):
     )
 
     uploaded_products_layout = Layout()
-
+    uploaded_classification_layout = Layout()
 
     class Meta:
 
         model = Ticket
         error_css_class = 'error_form'
-        fields = ('product','product_version','product_os_version','product_os_version_name','ios_version_name','gluu_server_version','gluu_server_version_comments', 'os_version','os_version_name','title', 'description', 'ticket_category', 'link_url',
+        fields = ('product','product_version','product_os_version','product_os_version_name','ios_version_name','gluu_server_version','gluu_server_version_comments', 'os_version','os_version_name','os_name',
+                  'title', 'description', 'ticket_category', 'link_url',
                   'send_copy')
 
     def __init__(self, user='null', *args, **kwargs):
 
         super(UserTicketForm, self).__init__(*args, **kwargs)
         self.uploaded_products_layout = Layout()
-
-        # if user:
-        #     data = get_last_ticket_data(user)
-        #     if data:
-        #         if data[0] != "N/A":
-        #             self.fields['gluu_server_version'].initial = data[0]
-        #         if data[1] != None:
-        #             self.fields['os_version'].initial = data[1]
-        #         if data[2] != "":
-        #             self.fields['os_version_name'].initial = data[2]
-        # data = None
+        self.uploaded_classification_layout = Layout()
+        data = None
         if user:
             data = get_last_ticket_data(user)
 
@@ -227,6 +212,8 @@ class UserTicketForm(forms.ModelForm):
             self.fields['os_version'].initial = data[1] if data[1] != None else ""
             self.fields['os_version_name'].initial = data[2] if data[2] != "" else 0
             self.fields['gluu_server_version_comments'].initial = data[3] if data[3] != "" else 0
+            self.fields['os_name'].initial = data[4] if data[4] != "N/A" else ""
+
         self.fields['send_copy'].label = "CC Colleagues"
         self.fields['title'].label = "Subject"
         self.button_layout[0][0] = Submit('save', 'Submit')
@@ -239,11 +226,10 @@ class UserTicketForm(forms.ModelForm):
                 '<a class="btn btn-danger" href="{}" id="cancelButton">Cancel</a>'.format(
                     generate_ticket_link(self.instance)))
             if self.instance.product_ticket_id.all():
-
                 for ticket in self.instance.product_ticket_id.all():
                     if ticket.ios_version_name:
                         html= HTML('''
-                            <div class="product_layout_div"> <div id="div_id_product" class="form-group col-md-3 for-margin"> <label for="id_product" class="control-label  requiredField">
+                            <div class="product_layout_div layout_sec"> <div id="div_id_product" class="form-group col-md-3 for-margin"> <label for="id_product" class="control-label  requiredField">
                                         Select Product<span class="star">*</span> </label> {} </div> <div id="div_id_product_version" class="form-group col-md-2 for-margin"> <label for="id_product_version" class="control-label  requiredField">
                                         Product Version<span class="star">*</span> </label> {} </div> <div id="div_id_product_os_version" class="form-group col-md-2 for-margin"> <label for="id_product_os_version" class="control-label  requiredField">
                                         Operating System<span class="star">*</span> </label> {} </div> <div id="div_id_product_os_version_name" style="width:128px;" class="form-group col-md-1 for-margin os_version_icon"> <label for="id_product_os_version_name" class="control-label  requiredField">
@@ -253,7 +239,7 @@ class UserTicketForm(forms.ModelForm):
                         '''.format(product_select_list(ticket.product),product_version_select_list(ticket.product_version),product_os_version_select_list(ticket.product_os_version),ticket.product_os_version_name,ticket.ios_version_name))
                     else:
                         html = HTML('''
-                            <div class="product_layout_div"> <div id="div_id_product" class="form-group col-md-3 for-margin"> <label for="id_product" class="control-label  requiredField">
+                            <div class="product_layout_div layout_sec"> <div id="div_id_product" class="form-group col-md-3 for-margin"> <label for="id_product" class="control-label  requiredField">
                                         Select Product<span class="star">*</span> </label> {} </div> <div id="div_id_product_version" class="form-group col-md-3 for-margin"> <label for="id_product_version" class="control-label  requiredField">
                                         Product Version<span class="star">*</span> </label> {} </div> <div id="div_id_product_os_version" class="form-group col-md-3 for-margin"> <label for="id_product_os_version" class="control-label  requiredField">
                                         Operating System<span class="star">*</span> </label> {} </div> <div id="div_id_product_os_version_name" class="form-group col-md-2 for-margin os_version_icon"> <label for="id_product_os_version_name" class="control-label  requiredField">
@@ -292,20 +278,31 @@ class UserTicketForm(forms.ModelForm):
             self.button_layout
         )
 
+    def clean_gluu_server_version_comments(self):
 
-    def clean_ticket_category(self):
-        if (self.cleaned_data.get('product') and
-                 self.cleaned_data.get('product') in ('GLUU', 'OXD', 'SUP_GLUU') ):
-            if not self.cleaned_data.get('ticket_category'):
-                raise forms.ValidationError(_('Please specify the issue category'))
-        return self.cleaned_data.get('ticket_category')
+        if (self.cleaned_data.get('gluu_server_version') and
+                self.cleaned_data.get('gluu_server_version') in ('N/A', 'Other')):
+
+            if not self.cleaned_data.get('gluu_server_version_comments'):
+
+                raise forms.ValidationError(_('Please specify the Gluu Server version'))
+
+        return self.cleaned_data.get('gluu_server_version_comments')
+
+    def clean_os_version_comments(self):
+
+        if (self.cleaned_data.get('os_version') and
+                self.cleaned_data.get('os_version') == 'Other'):
+
+            if not self.cleaned_data.get('os_version_comments'):
+
+                raise forms.ValidationError(_('Please specify the OS version'))
+
+        return self.cleaned_data.get('os_version_comments')
 
     def clean_os_version_name(self):
-
         if not self.cleaned_data.get('os_version_name') or self.cleaned_data.get('os_version_name') < 0:
-
             raise forms.ValidationError(_('Please enter os version in positive numbers.'))
-
         return self.cleaned_data.get('os_version_name')
 
 class NamedUserTicketForm(UserTicketForm):
@@ -319,17 +316,15 @@ class NamedUserTicketForm(UserTicketForm):
 
     issue_type = forms.ChoiceField(
         choices=constants.ISSUE_TYPE_CREATE,
-        label=_('Issue Type'),
+        label=_('Issue Type')
     )
 
-    attachment = forms.FileField(widget=forms.FileInput(attrs={'multiple':"true"}), required=False)
-    #forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}))
-    #forms.FileField(max_length=255,required=False)
-    # forms.FileField(widget=forms.FileInput(attrs={'multiple':"true"}))
+    attachment = forms.FileField(
+        max_length=255,
+        required=False
+    )
 
-
-
-    file_upload_layout = FieldWithButtons(Div('attachment',StrictButton(
+    file_upload_layout = FieldWithButtons(Div('attachment', StrictButton(
         'Add new file',
         css_id='add_new_file',
         css_class='btn btn-xs btn-success'),
@@ -340,22 +335,21 @@ class NamedUserTicketForm(UserTicketForm):
 
         Div(
             css_id= 'fine-uploader-manual-trigger',
-            css_class='layout_sec',
+            css_class= 'layout_sec'
         ),
     )
 
 
     uploaded_files_layout = Layout()
 
-
     class Meta(UserTicketForm.Meta):
 
         fields = UserTicketForm.Meta.fields + ('issue_type', 'is_private')
 
-    def __init__(self ,*args, **kwargs):
+    def __init__(self, *args, **kwargs):
 
         super(NamedUserTicketForm, self).__init__(*args, **kwargs)
-
+        forms.FileField(widget=forms.FileInput(attrs={'class': 'rounded_list'}))
         self.uploaded_files_layout = Layout()
 
         if self.instance and self.instance.issue_type:
@@ -366,28 +360,6 @@ class NamedUserTicketForm(UserTicketForm):
         if self.instance.id and self.instance.owned_by.is_basic:
             self.fields['issue_type'].required = False
 
-        if self.instance and self.instance.ticket_documents.all():
-
-            for i, d in enumerate(self.instance.ticket_documents.all()):
-
-                self.uploaded_files_layout.append(
-                    HTML(
-                        '''
-                        <div class="form-horizontal">
-                        <div class="form-group">
-                          <label class="control-label col-lg-3" for="id_file">File</label>
-                          <div class="controls col-lg-8">
-                            <span>{}</span>
-                            <a type="button" style="margin-bottom:5px;margin-left:5px" id="{}" class="btn btn-xs btn-danger pull-right delete_file">
-                              Delete file
-                            </a>
-                            <a class="btn btn-default btn-xs pull-right" target="_blank" href="{}" style="margin-right:15px;">
-                              <span class="glyphicon glyphicon-file"></span>Download
-                            </a>
-                          </div>
-                        </div></div>'''.format(d.filename, d.id, d.file.url)
-                    )
-                )
 
         self.helper.layout = Layout(
             self.classification_layout,
@@ -481,7 +453,6 @@ class StaffTicketForm(NamedUserTicketForm):
         self.fields['product_os_version_name'].label = "OS Version"
         instance = kwargs.pop('instance', False)
 
-
         if instance:
             self.fields['status'].choices = constants.TICKET_STATUS
 
@@ -530,7 +501,7 @@ class PartnerTicketForm(NamedUserTicketForm):
 
     created_for = forms.CharField(
         required=False,
-        label=_('Open the ticket for'),
+        label=_(' '),
         widget=forms.Select(attrs={'class': 'chosen-select'}),
     )
 
@@ -540,33 +511,6 @@ class PartnerTicketForm(NamedUserTicketForm):
         Field('created_for',wrapper_class='col-md-6'),css_class= 'layout_sec' #wrapper_class='hidden')
     ),)
 
-    class Meta(NamedUserTicketForm.Meta):
-
-        fields = NamedUserTicketForm.Meta.fields
-
-    # def clean_created_for(self):
-    #     created_for = self.cleaned_data.get('created_for', None)
-    #
-    #     if created_for and created_for != 'N/A':
-    #         try:
-    #             return UserProfile.objects.get(id=created_for)
-    #         except ObjectDoesNotExist:
-    #             pass
-    #
-    #     return None
-    #
-    # def clean(self):
-    #
-    #     cleaned_data = super(PartnerTicketForm, self).clean()
-    #     company = cleaned_data.get('company', None)
-    #     # created_for = cleaned_data.get('created_for', None)
-    #
-    #     if company and not created_for:
-    #
-    #         raise forms.ValidationError(
-    #             'Please specify a user in the company you want to create an account for.')
-
-
     def __init__(self, clients, *args, **kwargs):
 
         super(PartnerTicketForm, self).__init__(*args, **kwargs)
@@ -575,7 +519,7 @@ class PartnerTicketForm(NamedUserTicketForm):
 
         instance = kwargs.pop('instance', False)
 
-        if instance and instance.company_association:
+        if instance and instance.company_association and instance.created_for:
 
             self.fields['company'].initial = instance.company_association
             users = UserProfile.objects.filter(company_association=instance.company_association)
@@ -603,6 +547,27 @@ class PartnerTicketForm(NamedUserTicketForm):
             self.button_layout,
         )
 
+    def clean_created_for(self):
+        created_for = self.cleaned_data.get('created_for', None)
+
+        if created_for and created_for != 'N/A':
+            try:
+                return UserProfile.objects.get(id=created_for)
+            except ObjectDoesNotExist:
+                pass
+
+        return None
+
+    def clean(self):
+
+        cleaned_data = super(PartnerTicketForm, self).clean()
+        company = cleaned_data.get('company', None)
+        created_for = cleaned_data.get('created_for', None)
+
+        if company and not created_for:
+
+            raise forms.ValidationError(
+                'Please specify a user in the company you want to create an account for.')
 
 
 class TicketInlineForm(forms.ModelForm):
@@ -631,7 +596,7 @@ class UserAnswerForm(forms.ModelForm):
     )
 
     additional_layout = Layout(
-
+        Div(
             PrependedText(
                 'link_url',
                 '<span class="glyphicon glyphicon-link"></span>\
@@ -640,7 +605,6 @@ class UserAnswerForm(forms.ModelForm):
                  class="glyphicon glyphicon-info-sign"></span>',
                 placeholder='Video or screenshot url'
             ),
-
             PrependedText(
                 'send_copy',
                 '<span class="glyphicon glyphicon-envelope"></span>\
@@ -649,24 +613,19 @@ class UserAnswerForm(forms.ModelForm):
                  data-toggle="tooltip" class="glyphicon glyphicon-info-sign"></span>',
                 placeholder='Separate emails with commas'
             ),
-
-
+        )
     )
 
     button_layout = Div(
         FormActions(
-            Submit('save', 'Post', css_class="post"),
-            Submit('close', 'Close', css_class='btn btn-danger'),
-            css_class="buttons"
+            Submit('save', 'Post'),
+            Submit('close', 'Close', css_class='btn-danger')
             # Reset('name', 'Reset')
-        ),
-
+        )
     )
     button_layout_without_close = Div(
         FormActions(
-            Submit('save', 'Post', css_class="post"),
-            # Reset('name', 'Reset')
-            css_class="buttons"
+            Submit('save', 'Post')
         )
     )
     class Meta:
@@ -687,26 +646,26 @@ class UserAnswerForm(forms.ModelForm):
         self.helper = FormHelper(self)
         self.helper.attrs = {'onsubmit': 'save.disabled = true; return true;'}
         self.helper.form_class = 'form-horizontal answer_form'
-        # self.helper.label_class = 'col-lg-2'
-        # self.helper.field_class = 'col-lg-8'
+        self.helper.label_class = 'col-lg-2'
+        self.helper.field_class = 'col-lg-8'
         self.helper.help_text_inline = True
 
         if can_close:
             self.helper.layout = Layout(
                 Div(
-                Field('answer', placeholder='Answer content', data_provide='markdown'),
-                self.additional_layout,
-                Field('close_ticket',wrapper_class='hidden'),
-                self.button_layout
-                ),
+                    Field('answer',placeholder="Enter your answer here"),
+                    self.additional_layout,
+                    Field('close_ticket',wrapper_class='hidden'),
+                    self.button_layout
+                )
             )
         else:
             self.helper.layout = Layout(
                 Div(
-                Field('answer', placeholder='Answer content', data_provide='markdown'),
-                self.additional_layout,
-                self.button_layout_without_close
-                ),
+                    Field('answer',placeholder="Enter your answer here"),
+                    self.additional_layout,
+                    self.button_layout_without_close
+                )
             )
 
 
@@ -718,23 +677,16 @@ class NamedUserAnswerForm(UserAnswerForm):
         label=_('Attachment')
     )
 
-    # file_upload_layout = FieldWithButtons('attachment', StrictButton(
-    #     'Add new file',
-    #     css_id='add_new_file',
-    #     css_class='btn btn-xs btn-success pull-left')
-    # )
-    fine_uploader_layout= Layout(
-
-        Div(
-            css_id= 'fine-uploader-manual-trigger',
-            css_class='col-md-12 form-group'
-        ),
+    file_upload_layout = FieldWithButtons('attachment', StrictButton(
+        'Add new file',
+        css_id='add_new_file',
+        css_class='btn btn-xs btn-success pull-left')
     )
 
     class Meta(UserAnswerForm.Meta):
 
         fields = UserAnswerForm.Meta.fields + [
-            'privacy'
+            'privacy', 'attachment'
         ]
 
     def __init__(self, *args, **kwargs):
@@ -748,37 +700,53 @@ class NamedUserAnswerForm(UserAnswerForm):
         super(NamedUserAnswerForm, self).__init__(*args, **kwargs)
 
         if can_close:
-            self.helper.layout = Layout(
-                Div(
-                    Field(
-                        'answer',
-                        placeholder='Answer content',
-                        data_provide='markdown'
-                    ),
-                    Field('privacy',wrapper_class='col-md-6'),
-                    self.additional_layout,
-                    # self.file_upload_layout,
-                    self.fine_uploader_layout,
-                    Field('close_ticket', wrapper_class='hidden'),
-                    self.button_layout
-                ),
-            )
-        else:
-            self.helper.layout = Layout(
-                Div(
-                    Field(
-                        'answer',
-                        placeholder='Answer content',
-                        data_provide='markdown'
-                    ),
-                    Field('privacy',wrapper_class='col-md-6'),
-                    self.additional_layout,
-                    # self.file_upload_layout,
-                    self.fine_uploader_layout,
-                    self.button_layout_without_close
-                ),
-            )
+            if (ticket and user and ticket.owned_by == user) or (ticket and user and ticket.company_association == user.company_association):
+                self.helper.layout = Layout(
+                    Div(
 
+                        Field('answer',placeholder="Enter your answer here"),
+                        Field('privacy'),
+                        self.additional_layout,
+                        self.file_upload_layout,
+                        Field('close_ticket', wrapper_class='hidden'),
+                        self.button_layout
+                    ),
+                )
+            else:
+                self.helper.layout = Layout(
+                    Div(
+
+                        Field('answer',placeholder="Enter your answer here"),
+                        Field('privacy',disabled="disabled"),
+                        self.additional_layout,
+                        self.file_upload_layout,
+                        Field('close_ticket', wrapper_class='hidden'),
+                        self.button_layout
+                    ),
+                )
+        else:
+            if (ticket and user and ticket.owned_by == user) or (ticket and user and ticket.company_association == user.company_association):
+                self.helper.layout = Layout(
+                    Div(
+
+                        Field('answer',placeholder="Enter your answer here"),
+                        Field('privacy'),
+                        self.additional_layout,
+                        self.file_upload_layout,
+                        self.button_layout_without_close
+                    ),
+                )
+            else:
+                self.helper.layout = Layout(
+                    Div(
+
+                        Field('answer',placeholder="Enter your answer here"),
+                        Field('privacy',disabled="disabled"),
+                        self.additional_layout,
+                        self.file_upload_layout,
+                        self.button_layout_without_close
+                    ),
+                )
 
 class StaffAnswerForm(NamedUserAnswerForm):
 
@@ -800,7 +768,7 @@ class StaffAnswerForm(NamedUserAnswerForm):
 
     class Meta(NamedUserAnswerForm.Meta):
 
-        fields = NamedUserAnswerForm.Meta.fields + ['status', 'privacy']
+        fields = NamedUserAnswerForm.Meta.fields + ['status', 'privacy', 'attachment']
 
     def __init__(self, *args, **kwargs):
 
@@ -824,32 +792,26 @@ class StaffAnswerForm(NamedUserAnswerForm):
                     Field(
                         'answer',
                         placeholder='Answer content',
-                        data_provide='markdown'
+
                     ),
-                    Field('assigned_to_answer',wrapper_class='col-md-6'),
-                    Field('status',wrapper_class='col-md-6'),
-                    Field('privacy',wrapper_class='col-md-6'),
+                    'assigned_to_answer',
+                    'status',
+                    'privacy',
                     self.additional_layout,
-                    # self.file_upload_layout,
-                    self.fine_uploader_layout,
-                    Field('close_ticket', wrapper_class='hidden col-md-6'),
+                    self.file_upload_layout,
+                    Field('close_ticket', wrapper_class='hidden'),
                     self.button_layout
                 ),
             )
         else:
             self.helper.layout = Layout(
                 Div(
-                    Field(
-                        'answer',
-                        placeholder='Answer content',
-                        data_provide='markdown'
-                    ),
-                    Field('assigned_to_answer',wrapper_class='col-md-6'),
-                    Field('status',wrapper_class='col-md-6'),
-                    Field('privacy',wrapper_class='col-md-6'),
+                    Field('answer',placeholder="Enter your answer here"),
+                    'assigned_to_answer',
+                    'status',
+                    'privacy',
                     self.additional_layout,
-                    # self.file_upload_layout,
-                    self.fine_uploader_layout,
+                    self.file_upload_layout,
                     self.button_layout_without_close
                 ),
             )
@@ -972,5 +934,3 @@ class FilterTicketsForm(forms.Form):
                     'data-placeholder': 'Select a user'
                 }),
                 required=False)
-
-

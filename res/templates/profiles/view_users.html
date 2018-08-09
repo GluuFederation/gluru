@@ -8,6 +8,80 @@
 <div class="row">
     {% include "profiles/dashboard_menu.html" %}
     <div class="col-md-9">
+        {% if request.user.email == "" %}
+           <div class="">
+            <!--<link href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/css/bootstrap-select.min.css" rel="stylesheet">-->
+            <!--<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/js/bootstrap-select.min.js" language="javascript" type="text/javascript"></script>-->
+           <!--<span class="dashboard_filer_button"><span class="glyphicon glyphicon-plus-sign"></span> Export Users</span>-->
+           <form class="form-inline custom-top-form" action="{% url 'profile:dashboard' 'export_users' %}" method="get" style="display:block;">
+            <div class="col-xs-6">
+               <div class="col-xs-12 top-input-box pull-left">
+                   <div class="form-group">
+                        <input class="form-group all_users" type="radio" name="all_users" value="all_users" >
+                        <label for="all_users">All</label>
+                   </div>
+                   <div class="form-group">
+                        <input class="form-group custom_users" type="radio" name="all_users" value="custom_users" >
+                        <label for="custom_users">Custom</label>
+                   </div>
+               </div>
+               <div class="col-xs-12 top-input-box pull-left gluu_plan_users second-col">
+                        {% for data in plan %}
+                   <div class="form-group">
+                            <input class="plan_users" type="checkbox" id="plan_users" name="plan_users" value="{{data}}">
+                            <label for="plan_users" style="margin-right: 10px;">{{data}}</label>
+                       </div>
+                       {% endfor %}
+               </div>
+            </div>
+            <div class="col-xs-6">
+              <div class="col-xs-12 top-input-box pull-left users-action">
+                  <div class="form-group">
+                       <input class="form-group user-right-filter" type="checkbox" name="active_users" value="active_users" >
+                       <label for="select-main">Active</label>
+                  </div>
+                  <div class="form-group">
+                       <input class="form-group user-right-filter" type="checkbox" name="inactive_users" value="inactive_users" >
+                       <label for="select-main">In-Active</label>
+                  </div>
+              </div>
+
+              <div class="col-xs-12 top-input-box pull-left customer_users second-col">
+                  <div class="form-group">
+                       <input class="form-group user-right-filter" type="checkbox" name="customer" value="customer">
+                       <label for="select-main">Customer</label>
+                  </div>
+                  <div class="form-group">
+                       <input class="form-group user-right-filter" type="checkbox" name="ex_customer" value="ex_customer" >
+                       <label for="select-main">Ex-Customer</label>
+                  </div>
+		  <div class="form-group">
+                       <input class="form-group user-right-filter" type="checkbox" name="managed_service" value="managed_service" >
+                       <label for="select-main">Managed Service</label>
+                  </div>
+              </div>
+            </div>
+            <div class="col-xs-8 form-group caution_users">
+
+                   <span class="comunity_plan" style="display:none;color:#cc130f;">
+                       <p>* All non-named users having </p> <p class="text"> </p> <p> plan will be exported </p>
+                   </span>
+                   <span class="other_plan" style="display:none;color:#cc130f;">
+                       <p>* All named users having </p> <p class="text"> </p> <p> plan will be exported </p>
+                   </span>
+                   <span class="select_any_checkbox" style="display:none;color:#cc130f;">
+                       <p style="margin: 20px 0 10px;float: left; margin-top: 18px; width: 100%; line-height: normal; font-size: 13px; font-style: italic;">
+                           * Please Select Support Plan...
+                       </p>
+                   </span>
+               </div>
+               <div class="form-group pull-right for-mar export-btn">
+                   <button class="btn btn-primary export-users-btn" type="submit" name="export">Export Users</button>
+               </div>
+               <div class="clearfix"></div>
+           </form>
+        </div>
+        {% endif %}
         <table id="dashboardtable" width="850" class="compact table table-hover table-dashboard table-striped">
             <thead>
             <tr>
@@ -103,6 +177,106 @@
 {% endblock content %}
 {% block js %}
 <script>
+    $(".export-users-btn").on('click', function(){
+        if( $(".all_users").is(':checked') ){
+            if( $(".user-right-filter").is(":checked") )
+            {
+                return true;
+            }else{
+                $(".users-action").css("border", "1px solid #a94442");
+                $(".customer_users").css("border", "1px solid #a94442");
+                return false;
+            }
+        }else{
+            if( $(".custom_users").is(":checked") ){
+                if( $(".plan_users").is(":checked") ){
+                    if( $(".user-right-filter").is(":checked") ){
+                        $(".select_any_checkbox").hide();
+                        $(".gluu_plan_users").css("border", "1px solid #eee");
+                        return true;
+                    }else{
+                        $(".users-action").css("border", "1px solid #a94442");
+                        $(".customer_users").css("border", "1px solid #a94442");
+                        return false;
+                       }
+                }else{
+                    $(".select_any_checkbox").show();
+                    $(".gluu_plan_users").css("border", "1px solid #a94442");
+                    return false;
+                }
+            }else{
+                return false;
+            }
+        }
+    });
+
+    $(".all_users").prop('checked', 'checked');
+    $(".customer_users :input").attr("disabled", false);
+    $(".customer_users label").css("color", "#686868");
+    $(".gluu_plan_users input").attr("disabled", true);
+    $(".gluu_plan_users label").css("color", "#bdbbb4");
+    $(".caution_users").append('<span class="caution" style="color:#cc130f;">* All named and non-named users will be exported</span>');
+    $(".other_plan").hide();
+    $(".comunity_plan").hide();
+
+    $(".all_users").change(function(){
+        $(".customer_users :input").attr("disabled", false);
+        $(".customer_users label").css("color", "#686868");
+        $(".gluu_plan_users input").attr("disabled", true);
+        $(".gluu_plan_users label").css("color", "#bdbbb4");
+        $(".caution_users").append('<span class="caution" style="color:#cc130f;">* All named and non-named users will be exported</span>');
+        $(".other_plan").hide();
+        $(".comunity_plan").hide();
+        $(".plan_users").prop('checked', false);
+        $(".gluu_plan_users").css("border", "1px solid #eee");
+        $(".select_any_checkbox").hide();
+    });
+    $(".custom_users").change(function(){
+        $(".customer_users :input").attr("disabled", false);
+        $(".customer_users label").css("color", "#686868");
+        $(".gluu_plan_users input").attr("disabled", false);
+        $(".gluu_plan_users label").css("color", "#686868");
+        $(".caution").remove();
+        $(".select_any_checkbox").hide();
+    });
+    $(".form-group").change(function(){
+        $(".users-action").css("border", "1px solid #eee");
+        $(".customer_users").css("border", "1px solid #eee");
+    });
+
+
+    $(".plan_users").change(function(){
+        $(".gluu_plan_users").css("border", "1px solid #eee");
+        $(".select_any_checkbox").hide();
+        var text = "";
+        $(".plan_users:checked").each(function(){
+            text += text != "" ? ", " : "";
+            if ($(this).prop("checked")){
+                text += $(this).val();
+                if(text == "Community"){
+                    $(".customer_users :input").attr("disabled", true);
+                    $(".customer_users label").css("color", "#bdbbb4");
+                    $(".other_plan").hide();
+                    $(".text").text(text);
+                    $(".comunity_plan").show();
+                }else{
+                    $(".customer_users :input").attr("disabled", false);
+                    $(".customer_users label").css("color", "#686868");
+                    $(".comunity_plan").hide();
+                    $(".text").text(text);
+                    $(".other_plan").show();
+                }
+               }
+        });
+        if(text == ""){
+            $(".customer_users :input").attr("disabled", false);
+            $(".customer_users label").css("color", "#686868");
+            $(".other_plan").hide();
+            $(".comunity_plan").hide();
+        }
+    });
+</script>
+<script>
     $('#dashboardtable').DataTable({
         "processing": true,
         "paging":   true,
@@ -115,8 +289,6 @@
         "scrollY": false,
         "aaSorting" : [[0, 'desc']],
     });
-
-
 
 </script>
 {% endblock js %}

@@ -9,9 +9,10 @@ var availableCategoriesForIssue = {
 };
 var availableProductVersion = {
 //    'GLUU':['3.0.2','3.0.1','2.4.4.3','2.4.4.2','2.4.4','2.4.3','2.4.2','Other'],
-    'Oxd':['3.0.2','3.0.1'],
-    'Super Gluu':['3.1.1'],
-    'Cluster':['Alpha']
+    'Oxd':['3.1.4','3.1.3','3.1.2','3.0.2','3.0.1'],
+    'Super Gluu':['3.1.4','3.1.3','3.1.1'],
+    'Cluster':['3.1.4','3.1.3','Alpha'],
+    'Cred Manager':['3.1.4','3.1.3','3.1.2']
 }
 
 var availableOS = {
@@ -194,15 +195,15 @@ function populateTicketAttachments(id){
     });
 }
 
-
-
 $(document).ready(function() {
     var check = 1;
     $('.has-popover').popover({'trigger':'hover'});
     // Add Style to Dropdowns and Markdown Field
     $('#id_description').markdown({});
     $('#id_assigned_to').select2();
-    $('#id_company').select2();
+    if($("#div_id_company").is(":visible")){
+        $('#id_company').select2();
+    }
     $('#id_created_for').select2();
     $('#id_gluu_server_version').select2();
     $('#id_os_version').select2();
@@ -222,52 +223,6 @@ $(document).ready(function() {
             $('#div_id_os_version_name').removeClass("col-md-4");
             $('#div_id_os_version_name').addClass("col-md-3");
         }
-    //$("#div_id_ticket_category").addClass('hidden');
-//    if ($('#id_product').find('option:selected').val() != ''){
-//        $('#div_id_product_version').removeClass('hidden');
-//    }
-//    else{
-//        $('#div_id_product_version').addClass('hidden');
-//
-//    }
-//
-//    if($("#id_os_version_name").val() != ''){
-//        $('.default_product_div').removeClass('hidden');
-//        $('#div_id_set_default_gluu').removeClass('hidden');
-//        $('.add-product').removeClass('hidden');
-//    }
-//    else{
-//        $('.default_product_div').addClass('hidden');
-//        $('#div_id_set_default_gluu').addClass('hidden');
-//        $('.add-product').addClass('hidden');
-//    }
-//
-//    if($('#id_product_version').find('option:selected').val() != ''){
-//        $('#div_id_product_os_version').removeClass('hidden');
-//    }
-//    else{
-//        $('#div_id_product_os_version').addClass('hidden');
-//    }
-
-//    if ($('#id_gluu_server_version').find('option:selected').val() != ''){
-//        $('#div_id_os_version').removeClass('hidden');
-//    }
-//    else{
-//        $('#div_id_os_version').addClass('hidden');
-//    }
-//
-//    if ($('#id_os_version').find('option:selected').val() != ''){
-//        $('#div_id_os_version_name').removeClass('hidden');
-//    }
-//    else{
-//        $('#div_id_os_version_name').addClass('hidden');
-//    }
-//    if($("#id_os_version_name").val() != ''){
-//        $('.default_product_div').removeClass('hidden');
-//    }
-//    else{
-//        $('.default_product_div').addClass('hidden');
-//    }
 
     if(window.location.href.indexOf("add") > -1 || window.location.href.indexOf("edit") > -1) {
        $('body').addClass('form-section-page');
@@ -277,7 +232,7 @@ $(document).ready(function() {
         
         $('#div_id_set_default_gluu').removeClass('hidden');
         $('.add-product').removeClass('hidden');
-        $(".main_product_div").remove();
+
         if ($("#id_gluu_server_version").val()=="Other"){
             $('#div_id_gluu_server_version_comments').removeClass('hidden');
             $('#div_id_gluu_server_version').removeClass("col-md-4");
@@ -299,9 +254,7 @@ $(document).ready(function() {
                     $(this).remove();
                 }
            });
-           $(".add_product_btn").addClass("hidden");
         }
-        $(".product_layout_div").wrapAll('<div class="main_product_div layout_sec" />');
 
     }
     $('.div_set_default').parent().parent().parent().addClass('col-md-6');
@@ -332,10 +285,6 @@ $(document).ready(function() {
         $(".main_product_div").removeClass("hidden");
         if (check == 1){
             $("#div_id_product").removeClass("hidden");
-//            $("#div_id_product_version").removeClass("hidden");
-//            $("#div_id_product_os_version").removeClass("hidden");
-//            $("#div_id_product_os_version_name").removeClass("hidden");
-//            $("#div_id_set_default_product").removeClass("hidden");
             $(".delete_product_row").removeClass("hidden")
         }
         if(check > 1){
@@ -422,8 +371,8 @@ $(document).ready(function() {
     $('#id_issue_type').change(function(){
 
         selectedIssueValue = $(this).find('option:selected').val();
-
-        if (selectedIssueValue == 'outage' || selectedIssueValue == ''){
+		$("#id_ticket_category").select2("val","");
+        if (selectedIssueValue == 'outage'){
             $('#div_id_ticket_category').addClass('hidden');
             if(selectedIssueValue == 'outage'){
                 $("#id_ticket_category option[value='"+allCategories['Outages']+"']").prop('selected', true);
@@ -484,36 +433,6 @@ $(document).ready(function() {
 //        }
 
     });
-
-//    var ref = $(".product").parent().parent().parent();
-//    selectedProduct = ref.find('option:selected').val();
-//    allowedProductVersion = availableProductVersion[selectedProduct];
-//    if(selectedProduct == "Oxd"){
-//            ref.find('#id_product_version').find('option').remove();
-//            for (var key in allProductVersions){
-//                if(contains(allowedProductVersion,key)){
-//                    ref.find('#id_product_version').append($('<option>',{
-//                        value: allProductVersions[key],
-//                        text:key
-//                    }));
-//
-//                }
-//            }
-//        }
-//    if(selectedProduct == "Super Gluu"){
-//            ref.find('#id_product_version').find('option').remove();
-//            for (var key in allProductVersions){
-//                if(contains(allowedProductVersion,key)){
-//                    ref.find('#id_product_version').append($('<option>',{
-//                        value: allProductVersions[key],
-//                        text:key
-//                    }));
-//
-//                }
-//            }
-//        }
-
-
     $('body').delegate("#id_product", "change",function(){
         var refer = $(this).parent().parent().parent();
         selectedProduct = refer.find('option:selected').val();
@@ -571,8 +490,6 @@ $(document).ready(function() {
         else if($.inArray(filename, values_array) == -1){
             values_array.push(filename);
         }
-        console.log("uploaded array: "+uploaded_value_array);
-        console.log("array: "+ values_array);
      });
      $(".qq-thumbnail-selector").each(function(){
         image_src=$(this).attr('src');
@@ -584,8 +501,6 @@ $(document).ready(function() {
         else if($.inArray(image_src, image_src_array) == -1){
             image_src_array.push(image_src);
         }
-        console.log(uploaded_src_array);
-        console.log(image_src_array);
      });
 
      }, 2000);
@@ -596,7 +511,6 @@ $(document).ready(function() {
             $(".qq-upload-list-selector").addClass("qq-hide");
         }
         var value=$(".qq-uploader-selector").attr("qq-drop-area-text");
-        console.log(value);
         if(value !== undefined){
             $(".qq-uploader-selector").addClass("border-class");
         }else{
@@ -616,8 +530,6 @@ $(document).ready(function() {
             $(".qq-uploader-selector").attr("qq-drop-area-text", "Drop Files Here");
             $(".qq-uploader-selector").addClass("border-class");
         }
-        console.log(values_array);
-        console.log(uploaded_value_array);
 
     });
 
@@ -694,10 +606,10 @@ $(document).ready(function() {
             $('#div_id_os_version_name').removeClass("col-md-3");
             $('#div_id_os_version_name').addClass("col-md-4");
             $('#div_id_gluu_server_version_comments').addClass('hidden');
+            $("#id_gluu_server_version_comments").val("");
         }
 
     });
-
     $('#id_title').keyup(function(){
         if ($(this).val().length > 2){
             populateTicketTitles();
@@ -795,10 +707,10 @@ $(document).ready(function() {
             $(".answers").addClass("fixSide-bar");
             var height = ($(this).scrollTop() + (nav_height + breadcrumb_height));
 	    if($('#view_more_tickets').is(':visible')){
-		var node = $('#s2id_id_assigned_to').length && $('#s2id_id_assigned_to').is(':visible') ? '#s2id_id_assigned_to' : '#id_send_copy';
+		var node = $('#id_send_copy').length && $('#id_send_copy').is(':visible') ? '#id_send_copy' : '#id_link_url';
 	    	
             }else{
-	    	var node = $('.qq-upload-list-selector.qq-upload-list').length && $('.qq-upload-list-selector.qq-upload-list').is(':visible') ? '.qq-upload-list-selector.qq-upload-list' : '#id_send_copy';
+	    	var node = $('.qq-upload-list-selector.qq-upload-list').length && $('.qq-upload-list-selector.qq-upload-list').is(':visible') ? '.qq-upload-list-selector.qq-upload-list' : '#id_link_url';
             }
             
             if( height > $(node).offset().top && $('.gluu-info-box.answers ul li').length > 1 ){
@@ -824,6 +736,7 @@ $(document).ready(function() {
             if($('#id_created_for').find('option:selected').html() === undefined){
                 populateCompanyMembers();
             }
+            $('#div_id_created_for').removeClass('hidden');
         }
 
         $('#id_company').change(function(){
@@ -834,13 +747,6 @@ $(document).ready(function() {
             }else{
                 populateCompanyMembers();
                 $('#id_created_for').select2("val","");
-//                var company = $(this).find('option:selected').html().trim()
-//                $('#company_name').val(company);
-//                if ($('#id_issue_type').find('option:selected').html() == "Production Outage"){
-//                    $('#id_title').val("Production Outage at "+company);
-//                }else{
-//                    $('#id_title').val("");
-//                }
             }
         });
 
@@ -886,7 +792,6 @@ $(document).ready(function() {
             $("#id_gluu_server_version_comments").parent().parent().removeClass("has-error");
             $("#id_gluu_server_version_comments").parent().parent().find(".controls > .help-block").remove();
         }
-
         if($("#id_os_version").val()==""){
            $("#id_os_version").parent().parent().addClass("has-error");
            $("#id_os_version").parent().parent().find(".controls > .help-block").remove();
@@ -999,7 +904,6 @@ $(document).ready(function() {
             $("#id_issue_type").parent().parent().removeClass("has-error");
             $("#id_issue_type").parent().parent().find(".controls > .help-block").remove();
         }
-
         if($("#id_ticket_category").val()==""){
            $("#id_ticket_category").parent().parent().addClass("has-error");
            $("#id_ticket_category").parent().parent().find(".controls > .help-block").remove();
@@ -1024,7 +928,7 @@ $(document).ready(function() {
             $("#id_title").parent().parent().removeClass("has-error");
             $("#id_title").parent().parent().find(".controls > .help-block").remove();
         }
-        if($("#id_description").val()==""){
+        if(simplemde.value()==""){
            $("#id_description").parent().parent().addClass("has-error");
            $("#id_description").parent().parent().parent().find(".controls > .help-block").remove();
            $('<span id="hint_id_description" class="help-block">This field supports <a target="_blank" href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet">markdown formatting.</a></span><p class="help-block"><strong>This field is required.</strong></p>').appendTo($("#id_description").parent().parent().parent().find(".controls"));
@@ -1042,8 +946,8 @@ $(document).ready(function() {
             all_ok=false;
             check =14;
         }
-        console.log(check);
         if(all_ok){
+            $("#submit-id-save").attr("disabled","disabled");
             var arr_len = values_array.length;
             if(arr_len > 0){
                 for(var x = 0; x < arr_len; x++){
@@ -1067,6 +971,3 @@ $(document).ready(function() {
 
 
 });
-
-
-

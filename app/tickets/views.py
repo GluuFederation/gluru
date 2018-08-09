@@ -49,17 +49,6 @@ from bs4 import BeautifulSoup as bsoup
 
 
 def home(request):
-    if request.user.is_authenticated() and request.user.company_association:
-        if account_inactive(request.user.company_association.name):
-            log_crm('Downgrading {}'.format(request.user.email))
-
-            downgrade_named_user(request.user)
-
-            request.user.crm_type = 'user'
-            request.user.is_company_admin = False
-            request.user.company_association = None
-            request.user.save()
-
     categories = []
 
     if cache.get('home_categories') is not None:
@@ -175,7 +164,7 @@ def view_ticket(request, category=None, title=None, id=None):
 
         return redirect(
             '{}?next={}'.format(
-                reverse('social:begin', kwargs={'backend': 'gluu'}),
+                reverse('profile:authorize'),
                 generate_ticket_link(ticket)
             )
         )
@@ -285,30 +274,36 @@ def view_ticket(request, category=None, title=None, id=None):
                 ticket.assigned_to = request.user
 
             answer = answer_form.save(commit=False)
+            full_answer =  answer.answer
+            answer_without_script = full_answer.replace("<script>","<pre>")
+            answer_without_script = answer_without_script.replace("</script>","</pre>")
+            answer_without_script = answer_without_script.replace("script/src","")
+            answer_without_script = answer_without_script.replace("onerror=","")
+            answer_without_script = answer_without_script.replace("alert","")
+            answer.answer = answer_without_script
             answer.ticket = ticket
             answer.created_by = request.user
             answer.save()
 
-            # if request.FILES:
-            #     for f in request.FILES:
-            #         TicketDocuments.objects.create(
-            #             file=request.FILES[f], created_by=request.user, answer=answer
-            #         )
-
-            if request.POST.get('file_field'):
-                files = request.POST.getlist('file_field')
-                file_source = request.POST.getlist('file_src')
-                file_list_length=len(files)
-
-                for x in range(file_list_length):
-
+            if request.POST.get("answer"):
+                ans= request.POST.get("answer")
+                tagged_users = re.findall(r'@[\w\.-]+', ans)
+                if tagged_users:
+                    for tagged_user in tagged_users:
+                        try:
+                            name = tagged_user.replace('@','').split('.')
+                            users= UserProfile.objects.filter(first_name__icontains=name[0],last_name__icontains=name[1])
+                            if users:
+                                for user in users:
+                                    alert.notify_tagged_staff_member(answer, user)
+                        except:
+                            pass
+            if request.FILES:
+                for f in request.FILES:
                     TicketDocuments.objects.create(
-                        file=File(open(settings.MEDIA_ROOT+'/'+str(request.user.id)+'/'+str(files[x]),'r')),
-                        created_by=request.user,
-                        answer=answer,
-                        file_src = file_source[x]
+                        file=request.FILES[f], created_by=request.user, answer=answer
                     )
-                shutil.rmtree(settings.MEDIA_ROOT+'/'+str(request.user.id))
+
             ticket.support_plan = get_support_plan(request.user)
             if not ticket.support_plan:
                 ticket.support_plan = {}
@@ -337,7 +332,7 @@ def view_ticket(request, category=None, title=None, id=None):
 
     subscriber_company = ticket.owned_by.get_company()
     try:
-        subscribed_user = UserProfile.objects.filter(company=subscriber_company, receive_all_notifications=True).exclude(email=ticket.owned_by.email)
+        subscribed_user=UserProfile.objects.filter(company=subscriber_company, receive_all_notifications = True).exclude(email=ticket.owned_by.email)
 
     except ObjectDoesNotExist:
 
@@ -353,21 +348,7 @@ def view_ticket(request, category=None, title=None, id=None):
 
     if ticket_alerts:
         for ticket_alert in ticket_alerts:
-            subscribed_user_count += 1
-    if request.user.is_authenticated():
-        user_organization=request.user.get_company()
-    else:
-        user_organization=None
-
-    if ticket.created_for:
-        support_plan = get_support_plan(ticket.created_for)
-    else:
-        support_plan = get_support_plan(ticket.created_by)
-
-    if not support_plan:
-        support_plan = {}
-    name=str(ticket.owned_by)
-    letter=name[0]
+            subscribed_user_count +=1
 
     return render(request, 'tickets/view.html', {
         'ticket': ticket,
@@ -383,13 +364,11 @@ def view_ticket(request, category=None, title=None, id=None):
         'has_edit_rights': ticket.has_edit_permission(request.user),
         'has_view_rights': ticket.has_view_permission(request.user),
         'has_delete_rights': ticket.has_delete_permission(request.user),
-        'user_organization':user_organization,
+        'user_organization':request.user.get_company() if request.user.is_authenticated() else "",
         'organization': ticket.created_by.get_company(),
         'subscribed_user_count': subscribed_user_count,
         'subscribed_user': subscribed_user,
-        'ticket_alerts': ticket_alerts,
-        'support_plan':support_plan,
-        'name_first_letter':letter
+        'ticket_alerts': ticket_alerts
     })
 
 
@@ -416,21 +395,18 @@ def get_ticket_form(user):
 
 @login_required
 def add_ticket(request):
-    # instantiate ticket form
-
     ticket_form = get_ticket_form(request.user)
     if ticket_form == forms.PartnerTicketForm:
-
         clients = Company.objects.filter(
             clients__is_deleted=False,
             clients__partner=request.user.company_association
         )
 
         if request.method == 'GET':
-            ticket_form = forms.PartnerTicketForm(clients)
+            ticket_form = forms.PartnerTicketForm(clients, request.user)
 
         elif request.method == 'POST':
-            ticket_form = forms.PartnerTicketForm(clients, request.POST)
+            ticket_form = forms.PartnerTicketForm(clients, request.user, request.POST)
 
     else:
         if request.method == 'GET':
@@ -446,8 +422,7 @@ def add_ticket(request):
 
             ticket = ticket_form.save(commit=False)
             ticket.created_by = request.user
-            # ticket.created_for = ticket_form.cleaned_data.get('created_for', None)
-            ticket.created_for = ticket_form.get('created_for', None)
+            ticket.created_for = ticket_form.cleaned_data.get('created_for', None)
 
             if ticket.owned_by.company_association:
                 ticket.company_association = ticket.owned_by.company_association
@@ -458,8 +433,13 @@ def add_ticket(request):
                 ticket.support_plan = get_support_plan(request.user)
             if not ticket.support_plan:
                 ticket.support_plan = {}
-
-
+            ticket_description =  ticket.description
+            description_without_script = ticket_description.replace("<script>","<pre>")
+            description_without_script = description_without_script.replace("</script>","</pre>")
+            description_without_script = description_without_script.replace("script/src","")
+            description_without_script = description_without_script.replace("onerror=","")
+            description_without_script = description_without_script.replace("alert","")
+            ticket.description = description_without_script
             ticket.save()
 
 
@@ -472,12 +452,12 @@ def add_ticket(request):
                 if request.POST.getlist('ios_version_name'):
                     ios_version_name=request.POST.getlist('ios_version_name')
                 for i in range(list_length):
-                    if product_os_version[i] != "Both":
-                        TicketProduct.objects.create(product=product[i],product_version=product_version[i],
-                                              product_os_version=product_os_version[i],product_os_version_name=product_os_version_name[i],ticket=ticket)
-                    else:
+                    if product_os_version[i] == "Both":
                         TicketProduct.objects.create(product=product[i],product_version=product_version[i],
                                               product_os_version=product_os_version[i],product_os_version_name=product_os_version_name[i],ios_version_name=ios_version_name[i],ticket=ticket)
+                    else:
+                        TicketProduct.objects.create(product=product[i],product_version=product_version[i],
+                                              product_os_version=product_os_version[i],product_os_version_name=product_os_version_name[i],ticket=ticket)
 
             if ticket.support_plan and (ticket.issue_type == 'outage' or ticket.issue_type == 'impaired'):
                 TicketNotification.objects.create(
@@ -546,7 +526,7 @@ def add_files(request):
 
 
 def handle_uploaded_file(file, filename, user):
-    if not os.path.exists(settings.MEDIA_ROOT+'/'+str(user.id)+'/'):
+    if not os.path.exists(settings.MEDIA_ROOT+"/"+str(user.id)+'/'):
         os.mkdir(settings.MEDIA_ROOT+"/"+str(user.id)+'/')
     filename= filename.replace(' ', '_')
     with open(settings.MEDIA_ROOT+"/"+str(user.id)+'/' + filename, 'wb+') as destination:
@@ -595,11 +575,6 @@ def populate_ticket_data(request):
     return HttpResponse(json.dumps({'success': 'true','file_src':file_src_array, 'file_name':file_name_array }),
                   content_type='application/json')
 
-def mock_example():
-    text= "mocking sample"
-    return text
-
-
 
 
 def read_file(filename):
@@ -636,17 +611,17 @@ def edit_ticket(request, id):
         )
 
         if request.method == 'GET':
-            ticket_form = forms.PartnerTicketForm(clients, instance=ticket)
+            ticket_form = forms.PartnerTicketForm(clients, request.user, instance=ticket)
 
         elif request.method == 'POST':
-            ticket_form = forms.PartnerTicketForm(clients, request.POST, instance=ticket)
+            ticket_form = forms.PartnerTicketForm(clients, request.user, request.POST, instance=ticket)
 
     else:
         if request.method == 'GET':
             ticket_form = ticket_form(request.user, instance=ticket)
 
         elif request.method == 'POST':
-            ticket_form = ticket_form(request.user, request.POST, instance=ticket)
+            ticket_form = ticket_form(request.user ,request.POST,instance=ticket)
 
     if request.method == 'POST':
 
@@ -822,6 +797,18 @@ def history_ticket(request, title, id):
         'page': 'history'
     })
 
+
+def autocomplete_users(request):
+    query = request.GET.get('q')
+    result= UserProfile.objects.filter(is_active=True, crm_type__in=['staff', 'admin', 'manager'])
+    suggestions = {}
+    for row in result:
+        username= row.first_name+' '+row.last_name
+        id= str(row.id)+","+username
+        suggestions.update({id:username})
+    return HttpResponse(json.dumps({
+            'suggestions': suggestions
+        }), content_type='application/json')
 
 @login_required
 def delete_ticket(request, id):
@@ -1023,12 +1010,12 @@ def ticket_add_alert_inline(request, id):
 
     if created:
 
-        msg_html = '<span style="color:#5cb85c;" class="notification active" data-toggle="tooltip" data-original-title="Remove me from alerts"></span>'
+        msg_html = '<span class="glyphicon glyphicon-ban-circle"></span> Remove me from alerts'
         msg = _('You will receive alerts when the ticket will be updated!')
 
     else:
         alert.delete()
-        msg_html = '<span class="notification" data-toggle="tooltip" data-original-title="Send me alerts"></span>'
+        msg_html = '<span class="glyphicon glyphicon-envelope"></span> Send me alerts'
         msg = _('You will no longer receive alerts when the ticket is updated!')
 
     return HttpResponse(json.dumps({
@@ -1320,20 +1307,20 @@ def get_related_tickets(request):
        q.append(Q(is_private = False))
     elif request.user.is_authenticated() and request.user.is_named:
         q.append(Q(is_private = False) | Q(created_by_id=request.user.id) | Q(company_association_id = request.user.company_association_id))
-    result = Ticket.objects.filter(*q)
+    result = Ticket.objects.filter(*q)[:10]
     title = ['%s' % row.title for row in result]
     link= ['%s' % generate_ticket_link(row) for row in result]
     # description=['%s' % row.description for row in result]
     if len(words_list) >= 1:
         for words in words_list:
-            k = [Q(title__icontains=words) & Q(is_deleted=False) ]
+            k = [Q(title__icontains=words) & Q(is_deleted=False)]
             if not request.user.is_authenticated():
                 k.append(Q(is_private = False))
             elif request.user.is_authenticated() and request.user.is_basic:
                 k.append(Q(is_private = False))
             elif request.user.is_authenticated() and request.user.is_named:
                 k.append(Q(is_private = False) | Q(created_by_id=request.user.id) | Q(company_association_id = request.user.company_association_id))
-            result = Ticket.objects.filter(*k)
+            result = Ticket.objects.filter(*k)[:10]
             keyword_title= ['%s' % row.title for row in result]
             keyword_link = ['%s' % generate_ticket_link(row) for row in result]
             # keyword_description= ['%s' % row.description for row in result]
@@ -1434,29 +1421,15 @@ def read_mail(request, data=[]):
 
         sender = request.POST.get('sender')
         recipient = request.POST.get('recipient')
-        cc = request.POST.get('Cc')
         body_without_quotes = request.POST.get('stripped-text', '')
-        data1 = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', body_without_quotes)
-        link_check_array= ['.',',','>','-']
-        for da in data1:
-            for link_check in link_check_array:
-                if da.endswith(link_check):
-                    da = da[:-1]
-            link = '<a href="'+da+'">'+da+"</a>"
-            body_without_quotes = body_without_quotes.replace(da, link)
-        html_body= textile.textile(body_without_quotes).replace('<br />','  ')
-        markdown_body=Tomd(html_body).markdown
-        markdown_body = markdown_body.replace("<","")
-        markdown_body = markdown_body.replace(">","")
+        markdown_body = body_without_quotes.replace("<","")
+        # markdown_body = markdown_body.replace(">","")
         encoded_ticket_id = recipient.split("@")
         ticket_id = base64.b32decode(encoded_ticket_id[0])
 
         user = UserProfile.objects.get(email=sender)
         ticket = Ticket.objects.get(id=ticket_id)
-        if cc:
-            answer = Answer(created_by=user,ticket_id=ticket_id, answer=markdown_body, send_copy=cc)
-        else:
-            answer = Answer(created_by=user,ticket_id=ticket_id, answer=markdown_body)
+        answer = Answer(created_by=user,ticket_id=ticket_id, answer=markdown_body)
         answer.save()
 
     if data:
@@ -1475,16 +1448,10 @@ def read_mail(request, data=[]):
     if not ticket.assigned_to and user.is_admin:
         ticket.assigned_to = user
     ticket.save()
-
-    if answer.send_copy:
-        alert.notify_new_answer(answer=answer, send_copy=answer.send_copy)
-    else:
-        alert.notify_new_answer(answer=answer)
-
+    alert.notify_new_answer(answer=answer)
 
 
     if user not in [ticket.owned_by, ticket.assigned_to]:
         TicketAlerts.objects.update_or_create(ticket=ticket, user=user)
 
     return HttpResponse('OK')
-

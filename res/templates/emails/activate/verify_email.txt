@@ -1,6 +1,5 @@
 Hello {{ name }},
 
-
 Click the link below to activate your Gluu support account:
 
 {{ activation_link }}

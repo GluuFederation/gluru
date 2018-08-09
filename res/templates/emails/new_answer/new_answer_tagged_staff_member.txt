@@ -1,0 +1,20 @@
+{% autoescape off %}
+
+Hello,
+
+You have been tagged by {{answer_created_by}} from {{answer_created_by_comp}} on the following response on Gluu support ticket #{{ticket_id}}: "{{ticket_title}}".
+
+"{{answer_body|safe}}"
+
+Reply to this email to add a comment. If you need to include an attachment, please update the ticket directly.
+
+
+Thank you,
+
+Gluu Support
+
+----
+
+Ticket Link: {{ticket_link}}
+
+{% endautoescape %}

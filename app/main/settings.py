@@ -167,7 +167,8 @@ DATABASES = {
 }
 
 AUTHENTICATION_BACKENDS = (
-    'profiles.gluu_oidc.GluuOAuth2Backend',
+    #'profiles.gluu_oidc.GluuOAuth2Backend',
+	'profiles.gluu_oxd.AuthBackend',
     'django.contrib.auth.backends.ModelBackend',
 )
 
@@ -360,7 +361,7 @@ SUGAR_CRM_PASSWORD = os.environ.get('SUGAR_CRM_PASSWORD')
 
 # Social Auth
 SOCIAL_AUTH_INACTIVE_USER_URL = '/inactive-user/'
-LOGIN_URL = '/login/gluu/'
+LOGIN_URL = 'authorize'
 
 EMAIL_FILE_PATH = '/tmp/email-messages/'
 EMAIL_USE_TLS = bool(int(os.environ.get('EMAIL_USE_TLS', '1')))
@@ -402,4 +403,6 @@ SCIM_UPDATE_USER_CONSTANT = 'https://<your-domain>/identity/seam/resource/restv1
 UMA_ACCESS_TOKEN_ENDPOINT='https://<your-domain>/oxauth/seam/resource/restv1/oxauth/token'
 UMA_AUTHORIZE_RPT='https://<your-domain>/oxauth/seam/resource/restv1/requester/perm'
 UMA_OBTAIN_RPT='https://<your-domain>/oxauth/seam/resource/restv1/requester/rpt'
-
+#Keys for captcha
+RECAPTCHA_PUBLIC_KEY = "Your Captcha Public Key"
+RECAPTCHA_PRIVATE_KEY = "Your Captcha Private Key"

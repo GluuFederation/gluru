@@ -12,14 +12,13 @@
                 </li>
                 <li {% if page_type == 'unassigned' %}class="active"{% endif %}><a href="{% url 'profile:dashboard' 'unassigned' %}">{% trans 'Unassigned' %}</a></li>
                 <li {% if page_type == 'view-users' %}class="active"{% endif %}><a href="{% url 'profile:dashboard' 'view-users' %}">{% trans 'View Users' %}</a></li>
-                <li {% if page_type == 'all-tickets' or page_type == 'open-tickets' or page_type == 'closed-tickets' or page_type == 'deleted-tickets' %}class="active"{% endif %}><a href="{% url 'profile:dashboard' 'all-tickets' %}">{% trans 'All Tickets' %}</a></li>
+                <li {% if page_type == 'all-tickets' or page_type == 'open-tickets' or page_type == 'closed-tickets' %}class="active"{% endif %}><a href="{% url 'profile:dashboard' 'all-tickets' %}">{% trans 'All Tickets' %}</a></li>
                 <li>
                     <ul>
                         <li><a {% if page_type == 'open-tickets' %}style="text-decoration:underline;"{% endif %} href="{% url 'profile:dashboard' 'open-tickets' %}">{% trans 'Open tickets' %}</a></li>
                         <li><a {% if page_type == 'closed-tickets' %}style="text-decoration:underline;"{% endif %} href="{% url 'profile:dashboard' 'closed-tickets' %}">{% trans 'Closed tickets' %}</a></li>
                     </ul>
                 </li>
-                <li {% if page_type == 'oxd-config' %} class="active" {% endif %}><a href="{% url 'profile:dashboard' 'oxd-config' %}">{% trans 'Oxd Configuration' %}</a></li>
             {% endif %}
             <li {% if page_type == 'my-tickets' or page_type == 'my-open-tickets' or page_type == 'my-closed-tickets' %}class="active"{% endif %}><a href="{% url 'profile:dashboard' 'my-tickets' %}">{% trans 'My Tickets' %}</a></li>
             <li>
@@ -66,6 +65,9 @@
 
             <li {% if page_type == 'my-alerts' %}class="active"{% endif %}><a href="{% url 'profile:dashboard' 'my-alerts' %}">{% trans 'My Alerts' %}</a></li>
             <li {% if page_type == 'my-profile' %}class="active"{% endif %}><a href="{% url 'profile:dashboard' 'my-profile' %}">{% trans 'My profile' %}</a></li>
+            {% if user.email == 'will@gluu.org' or user.email == 'usman@gluu.org' %}
+            <li {% if page_type == 'oxd-config' %} class="active" {% endif %}><a href="{% url 'profile:dashboard' 'oxd-config' %}">{% trans 'oxd Configuration' %}</a></li>
+            {% endif %}
         </ul>
     </div>
 

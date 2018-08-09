@@ -94,7 +94,7 @@ class Ticket(models.Model):
         max_length=20,
         blank=False,
         null=False,
-        choices=constants.ISSUE_CATEGORY,
+        choices=constants.TICKET_CATEGORY,
         verbose_name=_('Category')
     )
 
@@ -147,7 +147,7 @@ class Ticket(models.Model):
     )
 
     issue_type = models.CharField(
-        max_length=20,
+        max_length=255,
         choices=constants.ISSUE_TYPE_CREATE,
         blank=True,
         default='',
@@ -185,34 +185,11 @@ class Ticket(models.Model):
         default=False,
         verbose_name=_('Deleted')
     )
-    gluu_server_version = models.CharField(
-        max_length=10,
+    os_name = models.CharField(
+        max_length=255,
         default='N/A',
-        verbose_name=_('Gluu Server Version')
+        verbose_name=_('os_name')
     )
-
-    gluu_server_version_comments = models.CharField(
-        max_length= 30,
-        blank = True,
-        null = True,
-        verbose_name=_('Gluu Server Version Comments')
-
-    )
-
-    os_version = models.CharField(
-        choices=constants.OS_VERSION,
-        max_length=8,
-        blank=True,
-        null=True,
-        verbose_name=_('Which OS are you using?')
-    )
-
-    os_version_name = models.FloatField(
-        blank=True,
-        null=True,
-        verbose_name=_('OS Version')
-    )
-
     date_added = models.DateTimeField(
         auto_now_add=True,
         editable=False,
@@ -229,6 +206,20 @@ class Ticket(models.Model):
         verbose_name=_('Last notification was sent')
     )
 
+    os_version = models.CharField(
+        choices=constants.OS_VERSION,
+        max_length=8,
+        blank=True,
+        null=True,
+        verbose_name=_('Which OS are you using?')
+    )
+
+    os_version_name = models.FloatField(
+        blank=True,
+        null=True,
+        verbose_name=_('OS Version')
+    )
+
 
     os_type = models.BooleanField(
         blank=True,
@@ -242,6 +233,25 @@ class Ticket(models.Model):
         verbose_name=_('Does the server have at least 4GB RAM?')
     )
 
+    set_default_gluu = models.BooleanField(
+        blank=True,
+        default=False,
+        verbose_name=_('Set Default Gluu')
+    )
+
+    gluu_server_version = models.CharField(
+        max_length=255,
+        default='N/A',
+        verbose_name=_('Gluu Server Version')
+    )
+
+    gluu_server_version_comments = models.CharField(
+        max_length=300,
+        blank=True,
+        null=True,
+        verbose_name=_('Gluu Server Version')
+    )
+
     visits = models.IntegerField(
         default=0,
         verbose_name=_('Ticket visits')
@@ -252,11 +262,6 @@ class Ticket(models.Model):
         blank =True,
         null = True,
         verbose_name = _('Meta keywords')
-    )
-    set_default_gluu = models.BooleanField(
-        blank=True,
-        default=False,
-        verbose_name=_('Default Gluu'),
     )
 
     def __init__(self, *args, **kwargs):
@@ -325,11 +330,9 @@ class Ticket(models.Model):
             return True
         else:
             return False
-
     @property
     def changed_fields(self):
         return self.diff.keys()
-
 
     @property
     def owned_by(self):
@@ -721,11 +724,10 @@ def ticket_file_path(instance, filename):
         return join('ticket', str(instance.ticket.id), tail)
     else:
 
-        head , tail = os.path.split(filename)
         if instance.answer.is_private:
-            return join('protected', 'answer', str(instance.answer.ticket.id), tail)
+            return join('protected', 'answer', str(instance.answer.ticket.id), filename)
 
-        return join('answer', str(instance.answer.ticket.id), tail)
+        return join('answer', str(instance.answer.ticket.id), filename)
 
 
 class TicketDocuments(models.Model):

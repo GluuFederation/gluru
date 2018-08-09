@@ -1,0 +1,1 @@
+{{answer_created_by}} tagged you on Gluu Support ticket #{{ticket_id}}

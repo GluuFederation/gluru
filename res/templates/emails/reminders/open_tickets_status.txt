@@ -4,7 +4,6 @@ Hello {{user}},
 
 The following Gluu support tickets are currently idle. Highlighted tickets are either from our enterprise support customers, or are idle tickets that have been inactive for more than 10 days.
 
-
 {% if open_tickets %}
 Customer Tickets:
 
@@ -18,8 +17,6 @@ Customer Tickets:
 
 {% endfor %}
 {% endif %}
-
-
 
 Thank you for your attention to these support tickets.
 

@@ -11,13 +11,20 @@ Issue Type: {{issue_type}}
 
 "{{ticket_body_txt|safe}}"
 
-Reply to this email to add a comment. If you need to include an attachment, please update the ticket directly.
+Reply to this email to add a comment. Markdown and html formatting are supported. If you need to include an attachment, please update the ticket directly.
 
 Thank you,
+
 Gluu Support
 
-You are receiving this message because you are a named contact at {{ticket_created_for_comp}}, a Gluu customer. To opt out of notifications, visit your dashboard (https://support.gluu.org/my-profile/).
+----
 
+Ticket Link: {{ticket_link}}
 
+{% if ticket_created_for %}
+You are receiving this message because you are a supported contact at {{ticket_created_for_comp}}, a Gluu cusomer. If you wish to stop receiving team notifications, you can opt-out in your dashboard (https://support.gluu.org/my-profile/).
+{% else %}
+You are receiving this message because you are a named contact at {{ticket_created_by_comp}}. If you wish to stop receiving team notifications, you can opt-out in your dashboard (https://support.gluu.org/my-profile/).
+{% endif %}
 
 {% endautoescape %}

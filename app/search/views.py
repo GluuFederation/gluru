@@ -10,7 +10,8 @@ from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from search.forms import TicketSearchForm
-from tickets.utils import stopwords,removeWords
+from tickets.utils import generate_ticket_link,wordListToFreqDict,sortFreqDict,stopwords,removeWords,removeStopwords,matchwords
+
 from profiles.models import Company
 from tickets.models import Ticket
 
@@ -267,7 +268,7 @@ class TicketLiveSearchAutoCompleteView(View):
         for word in keywords:
             if len(word) > 2:
                 words_list.append(word)
-        q = [Q(title__icontains=query) & Q(is_deleted=False)]
+        q = [Q(title__icontains=query) & Q(is_deleted=False)|Q(description__icontains=query)]
         if not request.user.is_authenticated():
             q.append(Q(is_private = False))
         elif request.user.is_authenticated() and request.user.is_basic:

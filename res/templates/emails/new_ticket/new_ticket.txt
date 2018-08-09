@@ -8,8 +8,9 @@ Ticket #{{ticket_id}}, {{ticket_title}}, has been added by {{ticket_created_by}}
 {% endif %}
 {{ticket_body_txt|safe}}
 
-Simply reply to this email to add a comment. If you need to include attachments, update the ticket directly.
+Simply reply to this email to add a comment. Markdown and html formatting are supported. If you need to include attachments, update the ticket directly.
 
+You are receiving this message because you are a staff member.
 
 Thank you,
 
@@ -19,5 +20,4 @@ Gluu Support
 
 Ticket Link: {{ticket_link}}
 
-You are receiving this message because you are a staff member.
 {% endautoescape %}

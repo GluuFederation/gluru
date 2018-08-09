@@ -137,6 +137,27 @@ def send_activate_account_notification(user):
         emails=[user.email,settings.BCC]
     )
 
+
+def send_duplicate_account_notification(user):
+
+    context = {
+        'user': user
+    }
+
+    send_mail(
+        subject_template_name='emails/duplicate/duplicate_email_subject.txt',
+        email_template_name='emails/duplicate/duplicate_email.txt',
+        to_email=user.email,
+        context=context,
+        html_email_template_name='emails/duplicate/duplicate_email.html',
+    )
+    track_sent_emails(
+        user=user,
+        alert_type='send_duplicate_account_notification',
+        emails=[user.email]
+    )
+
+
 def send_invitation(invitation):
 
     existing = email_exists(invitation.email)
@@ -146,7 +167,7 @@ def send_invitation(invitation):
         invitation_link = '{}://{}{}?next={}'.format(
             settings.PROTOCOL,
             Site.objects.get_current().domain,
-            reverse('social:begin', args=['gluu']),
+            reverse('profile:authorize'),
             reverse('profile:accept-invite', kwargs={'activation_key': invitation.activation_key})
         )
 
@@ -180,7 +201,7 @@ def send_invitation(invitation):
         bcc=settings.BCC
     )
     log_emails(
-        u'Alert Sent: send_invitation, Recipient(s): {}, Added: {}'.format(invitation.email,timezone.now())
+            u'Alert Sent: send_invitation, Recipient(s): {}, Added: {}'.format(invitation.email,timezone.now())
     )
 
 def send_account_admin_notification(user, invited_by):
@@ -271,7 +292,7 @@ def send_new_partner_notification(partner, client, company_admin):
         html_email_template_name='emails/partnership/new_partnership.html'
     )
     log_emails(
-        u'Alert Sent: send_new_partner_notification, Recipient(s): {}, Added: {}'.format(to_emails,timezone.now())
+            u'Alert Sent: send_new_partner_notification, Recipient(s): {}, Added: {}'.format(to_emails,timezone.now())
     )
 
 def send_partnership_revoked_notification(partner, client, company_admin):
@@ -402,8 +423,15 @@ def oxd_cfg_file_data():
     config_location = os.path.join(this_dir, 'gluu.cfg')
     config.read(config_location)
     data = []
-    data.append(config.get('oxd','host'))
-    data.append(config.get('oxd','port'))
+    if config.has_option('oxd','https_extension'):
+        host_with_port =  config.get('oxd','host')
+        port =  host_with_port.split(":")
+        data.append(port[0])
+        data.append(port[1])
+        data.append(config.get('oxd','https_extension'))
+    else:
+        data.append(config.get('oxd','host'))
+        data.append(config.get('oxd','port'))
     data.append(config.get('oxd','id'))
     data.append(config.get('client','op_host'))
     data.append(config.get('client','authorization_redirect_uri'))
@@ -413,4 +441,5 @@ def oxd_cfg_file_data():
     data.append(config.get('client','client_secret'))
     data.append(config.get('client','grant_types'))
     data.append(config.get('client','client_id_issued_at'))
+    data.append(config.get('client','client_name'))
     return data

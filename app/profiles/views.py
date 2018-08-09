@@ -1,25 +1,30 @@
 import logging
+import urllib
+import urllib2
 import json
 import re
 import os
 import configparser
+import xlwt
+import csv
+import oxdpython
 from datetime import timedelta
 from profiles.gluu_oxd import setup_client
 from django.conf import settings
-
+from main import settings
 from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
-
+from django.db import connection
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
-
+from django.utils.encoding import smart_str
 from django.db.models import Q
-from django.http import HttpResponseRedirect, HttpResponse, HttpResponseServerError
+from django.http import HttpResponseRedirect, HttpResponse, HttpResponseServerError, HttpResponsePermanentRedirect
 from django.http import JsonResponse
 from django.utils import timezone
 from django.utils.translation import ugettext as _
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.decorators.http import require_GET
 
 from social.apps.django_app.default.models import UserSocialAuth
@@ -29,8 +34,8 @@ from main.utils import cstm_dates, get_fancy_time, log_error, log_crm, format_mi
 from profiles import constants
 from profiles.forms import (
     ProfileForm, RegistrationForm, InvitationForm, NamedRegistrationForm, PartnerForm, OxdConfigurationForm)
-from profiles.models import UserProfile, Activation, Invitation, Company, Partnership
-from profiles import utils
+from profiles.models import UserProfile, Activation, Invitation, Company, Partnership, OxdConfiguration, Registration
+from profiles import utils, tasks
 
 from tickets.models import Ticket, Answer
 from tickets.forms import FilterTicketsForm
@@ -38,7 +43,7 @@ from tickets.utils import generate_ticket_link
 
 from connectors.sugarcrm import crm_interface
 from connectors.idp import idp_interface
-
+import base64
 
 SHA1_RE = re.compile('^[a-f0-9]{40}$')
 
@@ -46,7 +51,6 @@ logger = logging.getLogger('django')
 
 
 def logout_view(request):
-
     if request.user:
 
         try:
@@ -81,52 +85,76 @@ def logout_view(request):
         return HttpResponseRedirect(reverse('home'))
 
 
-def register(request):
-
+def register(request, name=''):
     if request.user.is_authenticated():
         return HttpResponseRedirect(reverse('home'))
 
     if request.method == 'POST':
-
-        registration_form = RegistrationForm(request.POST)
-
+        registration_form = RegistrationForm(request.POST,request=request)
         try:
+            if request.POST.get('email', None):
+                if registration_form.is_valid():
+                    recaptcha_response = request.POST.get('g-recaptcha-response')
+                    url = 'https://www.google.com/recaptcha/api/siteverify'
+                    values = {
+                        'secret': settings.RECAPTCHA_PRIVATE_KEY,
+                        'response': recaptcha_response
+                    }
+                    data = urllib.urlencode(values)
+                    req = urllib2.Request(url, data)
+                    response = urllib2.urlopen(req)
+                    result = json.load(response)
+                    if result['success']:
+                        user = registration_form.save(commit=False)
+                        user.is_active = False
+                        user.save()
+                        tasks.send_activation_email.apply_async(args=[user.id], expires=60)
+                    # registration = Registration(status = 'initial', user_id=user.id)
+                    # registration.save()
+                    	return render(request, 'profiles/registration_complete.html', {'email': user.email})
+                    else:
+                        messages.error(request, 'Invalid reCAPTCHA. Please try again.')
+            else:
+                if registration_form.is_valid():
+                    split_request = request.path.split('/')[:-1]
+                    split_url = split_request[2]
+                    decode_email = '{0}'.format(split_url)
+                    decode_email = decode_email.replace("_", "=")
+                    url_splited = base64.urlsafe_b64decode(decode_email)
+                    final_url = url_splited.split('$')
+                    email = final_url[0]
+                    activation_key = final_url[1]
 
-            if registration_form.is_valid():
+                    activation = Activation.objects.get(activation_key=activation_key)
+                    activation.activation_key = 'ACTIVATED'
+                    activation.save()
 
-                user = registration_form.save(commit=False)
-                user.is_active = False
-                user.save()
-
-                user.idp_uuid = idp_interface.create_user(
-                    user=user, password=registration_form.cleaned_data.get('password1'))
-
-                user.save()
-
-                activation_key = utils.generate_activation_key(user.email)
-                activation = Activation(user=user, activation_key=activation_key)
-                activation.save()
-
-                utils.send_activation_email(user, activation_key)
-
-                return render(request, 'profiles/registration_complete.html',
-                              {'email': user.email})
-
+                    user = UserProfile.objects.get(email=email)
+                    crm_interface.sync_basic_user_with_crm(user)
+                    user.is_active = True
+                    user.company = request.POST.get('company')
+                    user.password = request.POST['password1']
+                    user.job_title = request.POST['job_title']
+                    user.mobile_number = request.POST['mobile_number']
+                    user.timezone = request.POST['timezone']
+                    user.save()
+                    #Registration.objects.filter(user_id=user.id).update(status='pending', idp_password=user.password)
+                    #registration = Registration(status='pending', user_id=user.id)
+                    #registration.save()
+                    tasks.confirm_registration.apply_async(args=[user.id, registration_form.cleaned_data.get('password1')], expires=60)
+                    messages.success(request, _('Thank you for registering on Gluu Support! You can now sign in.'))
+                    return HttpResponseRedirect(reverse('home'))
         except Exception as e:
-
             logger.exception(e)
-
             return render(request, 'error.html', {
                 'error': 'Registration Failed',
                 'description': 'Something went wrong.',
             })
 
     else:
-
-        registration_form = RegistrationForm()
-
+            registration_form = RegistrationForm(request=request)
     return render(request, 'profiles/register.html', {
-        'page_type': 'register',
+        'page_type': 'registered',
         'registration_form': registration_form})
 
 
@@ -157,32 +185,39 @@ def register_named(request, activation_key):
         try:
 
             if registration_form.is_valid():
+                recaptcha_response = request.POST.get('g-recaptcha-response')
+                url = 'https://www.google.com/recaptcha/api/siteverify'
+                values = {
+                     'secret': settings.RECAPTCHA_PRIVATE_KEY,
+                     'response': recaptcha_response
+                }
+                data = urllib.urlencode(values)
+                req = urllib2.Request(url, data)
+                response = urllib2.urlopen(req)
+                result = json.load(response)
+                if result['success']:
+                    user = registration_form.save(commit=False)
+                    user.save()
+                    user.idp_uuid = idp_interface.create_user(
+               	    		user=user,
+                    		password=registration_form.cleaned_data.get('password1'),
+                    		active=True
+                	)
 
-                user = registration_form.save(commit=False)
-                user.save()
+                    user.crm_type = 'named'
+                    user.company_association = invitation.invited_by.company_association
+                    user.company = invitation.invited_by.company_association.name
+                    user.save()
 
-                user.idp_uuid = idp_interface.create_user(
-                    user=user,
-                    password=registration_form.cleaned_data.get('password1'),
-                    active=True
-                )
-
-                user.crm_type = 'named'
-                user.company_association = invitation.invited_by.company_association
-                user.company = invitation.invited_by.company_association.name
-                user.save()
-
-                invitation.activation_key = 'ACTIVATED'
-                invitation.save()
-
-                # crm_interface.upgrade_user_record(user)
-
-                utils.send_new_user_notification(user)
-
-                utils.send_activate_account_notification(user)
-                messages.success(request, _('Your account has been activated! You can log in now.'))
-
-                return HttpResponseRedirect(reverse('home'))
+                    invitation.activation_key = 'ACTIVATED'
+                    invitation.save()
+                    crm_interface.upgrade_user_record(user)
+                    utils.send_new_user_notification(user)
+                    utils.send_activate_account_notification(user)
+                    messages.success(request, _('Your account has been activated! You can login.'))
+                    return HttpResponseRedirect(reverse('home'))
+                else:
+                    messages.error(request, 'Invalid reCAPTCHA. Please try again.')
 
         except Exception as e:
 
@@ -209,33 +244,53 @@ def activate(request, activation_key):
     if SHA1_RE.search(activation_key):
 
         try:
-
             activation = Activation.objects.get(activation_key=activation_key)
-            activation.activation_key = 'ACTIVATED'
-            activation.save()
-
             user = activation.user
-            user.is_active = True
-            user.save()
+            company = user.email.split("@")[1]
+            email_suffixes = {company: user.email}
+            if company in email_suffixes.keys() and company not in ['aol.com', 'fastmail.fm', 'fastmailbox.net', 'gmail.com', 'gmx.at', 'gmx.de', 'gmx.li', 'gmx.net', 'hushmail.com', 'icloud.com',
+                                                                    'lycos.co.uk','lycos.com',
+             'lycos.es','lycos.it','lycos.ne.jp','lycosemail.com','lycosmail.com','email.com','email.cz','email.ee',
+             'email.it','email.nu','email.ro','email.ru','email.si','outlook.com','hotmail.com','runbox.com',
+             'yahoo.ca','yahoo.co.in','yahoo.co.jp','yahoo.co.kr','yahoo.co.nz','yahoo.co.uk','yahoo.com',
+             'yahoo.com.ar','yahoo.com.au','yahoo.com.br','yahoo.com.cn','yahoo.com.hk','yahoo.com.is','yahoo.com.mx',
+             'yahoo.com.ru','yahoo.com.sg','yahoo.de','yahoo.dk','yahoo.es','yahoo.fr','yahoo.ie','yahoo.it',
+             'yahoo.jp','yahoo.ru','yahoo.se','yahoofs.com','yandex.ru','zoho.com','yendex.com','tutanota.com', 'ymail.com']:
+                try:
+                    query = ''' SELECT profiles_userprofile.company
+                            FROM profiles_userprofile
+                            INNER JOIN profiles_company ON profiles_userprofile.company_association_id = profiles_company.id
+                            WHERE profiles_userprofile.email like '%{0}%';
+                           '''.format(company)
+                    cursor = connection.cursor()
+                    cursor.execute(query)
+                    rows = cursor.fetchall()
+                    if rows:
+                        for row in rows:
+                            user_company = row[0]
+                    else:
+                        query = "SELECT `company` FROM `profiles_userprofile` WHERE `email` LIKE '%{0}%'  LIMIT 0,1;".format(company)
+                        cursor = connection.cursor()
+                        cursor.execute(query)
+                        rows = cursor.fetchall()
+                        if rows:
+                            for row in rows:
+                                user_company = row[0]
+                        else:
+                            user_company = "N/A"
 
-            # crm_interface.sync_basic_user_with_crm(user)
 
-            if user.is_basic:
+                except Exception as e:
+                    logger.exception(e)
+            else:
+                user_company = "N/A"
 
-                # TODO: move to asynchronous backend task
-                utils.notify_company_admin(user)
-
-            idp_interface.activate_user(user)
-
-            utils.send_new_user_notification(user)
-
-            utils.send_activate_account_notification(user)
-            messages.success(request, _('Your account has been activated! You can log in now.'))
-
-            return HttpResponseRedirect(reverse('home'))
+            encoded_email = base64.urlsafe_b64encode("{0}${1}${2}".format(user.email, activation_key, user_company))
+            encoded_email = encoded_email.replace("=", "_")
+            messages.success(request, _('Welcome to the Gluu Support Portal.'))
+            return HttpResponsePermanentRedirect(reverse('profile:registered', kwargs={'name':encoded_email }))
 
         except ObjectDoesNotExist as e:
-
             logger.error('No activation found for {}'.format(activation_key))
 
         except Exception as e:
@@ -279,13 +334,13 @@ def add_company_user(request):
                         'This account is already associated with another company.'))
 
                 else:
-
+                    account.company = request.user.company
                     account.company_association = request.user.company_association
                     account.crm_type = request.user.crm_type
                     account.is_staff = request.user.is_staff
                     account.save()
 
-                    # crm_interface.upgrade_user_record(account)
+                    crm_interface.upgrade_user_record(account)
 
             except ObjectDoesNotExist:
 
@@ -354,7 +409,7 @@ def add_company_admin(request, user_id):
             # utils.send_account_admin_notification(user)
             utils.send_role_change_notification(user, 'named')
 
-            # crm_interface.update_account_admin_status(user)
+            crm_interface.update_account_admin_status(user)
 
             user.save()
 
@@ -385,7 +440,7 @@ def remove_company_admin(request, user_id):
         # utils.send_revoke_account_admin_notification(user)
         utils.send_role_change_notification(user, 'admin')
 
-        # crm_interface.update_account_admin_status(user, downgrade=True)
+        crm_interface.update_account_admin_status(user, downgrade=True)
 
         user.save()
 
@@ -568,6 +623,9 @@ def dashboard(request, page_type=''):
 
     elif page_type == 'view-users' and u.is_admin:
         return view_users(request, page_type)
+
+    elif page_type == 'export_users' and u.is_admin:
+       return export_users(request)
 
     else:
         messages.error(request, _('You are not authorized to see requested page!'))
@@ -814,8 +872,8 @@ def my_profile(request):
                 profile_form.save()
 
                 if profile_form.changed_data:
-                    idp_interface.update_user(request.user)
-                    # crm_interface.update_contact(request.user)
+                    idp_interface.update_user(request.user, password=False)
+                    crm_interface.update_contact(request.user)
 
                 messages.success(request, _('Profile has been successfully changed'))
 
@@ -856,25 +914,178 @@ def oxd_form(request):
         this_dir = os.path.dirname(os.path.realpath(__file__))
         config_location = os.path.join(this_dir, 'gluu.cfg')
         config.read(config_location)
-        oxd_host = config.set('oxd', 'host' , request.POST.get('oxd_host'))
-        oxd_port = config.set('oxd','port',request.POST.get('oxd_port'))
-        oxd_id = config.set('oxd','id','')
-        client_op_host = config.set('client','op_host',request.POST.get('client_op_host'))
-        client_authorization_redirect_uri = config.set('client','authorization_redirect_uri',request.POST.get('client_authorization_redirect_uri'))
-        client_post_logout_redirect_uri = config.set('client','post_logout_redirect_uri',request.POST.get('client_post_logout_redirect_uri'))
-        client_scope = config.set('client','scope',request.POST.get('client_scope'))
-        client_id = config.set('client','client_id',request.POST.get('client_id'))
-        client_secret = config.set('client','client_secret',request.POST.get('client_secret'))
-        client_grant_types = config.set('client','grant_types',request.POST.get('client_grant_types'))
-        client_id_issued_at = config.set('client','client_id_issued_at',request.POST.get('client_id_issued_at'))
+
+        try:
+            oxd_configuration = OxdConfiguration.objects.get(Q(oxd_host=request.POST.get('oxd_host')) & Q(client_op_host=request.POST.get('client_op_host')) & Q(client_authorization_redirect_uri=request.POST.get('client_authorization_redirect_uri')))
+            if oxd_configuration:
+                if request.POST.get('oxd_https_extension') == "true" and oxd_configuration.is_https_extension:
+                    config.set('oxd', 'host', request.POST.get('oxd_host')+':'+request.POST.get('oxd_port'))
+                    config.remove_option('oxd', 'port')
+                    config.set('oxd', 'https_extension', 'True')
+                    config.set('oxd', 'id', oxd_configuration.oxd_id)
+                    config.set('client', 'client_name', request.POST.get('client_name'))
+                    config.set('client', 'client_id', oxd_configuration.client_id)
+                    config.set('client', 'client_secret', oxd_configuration.client_secret)
+                    config.set('client', 'op_host', oxd_configuration.client_op_host)
+                    config.set('client', 'authorization_redirect_uri', oxd_configuration.client_authorization_redirect_uri)
+                    config.set('client', 'client_id_issued_at', oxd_configuration.created_at)
+                    config.set('client', 'post_logout_redirect_uri', request.POST.get('client_post_logout_redirect_uri'))
+                    config.set('client', 'scope', request.POST.get('client_scope'))
+                    config.set('client', 'grant_types', request.POST.get('client_grant_types'))
+                    config.set('client', 'client_id_issued_at', oxd_configuration.created_at)
+                elif request.POST.get('oxd_https_extension') == "false" and not oxd_configuration.is_https_extension:
+                    config.set('oxd', 'host', request.POST.get('oxd_host'))
+                    config.set('oxd', 'port', request.POST.get('oxd_port'))
+                    config.remove_option('oxd','https_extension')
+                    config.set('oxd', 'id', oxd_configuration.oxd_id)
+                    config.set('client', 'client_name', request.POST.get('client_name'))
+                    config.set('client', 'client_id', oxd_configuration.client_id)
+                    config.set('client', 'client_secret', oxd_configuration.client_secret)
+                    config.set('client', 'op_host', oxd_configuration.client_op_host)
+                    config.set('client', 'authorization_redirect_uri', oxd_configuration.client_authorization_redirect_uri)
+                    config.set('client', 'client_id_issued_at', oxd_configuration.created_at)
+                    config.set('client', 'post_logout_redirect_uri', request.POST.get('client_post_logout_redirect_uri'))
+                    config.set('client', 'scope', request.POST.get('client_scope'))
+                    config.set('client', 'grant_types', request.POST.get('client_grant_types'))
+                    config.set('client', 'client_id_issued_at', oxd_configuration.created_at)
+                messages.success(request,"Client Setup successful!!")
+                try:
+                    OxdConfiguration.objects.filter(is_active=True).update(is_active=False)
+                except:
+                    pass
+                OxdConfiguration.objects.filter(Q(oxd_host=request.POST.get('oxd_host')) & Q(client_op_host=request.POST.get('client_op_host')) & Q(client_authorization_redirect_uri=request.POST.get('client_authorization_redirect_uri'))).update(is_active=True)
+
+        except:
+            if request.POST.get('oxd_https_extension') == "true":
+                config.set('oxd', 'host', request.POST.get('oxd_host')+':'+request.POST.get('oxd_port'))
+                config.set('client', 'client_name', request.POST.get('client_name'))
+                config.set('client','op_host',request.POST.get('client_op_host'))
+                config.set('client','authorization_redirect_uri',request.POST.get('client_authorization_redirect_uri'))
+                config.set('client','post_logout_redirect_uri',request.POST.get('client_post_logout_redirect_uri'))
+                config.set('client', 'scope', "openid,profile,email")
+                config.set('client', 'grant_types', "authorization_code,client_credentials")
+                config.set('client', 'client_id_issued_at', request.POST.get('client_id_issued_at'))
+                config.set('oxd', 'id', '')
+                config.set('client', 'client_id', '')
+                config.set('client', 'client_secret', '')
+                try:
+                    config.get('oxd', 'https_extension')
+                except:
+                    config.set('oxd', 'https_extension', 'True')
+                with open(config_location, 'w') as configfile:
+                    config.write(configfile)
+                response = setup_client(request, render_page=False)
+                if response["status"] == "ok":
+                    config.set('oxd','id',response['setup_client_oxd_id'])
+                    config.set('client','client_id',response['client_id'])
+                    config.set('client','client_secret',response['client_secret'])
+                    config.set('client','op_host',request.POST.get('client_op_host'))
+                    config.set('client', 'authorization_redirect_uri', request.POST.get('client_authorization_redirect_uri'))
+                    config.set('client', 'client_secret_expires_at', '1560402491000')
+                    with open(config_location, 'w') as configfile:
+                         config.write(configfile)
+                    client = oxdpython.Client(config_location)
+                    client.get_client_token()
+                    client.update_site(client_secret_expires_at='1560402491000')
+                    config.set('oxd','id',response['oxd_id'])
+                    with open(config_location, 'w') as configfile:
+                         config.write(configfile)
+                    client = oxdpython.Client(config_location)
+                    client.get_client_token()
+                    client.update_site(client_secret_expires_at='1560402491000')
+                    try:
+                        OxdConfiguration.objects.filter(is_active=True).update(is_active=False)
+                    except:
+                        pass
+                    OxdConfiguration.objects.create(oxd_host=request.POST.get('oxd_host'),oxd_port=request.POST.get('oxd_port'),oxd_id=response['oxd_id'],client_op_host=request.POST.get('client_op_host'),
+                                           client_authorization_redirect_uri=request.POST.get('client_authorization_redirect_uri'),client_id=response['client_id'],client_secret=response['client_secret'],
+                                           is_https_extension=True, is_active=True)
+                    messages.success(request, _(response["message"]))
+                else:
+                    try:
+                        result = OxdConfiguration.objects.get(is_active=True)
+                        if result.is_https_extension:
+                            config.set('oxd', 'host', str(result.oxd_host)+':'+str(result.oxd_port))
+                            config.remove_option('oxd', 'port')
+                            config.set('oxd','https_extension','True')
+                        else:
+                            config.set('oxd', 'host', result.oxd_host)
+                            config.set('oxd', 'port', result.oxd_port)
+                            config.remove_option('oxd','https_extension')
+                        config.set('oxd','id',result.oxd_id)
+                        config.set('client','client_id',result.client_id)
+                        config.set('client','client_secret',result.client_secret)
+                        config.set('client', 'authorization_redirect_uri', result.client_authorization_redirect_uri)
+                        config.set('client', 'client_id_issued_at', result.created_at)
+                        messages.error(request, response['message'])
+                    except:
+                        messages.error(request, response['message'])
+
+            elif request.POST.get('oxd_https_extension') == "false":
+                config.set('oxd', 'host', request.POST.get('oxd_host'))
+                config.set('oxd', 'port', request.POST.get('oxd_port'))
+                config.set('client', 'client_name', request.POST.get('client_name'))
+                config.set('client','op_host',request.POST.get('client_op_host'))
+                config.set('client','authorization_redirect_uri',request.POST.get('client_authorization_redirect_uri'))
+                config.set('client','post_logout_redirect_uri',request.POST.get('client_post_logout_redirect_uri'))
+                config.set('client', 'scope', "openid,profile,email")
+                config.set('client', 'grant_types', "authorization_code,client_credentials")
+                config.set('client', 'client_id_issued_at', request.POST.get('client_id_issued_at'))
+                config.set('oxd', 'id', '')
+                config.set('client', 'client_id', '')
+                config.set('client', 'client_secret', '')
+                try:
+                    config.get('oxd', 'https_extension')
+                    config.remove_option('oxd', 'https_extension')
+                except:
+                    pass
+                with open(config_location, 'w') as configfile:
+                    config.write(configfile)
+                response = setup_client(request, render_page=False)
+                if response["status"] == "ok":
+                    config.set('oxd','id',response['setup_client_oxd_id'])
+                    config.set('client','client_id',response['client_id'])
+                    config.set('client','client_secret',response['client_secret'])
+                    config.set('client','op_host',request.POST.get('client_op_host'))
+                    config.set('client', 'authorization_redirect_uri', request.POST.get('client_authorization_redirect_uri'))
+                    config.set('client', 'client_secret_expires_at', '1560402491000')
+                    with open(config_location, 'w') as configfile:
+                         config.write(configfile)
+                    client = oxdpython.Client(config_location)
+                    client.get_client_token()
+                    client.update_site(client_secret_expires_at='1560402491000')
+                    config.set('oxd','id',response['oxd_id'])
+                    with open(config_location, 'w') as configfile:
+                         config.write(configfile)
+                    client = oxdpython.Client(config_location)
+                    client.get_client_token()
+                    client.update_site(client_secret_expires_at='1560402491000')
+                    try:
+                        OxdConfiguration.objects.filter(is_active=True).update(is_active=False)
+                    except:
+                        pass
+                    OxdConfiguration.objects.create(oxd_host=request.POST.get('oxd_host'),oxd_port=request.POST.get('oxd_port'),oxd_id=response['oxd_id'],client_op_host=request.POST.get('client_op_host'),
+                                           client_authorization_redirect_uri=request.POST.get('client_authorization_redirect_uri'),client_id=response['client_id'],client_secret=response['client_secret'],
+                                           is_https_extension=False, is_active=True)
+                    messages.success(request, _(response["message"]))
+                else:
+                    try:
+                        result = OxdConfiguration.objects.get(is_active=True)
+                        config.set('oxd', 'host', result.oxd_host)
+                        config.set('oxd', 'port', result.oxd_port)
+                        config.remove_option('oxd','https_extension')
+                        config.set('oxd','id',result.oxd_id)
+                        config.set('client','client_id',result.client_id)
+                        config.set('client','client_secret',result.client_secret)
+                        config.set('client', 'authorization_redirect_uri', result.client_authorization_redirect_uri)
+                        config.set('client', 'client_id_issued_at', result.created_at)
+                        messages.error(request,response['message'])
+                    except:
+                        messages.error(request,response['message'])
+
 
         with open(config_location, 'w') as configfile:
             config.write(configfile)
-        response= setup_client(request, render_page=False)
-        if response["status"] == "ok":
-            messages.success(request, _(response["message"]))
-        else:
-            messages.warning(request,_(response["message"]))
     else:
         oxd_form= OxdConfigurationForm
 
@@ -884,19 +1095,50 @@ def oxd_form(request):
     })
 
 @login_required
+def reset_oxd_values(request):
+    config = configparser.ConfigParser()
+    this_dir = os.path.dirname(os.path.realpath(__file__))
+    config_location = os.path.join(this_dir, 'gluu.cfg')
+    config.read(config_location)
+    config.set('oxd', 'host', '')
+    config.set('oxd', 'port', '')
+    config.remove_option('oxd', 'https_extension')
+    config.set('oxd', 'id', '')
+    config.set('client', 'client_name', '')
+    config.set('client', 'client_id', '')
+    config.set('client', 'client_secret', '')
+    config.set('client', 'op_host', '')
+    config.set('client', 'authorization_redirect_uri', '')
+    config.set('client', 'post_logout_redirect_uri', '')
+    config.set('client', 'scope', '')
+    config.set('client', 'grant_types', '')
+    config.set('client', 'client_id_issued_at', '')
+    config.set('client', 'client_secret_expires_at', '')
+    with open(config_location, 'w') as configfile:
+            config.write(configfile)
+    try:
+        oxd_configuration = OxdConfiguration.objects.get(is_active=True).delete()
+    except:
+        pass
+    return HttpResponse(json.dumps({'success': 'true'}),
+                  content_type='application/json')
+
+@login_required
 def view_users(request, page_type):
-    if request.method == "POST":
-        user = UserProfile.objects.filter(id=request.POST['user_id']).values()
-        results = {
-            "data": list(user)
-        }
-        return JsonResponse(results, status=200)
-    else:
-        users = UserProfile.objects.filter(is_active=True)
-        return render(request, 'profiles/view_users.html', {
-            'users': users,
-            'page_type': page_type
-        })
+   if request.method == "POST":
+       user = UserProfile.objects.filter(id=request.POST['user_id']).values()
+       results = {
+           "data": list(user)
+       }
+       return JsonResponse(results, status=200)
+   else:
+       users = UserProfile.objects.filter(is_active=True)
+       plan = [ 'Community','Basic', 'Standard', 'Premium', 'Enterprise', 'Partner']
+       return render(request, 'profiles/view_users.html', {
+           'users': users,
+           'page_type': page_type,
+           'plan': plan
+       })
 
 
 @login_required
@@ -961,7 +1203,7 @@ def add_company_partner(request):
                         company_admin=request.user
                     )
 
-                    # crm_interface.add_partnership(partnership)
+                    crm_interface.add_partnership(partnership)
 
                     messages.success(request, _('Partner has been added.'))
 
@@ -1010,7 +1252,7 @@ def revoke_partner(request, partnership_id):
                 company_admin=request.user
             )
 
-            # crm_interface.remove_partnership(partnership)
+            crm_interface.remove_partnership(partnership)
 
             messages.success(request, _('Company has been removed from Partners.'))
 
@@ -1073,7 +1315,7 @@ def accept_invite(request, activation_key):
         invitation.activation_key = 'ACTIVATED'
         invitation.save()
 
-        # crm_interface.upgrade_user_record(user)
+        crm_interface.upgrade_user_record(user)
         utils.send_new_user_notification(user)
 
         return HttpResponseRedirect(reverse('home'))
@@ -1087,3 +1329,484 @@ def accept_invite(request, activation_key):
             'description': 'Sorry, we did not recognize that invitation key. \
                             It either has been used before or is invalid.',
         })
+
+
+@login_required
+def export_users(request):
+   if request.user.is_admin:
+       response = HttpResponse(content_type='text/csv')
+       response['Content-Disposition'] = 'attachment; filename=users.csv'
+       writer = csv.writer(response, csv.excel)
+       response.write(u'\ufeff'.encode('utf8'))
+       writer.writerow([
+           smart_str(u"Username"),
+           smart_str(u"First name"),
+           smart_str(u"Last name"),
+           smart_str(u"Email address"),
+           smart_str(u"Mobile Number"),
+           smart_str(u"Company"),
+           smart_str(u"Support Plan"),
+           smart_str(u"Type")
+       ])
+       cursor = connection.cursor()
+       get_request = request.GET
+       try:
+           if get_request.get('all_users', None) == "custom_users":
+               if get_request.get('plan_users', None) == "Community":
+                   query = '''
+                              SELECT
+                                   profiles_userprofile.username,
+                                   profiles_userprofile.first_name,
+                                   profiles_userprofile.last_name,
+                                   profiles_userprofile.email,
+                                   profiles_userprofile.mobile_number,
+                                   profiles_userprofile.company,
+                                   profiles_company.support_plan
+                              FROM  profiles_userprofile
+                              INNER JOIN
+                                    profiles_company
+                              WHERE {0}
+                       '''.format(get_data(get_request))
+               else:
+                   query = '''
+                              SELECT
+                                    profiles_userprofile.username,
+                                    profiles_userprofile.first_name,
+                                    profiles_userprofile.last_name,
+                                    profiles_userprofile.email,
+                                    profiles_userprofile.mobile_number,
+                                    profiles_userprofile.company,
+                                    profiles_company.support_plan,
+                                    profiles_company.type
+                                FROM
+                                    profiles_userprofile
+                                        INNER JOIN
+                                    profiles_company ON profiles_userprofile.company_association_id = profiles_company.id
+                                WHERE {0}
+                       '''.format(get_data(get_request))
+           elif get_request.get('all_users', None) == "all_users":
+               query = '''
+                    SELECT
+                          profiles_userprofile.username,
+                          profiles_userprofile.first_name,
+                          profiles_userprofile.last_name,
+                          profiles_userprofile.email,
+                          profiles_userprofile.mobile_number,
+                          profiles_userprofile.company,
+                          profiles_company.support_plan,
+                          profiles_company.type
+                      FROM
+                          profiles_userprofile
+                      LEFT JOIN
+                          profiles_company ON profiles_userprofile.company_association_id = profiles_company.id
+                      WHERE {0}
+               '''.format(get_all_users_data(get_request))
+           if get_request.get('users', None) == "All":
+               response['Content-Disposition'] = 'attachment; filename= all-users.csv'
+           else:
+               response['Content-Disposition'] = 'attachment; filename= {0}-users.csv'.format(export_extention(get_request))
+           cursor.execute(query)
+           rows = cursor.fetchall()
+           for row in rows:
+               try:
+                   writer.writerow(row)
+               except Exception:
+                   pass
+           return response
+       except Exception as e:
+           logger.exception(e)
+def get_data(get_request):
+   list = get_request.getlist('plan_users', None)
+   if get_request.get('all_users', None) == "custom_users":
+       if get_request.get('plan_users', None) == "Community":
+           if get_request.get('inactive_users', None) and get_request.get('active_users', None):
+               data = '''
+                   profiles_userprofile.is_active IN (1,0)
+                   AND profiles_userprofile.company_association_id IS NULL
+                   AND profiles_userprofile.crm_type IN ('user')
+                   AND profiles_company.support_plan IN ('{0}');
+                   '''.format("','".join(list))
+           elif get_request.get('inactive_users', None):
+               data = '''
+                   profiles_userprofile.is_active = 0
+                   AND profiles_userprofile.company_association_id IS NULL
+                   AND profiles_userprofile.crm_type IN ('user')
+                   AND profiles_company.support_plan IN ('{0}');
+                   '''.format("','".join(list))
+           else:
+               data = '''
+                   profiles_userprofile.is_active = 1
+                   AND profiles_userprofile.company_association_id IS NULL
+                   AND profiles_userprofile.crm_type IN ('user')
+                   AND profiles_company.support_plan IN ('{0}');
+                   '''.format("','".join(list))
+       elif get_request.get('customer', None) and get_request.get('ex_customer', None) and get_request.get(
+               'inactive_users', None) and get_request.get('active_users', None) and get_request.get('inactive_users', None) and get_request.get('managed_service', None):
+           data = '''
+               profiles_userprofile.is_active IN (1,0)
+               AND profiles_company.type IN ('Customer','ex_customer')
+               AND profiles_userprofile.crm_type NOT IN ('staff')
+               AND profiles_company.support_plan IN ('{0}')
+               AND profiles_company.managed_service = 1;
+               '''.format("','".join(list))
+       elif get_request.get('customer', None) and get_request.get('ex_customer', None) and get_request.get(
+               'inactive_users', None) and get_request.get('active_users', None) and get_request.get('inactive_users', None):
+           data = '''
+           profiles_userprofile.is_active IN (1,0)
+           AND profiles_company.type IN ('Customer','ex_customer')
+           AND profiles_userprofile.crm_type NOT IN ('staff')
+           AND profiles_company.support_plan IN ('{0}');
+           '''.format("','".join(list))
+       elif get_request.get('customer', None) and get_request.get('ex_customer', None) and get_request.get(
+               'active_users', None) and get_request.get('managed_service', None):
+           data = '''
+               profiles_userprofile.is_active = 1
+               AND profiles_company.type IN ('Customer','ex_customer')
+               AND profiles_userprofile.crm_type NOT IN ('staff')
+               AND profiles_company.support_plan IN ('{0}')
+               AND profiles_company.managed_service = 1;
+               '''.format("','".join(list))
+       elif get_request.get('customer', None) and get_request.get('ex_customer', None) and get_request.get('active_users', None):
+           data = '''
+               profiles_userprofile.is_active = 1
+               AND profiles_company.type IN ('Customer','ex_customer')
+               AND profiles_userprofile.crm_type NOT IN ('staff')
+               AND profiles_company.support_plan IN ('{0}');
+               '''.format("','".join(list))
+       elif get_request.get('customer', None) and get_request.get('ex_customer', None) and get_request.get('inactive_users', None) and get_request.get('managed_service', None):
+           data = '''
+               profiles_userprofile.is_active = 0
+               AND profiles_company.type IN ('Customer','ex_customer')
+               AND profiles_userprofile.crm_type NOT IN ('staff')
+               AND profiles_company.support_plan IN ('{0}')
+               AND profiles_company.managed_service = 1;
+               '''.format("','".join(list))
+       elif get_request.get('customer', None) and get_request.get('ex_customer', None) and get_request.get(
+               'inactive_users', None):
+           data = '''
+               profiles_userprofile.is_active = 0
+               AND profiles_company.type IN ('Customer','ex_customer')
+               AND profiles_userprofile.crm_type NOT IN ('staff')
+               AND profiles_company.support_plan IN ('{0}');
+               '''.format("','".join(list))
+       elif get_request.get('ex_customer', None) and get_request.get( 'active_users', None) and get_request.get('managed_service', None):
+           data = '''
+               profiles_userprofile.is_active = 1
+               AND profiles_company.type IN ('ex_customer')
+               AND profiles_userprofile.crm_type NOT IN ('staff')
+               AND profiles_company.support_plan IN ('{0}')
+               AND profiles_company.managed_service = 1;
+               '''.format("','".join(list))
+       elif get_request.get('ex_customer', None) and get_request.get('active_users', None):
+           data = '''
+               profiles_userprofile.is_active = 1
+               AND profiles_company.type IN ('ex_customer')
+               AND profiles_userprofile.crm_type NOT IN ('staff')
+               AND profiles_company.support_plan IN ('{0}');
+               '''.format("','".join(list))
+       elif get_request.get('customer', None) and get_request.get('active_users', None) and get_request.get(
+               'inactive_users', None) and get_request.get('managed_service', None):
+           data = '''
+               profiles_userprofile.is_active IN (1,0)
+               AND profiles_company.type IN ('Customer')
+               AND profiles_userprofile.crm_type NOT IN ('staff')
+               AND profiles_company.support_plan NOT IN ('ex_customer' , ' ')
+               AND profiles_company.type NOT IN ('ex_customer')
+               AND profiles_company.support_plan IN ('{0}')
+               AND profiles_company.managed_service = 1;
+               '''.format("','".join(list))
+       elif get_request.get('customer', None) and get_request.get('active_users', None) and get_request.get(
+               'inactive_users', None):
+           data = '''
+           profiles_userprofile.is_active IN (1,0)
+           AND profiles_company.type IN ('Customer')
+           AND profiles_userprofile.crm_type NOT IN ('staff')
+           AND profiles_company.support_plan NOT IN ('ex_customer' , ' ')
+           AND profiles_company.type NOT IN ('ex_customer')
+           AND profiles_company.support_plan IN ('{0}');
+           '''.format("','".join(list))
+       elif get_request.get('ex_customer', None) and get_request.get('active_users', None) and get_request.get(
+               'inactive_users', None) and get_request.get('managed_service', None):
+           data = '''
+           profiles_userprofile.is_active IN (1,0)
+           AND profiles_company.type IN ('ex_ustomer')
+           AND profiles_userprofile.crm_type NOT IN ('staff')
+           AND profiles_company.support_plan IN ('{0}')
+           AND profiles_company.managed_service = 1;
+           '''.format("','".join(list))
+       elif get_request.get('ex_customer', None) and get_request.get('active_users', None) and get_request.get(
+               'inactive_users', None):
+           data = '''
+       profiles_userprofile.is_active IN (1,0)
+       AND profiles_company.type IN ('ex_ustomer')
+       AND profiles_userprofile.crm_type NOT IN ('staff')
+       AND profiles_company.support_plan IN ('{0}');
+       '''.format("','".join(list))
+       elif get_request.get('active_users', None) and get_request.get('inactive_users', None) and get_request.get('managed_service', None):
+           data = '''
+               profiles_userprofile.is_active IN (1, 0)
+               AND profiles_userprofile.crm_type NOT IN ('staff')
+               AND profiles_company.support_plan NOT IN ('ex_customer' , ' ')
+               AND profiles_company.type NOT IN ('ex_customer')
+               AND profiles_company.support_plan IN ('{0}')
+               AND profiles_company.managed_service = 1;
+               '''.format("','".join(list))
+       elif get_request.get('active_users', None) and get_request.get('inactive_users', None):
+           data = '''
+               profiles_userprofile.is_active IN (1, 0)
+               AND profiles_userprofile.crm_type NOT IN ('staff')
+               AND profiles_company.support_plan NOT IN ('ex_customer' , ' ')
+               AND profiles_company.type NOT IN ('ex_customer')
+               AND profiles_company.support_plan IN ('{0}');
+               '''.format("','".join(list))
+       elif get_request.get('customer', None) and get_request.get('ex_customer', None) and get_request.get('managed_service', None):
+           data = '''
+               profiles_company.type IN ('Customer','ex_customer')
+               AND profiles_userprofile.crm_type NOT IN ('staff')
+               AND profiles_company.support_plan IN ('{0}')
+               AND profiles_company.managed_service = 1;
+               '''.format("','".join(list))
+       elif get_request.get('customer', None) and get_request.get('ex_customer', None):
+           data = '''
+               profiles_company.type IN ('Customer','ex_customer')
+               AND profiles_userprofile.crm_type NOT IN ('staff')
+               AND profiles_company.support_plan IN ('{0}');
+               '''.format("','".join(list))
+       elif  get_request.get('active_users', None) and get_request.get('managed_service', None):
+           data = '''
+               profiles_userprofile.is_active = 1
+               AND profiles_userprofile.crm_type NOT IN ('staff')
+               AND profiles_company.support_plan NOT IN ('ex_customer' , ' ')
+               AND profiles_company.type NOT IN ('ex_customer')
+               AND profiles_company.support_plan IN ('{0}')
+               AND profiles_company.managed_service = 1;
+               '''.format("','".join(list))
+       elif get_request.get('active_users', None):
+           data = '''
+               profiles_userprofile.is_active = 1
+               AND profiles_userprofile.crm_type NOT IN ('staff')
+               AND profiles_company.support_plan NOT IN ('ex_customer' , ' ')
+               AND profiles_company.type NOT IN ('ex_customer')
+               AND profiles_company.support_plan IN ('{0}');
+               '''.format("','".join(list))
+       elif get_request.get('inactive_users', None) and get_request.get('managed_service', None):
+           data = '''
+               profiles_userprofile.is_active = 0
+               AND profiles_userprofile.crm_type NOT IN ('staff')
+               AND profiles_company.support_plan NOT IN ('ex_customer' , ' ')
+               AND profiles_company.type NOT IN ('ex_customer')
+               AND profiles_company.support_plan IN ('{0}')
+               AND profiles_company.managed_service = 1;
+               '''.format("','".join(list))
+       elif get_request.get('inactive_users', None):
+           data = '''
+               profiles_userprofile.is_active = 0
+               AND profiles_userprofile.crm_type NOT IN ('staff')
+               AND profiles_company.support_plan NOT IN ('ex_customer' , ' ')
+               AND profiles_company.type NOT IN ('ex_customer')
+               AND profiles_company.support_plan IN ('{0}');
+               '''.format("','".join(list))
+       elif get_request.get('customer', None) and get_request.get('managed_service', None):
+           data = '''
+               profiles_company.type IN ('Customer')
+               AND profiles_userprofile.crm_type NOT IN ('staff')
+               AND profiles_company.support_plan NOT IN ('ex_customer' , ' ')
+               AND profiles_company.type NOT IN ('ex_customer')
+               AND profiles_company.support_plan IN ('{0}')
+               AND profiles_company.managed_service = 1;
+               '''.format("','".join(list))
+       elif get_request.get('customer', None):
+           data = '''
+               profiles_company.type IN ('Customer')
+               AND profiles_userprofile.crm_type NOT IN ('staff')
+               AND profiles_company.support_plan NOT IN ('ex_customer' , ' ')
+               AND profiles_company.type NOT IN ('ex_customer')
+               AND profiles_company.support_plan IN ('{0}');
+               '''.format("','".join(list))
+       elif get_request.get('ex_customer', None) and get_request.get('managed_service', None):
+           data = '''
+               profiles_company.type IN ('ex_customer')
+               AND profiles_userprofile.crm_type NOT IN ('staff')
+               AND profiles_company.support_plan IN ('{0}')
+               AND profiles_company.managed_service = 1;
+               '''.format("','".join(list))
+   else:
+       data = '''
+               profiles_userprofile.crm_type NOT IN ('staff')
+               AND profiles_company.support_plan NOT IN ('ex_customer' , ' ')
+               AND profiles_company.type NOT IN ('ex_customer')
+               AND profiles_company.support_plan IN ('{0}');
+        '''.format("','".join(list))
+   return data
+
+def get_all_users_data(get_request):
+    if get_request.get('customer', None) and get_request.get('ex_customer', None) and get_request.get('active_users', None) and get_request.get(
+            'inactive_users', None):
+        query = '''
+                 profiles_userprofile.is_active IN (1,0)
+                 AND profiles_company.type IN ('ex_customer', 'Customer')
+                 '''
+    elif get_request.get('customer', None) and get_request.get('ex_customer', None) and get_request.get('active_users', None) and get_request.get(
+            'inactive_users', None) and get_request.get('managed_service', None):
+        query = '''
+             profiles_userprofile.is_active IN (1,0)
+             AND profiles_company.type IN ('ex_customer', 'Customer')
+             AND profiles_company.managed_service = 1
+             '''
+    elif get_request.get('customer', None) and get_request.get('ex_customer', None) and get_request.get('active_users', None) and get_request.get('managed_service', None):
+        query = '''
+                 profiles_userprofile.is_active = 1
+                 AND profiles_company.type IN ('ex_customer', 'Customer')
+                 AND profiles_company.managed_service = 1
+                 '''
+    elif get_request.get('customer', None) and get_request.get('ex_customer', None) and get_request.get('active_users',
+                                                                                                        None):
+        query = '''
+                 profiles_userprofile.is_active = 1
+                 AND profiles_company.type IN ('ex_customer', 'Customer')
+                 '''
+    elif get_request.get('customer', None) and get_request.get('ex_customer', None) and get_request.get(
+            'inactive_users', None) and get_request.get('managed_service', None):
+        query = '''
+                 profiles_company.type IN ('ex_customer','Customer')
+                 AND profiles_userprofile.is_active = 0
+                 AND profiles_company.managed_service = 1
+                 '''
+    elif get_request.get('customer', None) and get_request.get('ex_customer', None) and get_request.get(
+            'inactive_users', None):
+        query = '''
+             profiles_company.type IN ('ex_customer','Customer')
+             AND profiles_userprofile.is_active = 0
+             '''
+    elif get_request.get('ex_customer', None) and get_request.get('active_users', None) and get_request.get(
+            'inactive_users', None) and get_request.get('managed_service', None):
+        query = '''
+                 profiles_userprofile.is_active IN (1, 0)
+                 AND profiles_company.type IN ('ex_customer')
+                 AND profiles_company.managed_service = 1
+                 '''
+    elif get_request.get('ex_customer', None) and get_request.get('active_users', None) and get_request.get(
+            'inactive_users', None):
+        query = '''
+             profiles_userprofile.is_active IN (1, 0)
+             AND profiles_company.type IN ('ex_customer')
+             '''
+    elif get_request.get('customer', None) and get_request.get('active_users', None) and get_request.get('inactive_users', None) and get_request.get('managed_service', None):
+        query = '''
+                 profiles_userprofile.is_active IN (1,0)
+                 AND profiles_company.type IN ('Customer')
+                 AND profiles_company.managed_service = 1
+                 '''
+    elif get_request.get('customer', None) and get_request.get('active_users', None) and get_request.get(
+            'inactive_users', None):
+        query = '''
+                 profiles_userprofile.is_active IN (1,0)
+                 AND profiles_company.type IN ('Customer')
+                 '''
+    elif get_request.get('active_users', None) and get_request.get('inactive_users', None) and get_request.get('managed_service', None):
+        query = '''
+                 profiles_userprofile.is_active IN (1, 0)
+                 AND profiles_company.managed_service = 1
+                 '''
+    elif get_request.get('active_users', None) and get_request.get('inactive_users', None):
+        query = '''
+                 profiles_userprofile.is_active IN (1, 0)
+                 '''
+    elif get_request.get('customer', None) and get_request.get('active_users', None) and get_request.get('managed_service', None):
+        query = '''
+                 profiles_userprofile.is_active = 1
+                 AND profiles_company.type IN ('Customer')
+                 AND profiles_company.managed_service = 1
+                 '''
+    elif get_request.get('customer', None) and get_request.get('active_users', None):
+        query = '''
+                 profiles_userprofile.is_active = 1
+                 AND profiles_company.type IN ('Customer')
+                 '''
+    elif get_request.get('customer', None) and get_request.get('inactive_users', None) and get_request.get('managed_service', None):
+        query = '''
+                 profiles_userprofile.is_active = 0
+                 AND profiles_company.type IN ('Customer')
+                 AND profiles_company.managed_service = 1
+                 '''
+    elif get_request.get('customer', None) and get_request.get('inactive_users', None):
+        query = '''
+                 profiles_userprofile.is_active = 0
+                 AND profiles_company.type IN ('Customer')
+                 '''
+    elif get_request.get('ex_customer', None) and get_request.get('active_users', None) and get_request.get('managed_service', None):
+        query = '''
+                 profiles_userprofile.is_active = 1
+                 AND profiles_company.type IN ('ex_customer')
+                 AND profiles_company.managed_service = 1
+                 '''
+    elif get_request.get('ex_customer', None) and get_request.get('active_users', None):
+        query = '''
+                 profiles_userprofile.is_active = 1
+                 AND profiles_company.type IN ('ex_customer')
+                 '''
+    elif get_request.get('ex_customer', None) and get_request.get('inactive_users', None) and get_request.get('managed_service', None):
+        query = '''
+                 profiles_userprofile.is_active = 0
+                 AND profiles_company.type IN ('ex_customer')
+                 AND profiles_company.managed_service = 1
+                 '''
+    elif get_request.get('ex_customer', None) and get_request.get('inactive_users', None):
+        query = '''
+                 profiles_userprofile.is_active = 0
+                 AND profiles_company.type IN ('ex_customer')
+                 '''
+    elif get_request.get('customer', None) and get_request.get('ex_customer', None) and get_request.get('managed_service', None):
+        query = '''
+                 profiles_company.type IN ('ex_customer', 'Customer')
+                 AND profiles_company.managed_service = 1
+                 '''
+    elif get_request.get('customer', None) and get_request.get('ex_customer', None):
+        query = '''
+                 profiles_company.type IN ('ex_customer', 'Customer')
+                 '''
+    elif get_request.get('active_users', None) and get_request.get('managed_service', None):
+        query = '''
+           profiles_userprofile.is_active = 1
+           AND profiles_company.managed_service = 1
+           '''
+    elif get_request.get('active_users', None):
+        query = '''
+           profiles_userprofile.is_active = 1
+           '''
+    elif get_request.get('inactive_users', None) and get_request.get('managed_service', None):
+        query = '''
+           profiles_userprofile.is_active = 0
+           AND profiles_company.managed_service = 1
+           '''
+    elif get_request.get('customer', None):
+        query = '''
+                 profiles_company.type IN ('Customer')
+                 '''
+    elif get_request.get('ex_customer', None):
+        query = '''
+                 profiles_company.type IN ('ex_customer')
+                 '''
+    elif get_request.get('inactive_users', None):
+        query = '''
+           profiles_userprofile.is_active = 0
+           '''
+    elif get_request.get('managed_service', None):
+        query = '''
+           profiles_company.managed_service = 1
+           '''
+    else:
+        query = '''
+            profiles_userprofile.is_active = 1
+            '''
+    return query
+
+def export_extention(get_request):
+    if get_request.get('all_users', None) and get_request.get('plan_users', None):
+        list = get_request.getlist('plan_users', None)
+        data =  "_".join(list)
+    elif get_request.get('all_users', None) == "all_users":
+        data = get_request.get('all_users', None)
+    else:
+        data = 'all_users'
+    return data

@@ -1,0 +1,16 @@
+{% autoescape off %}
+
+Hello {{ticket_created_by_first_name}},
+
+Thank you for opening ticket #{{ticket_id}}, {{ticket_title}}, on Gluu Support.
+
+A Gluu engineer will be with you as soon as possible.
+
+"{{ticket_body_txt|safe}}"
+
+Thank you,
+Gluu Support
+
+p.s. If you need guaranteed responses and private support from Gluu, please consider purchasing a Gluu Support Contract.
+
+{% endautoescape %}

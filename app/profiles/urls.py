@@ -16,15 +16,19 @@ urlpatterns = [
     ),
 
     url(
-        r'^activate_ticket/$',
-        views.ticket_activation,
-        name='ticket_activation'
+      	r'^reset_oxd_values/$',
+        views.reset_oxd_values,
+        name='reset_oxd_values'
     ),
-
     url(
         r'^register/$',
         views.register,
         name='register'
+    ),
+    url(
+        r'^registered/(?P<name>\w+)/$',
+        views.register,
+        name='registered'
     ),
     url(
         r'^register/(?P<activation_key>\w+)/$',

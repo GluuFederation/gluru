@@ -6800,14 +6800,12 @@
             }
             if (!qq.supportedFeatures.fileDrop) {
                 uploaderEl.removeAttribute(DROPZPONE_TEXT_ATTR);
-
                 if (dropArea && qq(dropArea).hasAttribute(HIDE_DROPZONE_ATTR)) {
                     qq(dropArea).css({
                         display: "none"
                     });
                 }
             } else if (qq(uploaderEl).hasAttribute(DROPZPONE_TEXT_ATTR) && dropArea) {
-
                 dropTextEl = qq(dropArea).getFirstByClass(selectorClasses.dropText);
                 dropTextEl && qq(dropTextEl).remove();
             }

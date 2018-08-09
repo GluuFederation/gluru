@@ -11,7 +11,7 @@ Issue Type: {{issue_type}}
 
 "{{ticket_body_txt|safe}}"
 
-Simply reply to this email to add a comment. If you need to include attachments, update the ticket directly.
+Simply reply to this email to add a comment. Markdown and html formatting are supported. If you need to include attachments, update the ticket directly.
 
 Thank you,
 

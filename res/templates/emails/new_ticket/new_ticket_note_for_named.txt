@@ -1,0 +1,21 @@
+{% autoescape off %}
+
+Hello {{ticket_created_by_first_name}},
+
+Thank you for opening ticket #{{ticket_id}}, {{ticket_title}}, on Gluu Support.
+
+A Gluu engineer will be with you shortly.
+
+Issue Type: {{issue_type}}
+{{hours}}
+
+"{{ticket_body_txt|safe}}"
+
+You can reply to this email to update the ticket. If you need to include images or attachments, update the ticket directly.
+
+Thank you,
+Gluu Support
+
+You are receiving this message because you are a named user.
+
+{% endautoescape %}

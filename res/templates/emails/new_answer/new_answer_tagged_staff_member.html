@@ -1,0 +1,19 @@
+{% extends 'emails/base_template.html' %}
+{% load gluu_tags %}
+{% block content %}
+
+<div class="message_container">
+	<p>Hello,</p>
+	<p>You have been tagged by {{answer_created_by}} from {{answer_created_by_comp}} on the following response on Gluu support ticket #{{ticket_id}}: "{{ticket_title}}".</p>
+	<div class="ticket_body">
+		{{answer_body|markdownify|safe}}
+	</div>
+
+	<p>Reply to this email to add a comment. If you need to include an image, please <a href="{{ticket_link}}">update the ticket directly</a>.</p>
+
+	<p>
+	    Thank you,<br/>
+	    Gluu Support
+	</p>
+</div>
+{% endblock %}

@@ -1,0 +1,1 @@
+Request Received: "{{ticket_title|safe}}"

@@ -4,7 +4,7 @@ You have been cc’d by {{ticket_created_by}} on Gluu Support ticket # {{ticket_
 
 "{{ticket_body_txt|safe}}"
 
-Reply to this email to add a comment. If you need to include attachments, please update the ticket directly.
+Reply to this email to add a comment. Markdown and html formatting are supported. If you need to include attachments, please update the ticket directly.
 
 Thank you,
 Gluu Support

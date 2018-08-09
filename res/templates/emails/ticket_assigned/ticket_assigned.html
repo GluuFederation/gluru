@@ -3,13 +3,10 @@
 <div class="message_container">
 	<p> Hello {{first_name}},</p>
 	<p>
-		Gluu support ticket #{{ticket_id}}, <a href="{{ticket_link}}">{{ticket_title}}</a>, has been assigned to you by {{ticket_assigned_by}}:</p>
-	{% if support_plan %}
-	<p>Ticket owner: {{ticket_created_by}} from {{ticket_created_by_comp}}
-	    {% if ticket_created_for %} on behalf of {{ticket_created_for}} {% endif %}
-	    {% if ticket_created_for_comp %} from {{ticket_created_for_comp}} {% endif %},a Gluu {{support_plan}} customer.
-
+		Gluu support ticket #{{ticket_id}}, <a href="{{ticket_link}}">{{ticket_title}}</a>, has been assigned to you by {{ticket_assigned_by}}:
 	</p>
+	{% if support_plan %}
+	<p>Ticket owner: {{ticket_created_by}} from {{ticket_created_by_comp}}, a Gluu {{support_plan}} customer.</p>
 	<p>Issue Type: {{issue_type}}</p>
 	<p>{{hours}}</p>
 	{% else %}
@@ -19,7 +16,7 @@
 		{{ticket_body|safe}}
 	</div>
 
-	<p>Simply reply to this email to add a comment. If you need to include an image, please <a href="{{ticket_link}}">update the ticket directly</a>.</p>
+	<p>Simply reply to this email to add a comment. Markdown and html formatting are supported. If you need to include an image, please <a href="{{ticket_link}}">update the ticket directly</a>.</p>
 
 	<p>
 		Thank you,<br />

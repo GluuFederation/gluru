@@ -3,27 +3,63 @@ from django.contrib.auth.admin import UserAdmin
 
 from profiles import models
 from connectors.sugarcrm.crm_interface import get_support_plan_by_account
+import json
+from django.http import HttpResponseRedirect, HttpResponse, HttpResponseServerError, HttpResponsePermanentRedirect
 
 class UserProfileAdmin(UserAdmin):
+   ordering = ('-id',)
+   search_fields = ['email', 'company', 'first_name', 'last_name']
+   model = models.UserProfile
+   list_display = (
+       'id', 'first_name', 'last_name', 'email',
+       'crm_type', 'company_association', 'is_active',
+       'is_company_admin', 'is_staff', 'last_login', 'date_joined', 'get_email_notification',
+   )
+   fieldsets = UserAdmin.fieldsets + (
+       ('Profile', {'fields': (
+           'company', 'job_title', 'mobile_number', 'crm_type', 'timezone')}),
+       ('Paying users', {'fields': (
+           'company_association', 'is_company_admin',)}),
+       ('Syncing', {'fields': ('idp_uuid', 'crm_uuid')}),
+       ('Notifications', {'fields': ('receive_all_notifications',)}),
+   )
+   class Media:
+       js = ("https://code.jquery.com/jquery-1.11.0.min.js","admin/js/admin_profile.js")
 
-    ordering = ('-id',)
-    search_fields = ['email', 'company', 'first_name', 'last_name']
-    model = models.UserProfile
+   actions = ['deactivate_user', 'notification_user', 'no_notification_user']
+   def deactivate_user(self, request, queryset):
+       rows_updated = queryset.update(is_active=0)
+       if rows_updated == 1:
+           message_bit = "1 profile was"
+       else:
+           message_bit = "%s profiles were" % rows_updated
+       self.message_user(request, "%s successfully deactivated." % message_bit)
+   deactivate_user.short_description = "Deactivate selected profiles"
+   def notification_user(self, request, queryset):
+       user = queryset.get(id=request.POST['_selected_action'])
+       rows_updated = queryset.update(get_email_notification=1)
+       if rows_updated == 1:
+           message_bit = '"%s" is subscribed' % user
+       else:
+           message_bit = "%s profiles were" % rows_updated
+       self.message_user(request, "%s to get email notifications." % message_bit)
+       return HttpResponse(
+           json.dumps({'status': 'success', 'msg': ('Profile Updated')}),
+           content_type='application/json')
 
-    list_display = (
-        'id', 'first_name', 'last_name', 'email',
-        'crm_type', 'company_association', 'is_active',
-        'is_company_admin', 'is_staff', 'last_login', 'date_joined', 
-    )
+   def no_notification_user(self, request, queryset):
+	user = queryset.get(id=request.POST['_selected_action'])
+        rows_updated = queryset.update(get_email_notification=0)
+        if rows_updated == 1:
+	    message_bit = '"%s" is unsubscribed' % user
+        else:
+            message_bit = "%s profiles were" % rows_updated
+	self.message_user(request, "%s to get email notifications" % message_bit)
 
-    fieldsets = UserAdmin.fieldsets + (
-        ('Profile', {'fields': (
-            'company', 'job_title', 'mobile_number', 'crm_type', 'timezone')}),
-        ('Paying users', {'fields': (
-            'company_association', 'is_company_admin',)}),
-        ('Syncing', {'fields': ('idp_uuid', 'crm_uuid')}),
-        ('Notifications', {'fields': ('receive_all_notifications',)}),
-    )
+        return HttpResponse(
+            json.dumps({'status': 'success', 'msg': ('Profile Updated')}),
+            content_type='application/json')
+
 
 admin.site.register(models.UserProfile, UserProfileAdmin)
 

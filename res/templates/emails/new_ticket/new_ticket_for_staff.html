@@ -5,10 +5,10 @@
 	<p> Hello Support Team,</p>
 	<p>
 		{% if support_plan %}
-		    Ticket #{{ticket_id}}, <a href="{{ticket_link}}">{{ticket_title}}</a>, has been added by {{ticket_created_by}} from {{ticket_created_by_comp}} on behalf of {{ticket_created_for}} from {{ticket_created_for_comp}}, a Gluu {{support_plan}} support customer.
-        {% else %}
-		    Ticket #{{ticket_id}}, <a href="{{ticket_link}}">{{ticket_title}}</a>, has been added by {{ticket_created_by}} from {{ticket_created_by_comp}} on behalf of {{ticket_created_for}} from {{ticket_created_for_comp}}.
-        {% endif %}
+			Ticket #{{ticket_id}}, <a href="{{ticket_link}}">{{ticket_title}}</a>, has been added by {{ticket_created_by}} from {{ticket_created_by_comp}} on behalf of {{ticket_created_for}} from {{ticket_created_for_comp}}, a Gluu {{support_plan}} support customer.
+		{% else %}
+			Ticket #{{ticket_id}}, <a href="{{ticket_link}}">{{ticket_title}}</a>, has been added by {{ticket_created_by}} from {{ticket_created_by_comp}} on behalf of {{ticket_created_for}} from {{ticket_created_for_comp}}.
+		{% endif %}
 	</p>
 
 	<p>
@@ -21,7 +21,7 @@
 	</div>
 
 
-	<p>Reply to this email to add a comment. If you need to include an attachment, please <a href="{{ticket_link}}">update the ticket directly</a>.</p>
+	<p>Reply to this email to add a comment. Markdown and html formatting are supported. If you need to include an attachment, please <a href="{{ticket_link}}">update the ticket directly</a>.</p>
 
 	<p>Thank you,<br />
 	Gluu Support</p>

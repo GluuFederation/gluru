@@ -17,16 +17,19 @@
 	</div>
 
 
-	<p>Reply to this email to add a comment. If you need to include attachments, please <a href="{{ticket_link}}">update the ticket directly</a>.</p>
+	<p>Reply to this email to add a comment. Markdown and html formatting are supported. If you need to include attachments, please <a href="{{ticket_link}}">update the ticket directly</a>.</p>
 	<p>
 		Thank you,<br/>
 		Gluu Support
 	</p>
 
-    <p>You are receiving this message because you are a named contact at {{ticket_created_by_comp}}, a Gluu customer. To opt out of notifications, <a href="https://support.gluu.org/my-profile/">visit your dashboard</a>.</p>
-
-
-
+	<p>
+		{% if ticket_created_for %}
+			You are receiving this message because you are a supported contact at {{ticket_created_for_comp}}, a Gluu customer. If you wish to stop receiving team notifications, you can <a href="https://support.gluu.org/my-profile/">opt-out in your dashboard</a>.</p>
+		{% else %}
+			You are receiving this message because you are a named contact at {{ticket_created_by_comp}}. If you wish to stop receiving team notifications, you can <a href="https://support.gluu.org/my-profile/">opt-out in your dashboard</a>.</p>
+		{% endif %}
+	<p>
 </div>
 
 {% endblock %}

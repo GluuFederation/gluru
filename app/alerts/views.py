@@ -28,7 +28,7 @@ TICKET_ASSIGNED_OWNER = 'assigned_ticket_owner'
 NEW_ANSWER = 'new_answer'
 NEW_ANSWER_SUBSCRIBERS = 'new_answer_subscribers'
 NEW_ANSWER_COPY = 'copy_answer'
-
+NEW_ANSWER_TAGGED_STAFF_MEMBER = 'new_answer_tagged_staff_member'
 
 def generate_ticket_url(ticket):
 
@@ -377,6 +377,14 @@ def notify_new_ticket(ticket, send_copy=False):
                 context=context,
                 html_email_template_name='emails/new_ticket/new_ticket.html'
             )
+            send_email(
+                subject_template_name='emails/new_ticket/thank_you_note_subject.txt',
+                email_template_name='emails/new_ticket/new_ticket_note_for_user.txt',
+                to_email='To email will go here',
+                from_email = "From Title <"+encoded+ "@your domain on mailgun>",
+                context=context,
+                html_email_template_name='emails/new_ticket/new_ticket_note_for_user.html'
+            )
 
             track_sent_emails(
                 ticket=ticket,
@@ -397,6 +405,15 @@ def notify_new_ticket(ticket, send_copy=False):
                 context=context,
                 html_email_template_name='emails/new_ticket/new_ticket_by_named.html'
 
+            )
+
+            send_email(
+                subject_template_name='emails/new_ticket/thank_you_note_subject.txt',
+                email_template_name='emails/new_ticket/new_ticket_note_for_named.txt',
+                to_email='To email will go here',
+                from_email = "From Title <"+encoded+ "@your domain on mailgun>",
+                context=context,
+                html_email_template_name='emails/new_ticket/new_ticket_note_for_named.html'
             )
 
             track_sent_emails(
@@ -609,3 +626,24 @@ def notify_new_answer(answer, send_copy=False):
             emails=to_emails,
             alert_type=NEW_ANSWER_COPY
         )
+
+def notify_tagged_staff_member(answer, tag_user):
+
+    ticket = answer.ticket
+    encoded= base64.b32encode(str(ticket.id))
+    context = gather_answer_email_context(answer)
+
+    send_email(
+        subject_template_name='emails/new_answer/new_answer_tagged_staff_member_subject.txt',
+        email_template_name='emails/new_answer/new_answer_tagged_staff_member.txt',
+        to_email=To email will go here,
+        context=context,
+        html_email_template_name='emails/new_answer/new_answer_tagged_staff_member.html',
+        from_email = "From Title <"+encoded+ "@your domain on mailgun>"
+    )
+
+    track_sent_emails(
+        ticket=ticket,
+        emails=tag_user.email,
+        alert_type=NEW_ANSWER_TAGGED_STAFF_MEMBER
+    )

@@ -1,24 +1,11 @@
 {% load i18n %}
-<script>
-    //Mobile sidebar JS animation
-    $('body').delegate('.side-show-btn','click',function(){
-        $(this).toggleClass('active-sideShow');
-        $('body').toggleClass('FixBody');
-        $('.sidebar_overlay').toggleClass('active-sidebarOverlay');
-        $('.toggleSideBar').toggleClass('active-toggleSideBar');
-        $('.glyphicon-indent-left').toggleClass('glyphicon-leftClose');
-    });
-</script>
-<a href="#" class="side-show-btn"><span class="glyphicon glyphicon-indent-left"></span> </a>
-<div class="side-bar-m">
-    <div class="sidebar_overlay"></div>
-<div class="col-md-3 toggleSideBar">
-    <div class="well well-sm well__33">
+<div class="col-md-3">
+    <div class="well well-sm">
         <form action="" method="post" role="form" id="ticket_info">{% csrf_token %}
-            <span class="pull-left lable__ticket"><strong>Ticket #{{ticket.id}}</strong></span>
+            <span class="pull-left"><strong>#{{ticket.id}}</strong></span>
             {% if has_edit_rights  %}
-                <a type="button" href="{% url 'edit_ticket' ticket.id %}" style="margin-left:5px;margin-right:15px;" class="icon__Set pull-right"><span class="pencil" data-toggle="tooltip" data-original-title="Edit Ticket"></span></a>
-                <a type="button" href="{% url 'history_ticket' ticket.title|slugify ticket.id %}" class="icon__Set pull-right"><span class="history" data-toggle="tooltip" data-original-title="Ticket History"></span></a>
+                <a type="button" href="{% url 'edit_ticket' ticket.id %}" style="margin-left:5px;margin-right:5px;" class="btn btn-xs btn-primary pull-right"><span class="glyphicon glyphicon-edit"></span> {% trans 'Edit' %}</a>
+                <a type="button" href="{% url 'history_ticket' ticket.title|slugify ticket.id %}" class="btn btn-xs btn-default pull-right"><span class="glyphicon glyphicon-eye-open"></span> {% trans 'History' %}</a>
             {% endif %}
             <div class="clearfix"></div>
             <hr />
@@ -54,17 +41,16 @@
             <div class="clearfix"></div>
             <br />
             {% if has_edit_rights  %}
-                <a type="button" onclick="if (confirm('Are you sure that you want to delete this ticket?') == true){return true;}else{return false}" href="{% url 'delete_ticket' ticket.id %}" class="gluu-remove-icon btn btn-danger pull-left gluu-remove-icon">
-                    </span> {% trans 'Delete' %}
+                <a type="button" onclick="if (confirm('Are you sure that you want to delete this ticket?') == true){return true;}else{return false}" href="{% url 'delete_ticket' ticket.id %}" class="btn btn-xs btn-danger pull-right gluu-remove-icon">
+                    <span class="glyphicon glyphicon-remove"></span> {% trans 'Delete' %}
                 </a>
                 {% if ticket.status != 'closed' %}
-                    <a type="button" onclick="if (confirm('Are you sure that you want to close this ticket?') == true){return true;}else{return false}" href="{% url 'close_ticket' ticket.id %}" class="gluu-remove-icon close_ticket btn btn-primary pull-left gluu-remove-icon">
-                        {% trans 'Close' %}
+                    <a type="button" onclick="if (confirm('Are you sure that you want to close this ticket?') == true){return true;}else{return false}" href="{% url 'close_ticket' ticket.id %}" class="close_ticket btn btn-xs btn-primary pull-right gluu-remove-icon">
+                        <span class="glyphicon glyphicon-ok"></span> {% trans 'Close' %}
                     </a>
                 {% endif %}
             {% endif %}
             <div class="clearfix"></div>
         </form>
     </div>
-</div>
 </div>

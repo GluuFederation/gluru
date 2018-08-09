@@ -10,7 +10,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import ugettext as _
-
 from profiles import constants
 
 
@@ -31,6 +30,14 @@ class Company(models.Model):
         unique=True
     )
 
+    type = models.CharField(
+       _('type'),
+       max_length=500,
+       blank=True
+    )
+    managed_service = models.IntegerField(
+        default=0
+    )
     created = models.DateTimeField(
         _('created'),
         auto_now_add=True
@@ -83,13 +90,12 @@ class Entitlements(models.Model):
     def __str__(self):
         return self.plan
 
-
     def save(self, *args, **kwargs):
         if not self.id:
             self.created_at = timezone.now()
         self.updated_at = timezone.now()
         super(Entitlements, self).save()
-        company =  Company.objects.filter(support_plan=self.plan)
+        company = Company.objects.filter(support_plan=self.plan)
         from connectors.sugarcrm.crm_interface import get_support_plan_by_account
         for cmp in company:
                 company_renewal_date = str(get_support_plan_by_account(cmp,1))
@@ -294,7 +300,11 @@ class AbstractUserProfile(AbstractBaseUser, PermissionsMixin):
         blank=True,
         default=''
     )
-
+    get_email_notification = models.BooleanField(
+       _('get email notification'),
+       default=False,
+       help_text=_('Send email to admin for notification')
+    )
     timezone = models.CharField(
         max_length=50,
         choices=[(x, x) for x in pytz.common_timezones],
@@ -345,8 +355,6 @@ class AbstractUserProfile(AbstractBaseUser, PermissionsMixin):
         if self.crm_type in ['staff', 'admin', 'manager']:
             return True
         return False
-
-
 
     @property
     def is_named(self):
@@ -437,6 +445,26 @@ class Activation(models.Model):
         auto_now_add=True
     )
 
+class Registration(models.Model):
+
+    status = models.CharField(
+        _('status'),
+        max_length=40
+    )
+
+    user_id = models.IntegerField(
+        blank=False,
+        null=False,
+        default='',
+    )
+
+    idp_password = models.CharField(
+        _('idp_password'),
+        default='',
+        max_length=255
+    )
+
+
 class Invitation(models.Model):
 
     email = models.EmailField(
@@ -485,4 +513,44 @@ class Partnership(models.Model):
 
     is_deleted = models.BooleanField(
         default=False
+    )
+
+class OxdConfiguration(models.Model):
+
+    oxd_host = models.CharField(
+        max_length=200,
+    )
+    oxd_port = models.IntegerField(
+        default = 0
+    )
+    oxd_id = models.CharField(
+        max_length=200,
+    )
+    client_op_host = models.CharField(
+        max_length = 200,
+    )
+    client_authorization_redirect_uri = models.CharField(
+        max_length = 300,
+    )
+    client_id = models.CharField(
+        max_length = 300,
+    )
+    client_secret = models.CharField(
+        max_length = 300,
+    )
+    client_secret_expires_at = models.CharField(
+        max_length = 300,
+    )
+
+    is_active = models.BooleanField(
+        default = True
+    )
+    is_https_extension = models.BooleanField(
+        default = True
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+    updated_at = models.DateTimeField(
+        auto_now_add=True
     )

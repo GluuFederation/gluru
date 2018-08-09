@@ -109,7 +109,8 @@ OS_VERSION = (
     ('Ubuntu', 'Ubuntu'),
     ('CentOS','CentOS'),
     ('Rhel' , 'RHEL'),
-    ('Debian', 'Debian')
+    ('Debian', 'Debian'),
+    ('Other', 'Other')
 )
 
 
@@ -127,17 +128,17 @@ PRODUCT_OS_VERSION = (
 
 GLUU_SERVER_VERSION = (
     ('', 'Select Gluu Server Version'),
-    ('3.1.2', 'Gluu Server 3.1.2'),
-    ('3.1.1', 'Gluu Server 3.1.1'),
-    ('3.1.0', 'Gluu Server 3.1.0' ),
-    ('3.0.2', 'Gluu Server 3.0.2'),
-    ('3.0.1', 'Gluu Server 3.0.1'),
-    ('2.4.4.3', 'Gluu Server 2.4.4.3'),
-    ('2.4.4.2', 'Gluu Server 2.4.4.2'),
-    ('2.4.4', 'Gluu Server 2.4.4'),
-    ('2.4.3', 'Gluu Server 2.4.3'),
-    ('2.4.2', 'Gluu Server 2.4.2'),
-    ('Other', 'Other')
+    ('3.1.4', '3.1.4'),
+    ('3.1.3', '3.1.3'),
+    ('3.1.2', '3.1.2'),
+    ('3.1.1', '3.1.1'),
+    ('3.1.0', '3.1.0'),
+    ('3.0.2', '3.0.2'),
+    ('3.0.1', '3.0.1'),
+    ('2.4.4', '2.4.4'),
+    ('2.4.3', '2.4.3'),
+    ('2.4.2', '2.4.2'),
+    ('Other', 'Other'),
 )
 
 PRODUCT = (
@@ -145,11 +146,15 @@ PRODUCT = (
     # ('GLUU','Gluu Server'),
     ('Oxd','OXD'),
     ('Super Gluu','Super Gluu'),
-    ('Cluster','Cluster Manager')
+    ('Cluster','Cluster Manager'),
+    ('Cred Manager','Cred Manager')
 )
 
 Product_Version = (
     ('','Select Product Version'),
+    ('3.1.4','3.1.4'),
+    ('3.1.3','3.1.3'),
+    ('3.1.2','3.1.2'),
     ('3.1.1','3.1.1'),
     ('3.0.2','3.0.2'),
     ('3.0.1','3.0.1'),
@@ -210,21 +215,18 @@ SUP_Gluu_Server_Issues =(
 
 TICKET_CATEGORY = (
     ('', 'Select a Category'),
-    ('OUTAGE', 'Outage'),
+    ('OUTAGE', 'Outages'),
     ('IDNTY', 'Identity Management'),
     ('SSO', 'Single Sign-On'),
     ('MFA', 'Authentication'),
-    ('AUT', 'Authorization'),
     ('ACCESS', 'Access Management'),
     ('CUSTOM', 'Customization'),
     ('FEATURE', 'Feature Request'),
     ('INSTALLATION', 'Installation'),
     ('UPGRADE', 'Upgrade'),
     ('MAINTENANCE', 'Maintenance'),
-    ('ADM','Administration'),
-    ('ENR','Enrollment'),
-    ('LOST','Lost Device'),
-    ('OTHER', 'Other')
+    ('OTHER', 'Other'),
+    ('LOGOUT', 'Log Out')
 )
 SMS_NUMBERS = (
     ('Your contact name','Your contact number'),

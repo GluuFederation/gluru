@@ -1,7 +1,6 @@
 Hello {{user.first_name}},
 
 Your role on Gluu support has been updated from {{ current_role|title }} to {{ new_role|title }}.
-
 {% if user.is_company_admin %}
 As an account admin you can:
 
@@ -18,7 +17,6 @@ As a named contact you can:
 
 {% else %}
 As a community user you can open and respond to public tickets on Gluu support.
-
 {% endif %}
 
 Thank you,

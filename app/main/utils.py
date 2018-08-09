@@ -4,7 +4,7 @@ from dateutil.relativedelta import relativedelta
 from hashlib import sha1
 import random
 
-from smtplib import SMTPRecipientsRefused
+from smtplib import SMTPRecipientsRefused, SMTPException, SMTPConnectError, SMTPDataError, SMTPServerDisconnected, SMTPSenderRefused, SMTPAuthenticationError, SMTPResponseException
 
 import datetime
 
@@ -219,6 +219,27 @@ def send_mail(subject_template_name, email_template_name, to_email,
             email_message.attach_alternative(html_email, 'text/html')
 
         email_message.send()
+
+    except SMTPException as e:
+        logger.error(e)
+
+    except SMTPServerDisconnected as e:
+        logger.error(e)
+
+    except SMTPResponseException as e:
+        logger.error(e)
+
+    except SMTPSenderRefused as e:
+        logger.error(e)
+
+    except SMTPDataError as e:
+        logger.error(e)
+
+    except SMTPConnectError as e:
+        logger.error(e)
+
+    except SMTPAuthenticationError as e:
+        logger.error(e)
 
     except SMTPRecipientsRefused as e:
         logger.error(e)

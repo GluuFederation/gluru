@@ -2,12 +2,16 @@
 
 Hello,
 
-Ticket #{{ticket_id}}, {{ticket_title}}, has been reopened by {{ticket_created_by}} from {{ticket_created_by_comp}}.
+Ticket #{{ticket_id}}, {{ticket_title}}, has been reopened by {{ticket_reopened_by}} from {{ticket_reopened_by_comp}}.
 
 You can visit it here: {{ticket_link}}
 
 Thank you,
+
 Gluu Support
 
-{% endautoescape %}
+----
 
+Ticket Link: {{ticket_link}}
+
+{% endautoescape %}

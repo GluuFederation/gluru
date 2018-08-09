@@ -4,7 +4,10 @@
 {% load gluu_tags %}
 
 {% block content %}
-<div id="view" class="tickets-detail-pages">
+<div id="view">
+    <div class="page-header">
+        <h3>{{ticket.title}}</h3>
+    </div>
     <div class="row">
         {% if user.is_authenticated %}
             {% if user.is_admin %}
@@ -15,37 +18,32 @@
                 {% include "tickets/menu_inline_user.html" %}
             {% endif %}
         {% endif %}
-        <div  {% if user.is_authenticated %}class="col-md-9 ticket-details"{% else %}class="col-md-12 ticket-details unauthenticated"{% endif %}>
-            <div class="ticket-details-inner">
-            <div class="panel panel-default ticket-details-sec {% if user.crm_type != 'user' %}{{ticket.priority|lower}}{% endif %}">
-                {% if user.is_authenticated %}
+        <div  {% if user.is_authenticated %}class="col-md-9"{% else %}class="col-md-12"{% endif %}>
+            <div class="panel panel-default {% if user.crm_type != 'user' %}{{ticket.priority|lower}}{% endif %}">
                 <div class="panel-heading">
                     <div class="pull-left">
-                        {% if user.is_authenticated %}
-                            {% if ticket.status != 'Closed' and user != ticket.owned_by and user != ticket.assigned_to %}
-                                {% if ticket.status != 'Closed' %}
-                                    <a href="#reply" class="reply-icons"><span class="reply" data-toggle="tooltip" data-original-title="Reply"></span></a>
-                                {% endif %}
-                                {% if is_alerts_assigned %}
-                                    <a target="_blank" id="send_alerts" data-pk="{{ ticket.id }}" class="notification-icons" data-toggle="tooltip" data-original-title="Remove me from alerts"><span class="notification active"></span></a>
-                                {% else %}
-                                    <a id="send_alerts" data-pk="{{ticket.id}}" target="_blank" class="notification-icons"><span class="notification" data-toggle="tooltip" data-original-title="Send me alerts"></span></a>
-                                {% endif %}
+                        <h1 class="panel-title">
+                            {% trans 'By' %}: {{ticket.owned_by}}
+                            {% if ticket.owned_by.get_is_company_admin %}
+                            <span class="label label-{{ticket.owned_by.get_type|lower}}">Account Admin</span>
+                            {% else %}
+                            <span class="label label-{{ticket.owned_by.get_type|lower}}">{{ticket.owned_by.get_type}}</span>
                             {% endif %}
-                        {% endif %}
+                            <span class="header_date">{{ticket.date_added|date:"d M Y"}} at {{ticket.date_added|date:"P T"}}</span>
+                        </h1>
                     </div>
 
-                    <div class="pull-right responses">
-                       <span class="label label-default answer-no">{{ticket.answers_no}}</span><a id="response_count">{% trans "Response" %}{{ticket.answers_no|pluralize}}</a>
+                    <div class="pull-right">
+                       <span class="label label-default answer-no">{{ticket.answers_no}}</span> {% trans "Response" %}{{ticket.answers_no|pluralize}}
                     </div>
                     {% if user.staff %}
                         <div class="pull-right">
-                            <span class="label label-default" >{{subscribed_user_count}}</span>
-                            <a href="javascript:void(0);" id="sub_btn" data-container="body" >
+                            <span class="label label-default" style="margin-right:4px; float:left;">{{subscribed_user_count}}</span>
+                            <a href="javascript:void(0);" id="sub_btn" data-container="body" style=" margin-right:4px; float:left; color:#333;">
                                 Subscribed Users
                             </a>
                         </div>
-                        <div class="suc-user" id="sub_div" style="position: absolute;right: 0;padding: 15px;background: #f5f5f5;border-radius: 5px;top: 35px;border: 1px solid #8c8c8c; display:none; z-index:9;">
+                        <div class="suc-user" id="sub_div" style="position: absolute;right: 0;padding: 15px;background: #f5f5f5;border-radius: 5px;top: 35px;border: 1px solid #8c8c8c; display:none;">
                             <ul style="list-style-type:none; padding:0;">
                                 <li style="white-space: nowrap;">{{ ticket.owned_by }} : {{ ticket.owned_by.email }}</li>
                                 {% if ticket.assigned_to != null %}
@@ -63,136 +61,121 @@
 
                     <div class="clearfix"></div>
                 </div>
-                {% endif %}
-                <div class="panel-heading panel-subheading">
-                    <div class="pull-left">
-                         <strong>#{{ ticket.id }}</strong>
-                         <span>|</span>
-                         <h3>{{ticket.title}}</h3>
-                    </div>
-                    {% if user.is_authenticated %}
-                        <div class="pull-right">
-                            <span class="label label-{{ticket.status|slugify|lower}}">{{ ticket.status }}</span>
-                        </div>
-                    {% else %}
-                        <div class="pull-right responses">
-                            <span class="label label-default answer-no">{{ticket.answers_no}}</span><a id="response_count">{% trans "Response" %}{{ticket.answers_no|pluralize}}</a>
-                        </div>
-                    {% endif %}
-                </div>
                 <div class="panel-body">
                     <div class="pull-left">
                         <img src="{% get_gravatar ticket.owned_by.email  %}" alt="{{ticket.owned_by}} gravatar" />
                     </div>
+                    <div class="ticket-description marked-description">
+                        {{ ticket.description }}
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
 
-                    <div class="ticket-description">
-                        <h1 class="panel-title">
-                            <p>{{ticket.owned_by}}</p>
-                            {% if ticket.owned_by.get_is_company_admin %}
-                                <span class="label label-{{ticket.owned_by.get_type|lower}}">Account Admin</span>
-                            {% else %}
-                                <span class="label label-{{ticket.owned_by.get_type|lower}}">{{ticket.owned_by.get_type}}</span>
-                            {% endif %}
-                            {% if user.is_admin or ticket.owned_by == user %}
-                                <span class="label label-{{ticket.privacy}}">{{ticket.privacy}}</span>
-                            {% endif %}
-                            {% if user.is_authenticated %}
-                            <div class="description-function">
-                                {% if has_edit_rights %}
-                                <a href="javascript:void(0)" id="ticket_edit_delete" ><span class="glyphicon glyphicon-option-vertical"></span></a>
+                {% if ticket.os_version or ticket.os_type or ticket.ram or ticket.gluu_server_version != 'N/A'%}
+                <div class="panel-footer">
 
-                                <div class="function-list" style="display:none;">
-                                    {% if has_delete_rights %}
-                                        <a type="button" onclick="if (confirm('Are you sure that you want to delete this ticket?') == true){return true;}else{return false}" href="{% url 'delete_ticket' ticket.id %}" class="btn btn-xs"><span class="glyphicon glyphicon-trash"></span> {% trans 'Delete' %}</a>
-                                    {% endif %}
-                                        <a type="button" id="edit_ticket"  href="{% url 'edit_ticket' ticket.id %}" data-id="{{ ticket.id }}" class="btn btn-xs btn-primary"><span class="glyphicon glyphicon-edit"></span> {% trans 'Edit' %}</a>
-                                </div>
-                                {% endif %}
-                            </div>
-                            {% endif %}
-                            <span class="header_date">{{ticket.date_added|date:"d M Y"}} at {{ticket.date_added|date:"P T"}}</span>
-                        </h1>
-                        {{ticket.description|markdownify|safe}}
-                        {% if ticket.os_version or ticket.os_type or ticket.ram or ticket.gluu_server_version != 'N/A'%}
-                        <div class="panel-footer">
-                                {% if ticket.gluu_server_version %}
-                                {% if ticket.gluu_server_version == 'Other' or  ticket.gluu_server_version == 'N/A'%}
-                                    <span class="label label-default addtl-info-label" data-toggle="tooltip" title="">Other : {{ ticket.gluu_server_version_comments }}</span>
-                                {% else %}
-                                     <span class="label label-default addtl-info-label">Gluu {{ticket.gluu_server_version}}</span>
-                                {% endif %}
-                            {% endif %}
-                            {% if ticket.os_version == 'Other' %}
-                            <span class="label label-default addtl-info-label" data-toggle="tooltip" title="N/A">
-                                OS Version : N/A
-                            </span>
-                            {% else %}
-                            <span class="label label-default addtl-info-label">
-                                {{ticket.os_version}} {% if  ticket.os_version_name %} {{ticket.os_version_name}} {% endif %}
-                            </span>
-                            {% endif %}
-                            {% if products %}
-                            {% for p in products%}
-                                <span class="label label-default addtl-info-label">{{p.product}} {{p.product_version}}</span>
-                                {% if p.product_os_version == 'Both' %}
-                                <span class="label label-default addtl-info-label">Android {{p.product_os_version_name}}</span>
-                                <span class="label label-default addtl-info-label">iOS {{p.ios_version_name}}</span>
-                                {% else %}
-                                <span class="label label-default addtl-info-label">{{p.product_os_version}} {{p.product_os_version_name}}</span>
-                                {% endif %}
-                            {% endfor %}
-                            {% endif %}
-                            {% if not user.is_authenticated %}
-                            <div class="pull-right">
-                                <span class="label label-{{ticket.status|slugify|lower}}">{{ ticket.status }}</span>
-                            </div>
-                            {% endif %}
+                       {% if ticket.gluu_server_version %}
+                        {% if ticket.gluu_server_version == 'Other' or  ticket.gluu_server_version == 'N/A'%}
+                            <span class="label label-default addtl-info-label" data-toggle="tooltip" title="">Other : {{ ticket.gluu_server_version_comments }}</span>
+                        {% else %}
+                             <span class="label label-default addtl-info-label">Gluu {{ticket.gluu_server_version}}</span>
+                        {% endif %}
+                    {% endif %}
+		    {% if ticket.os_name != "N/A" %}
+                        <span class="label label-default addtl-info-label" data-toggle="tooltip" title="{{ticket.os_name}}">
+                        	{{ticket.os_name}} {% if  ticket.os_version_name %} {{ticket.os_version_name}} {% endif %}
+                    	</span>
+                    {% elif ticket.os_version == 'Other' %}
+                    	<span class="label label-default addtl-info-label" data-toggle="tooltip" title="N/A">
+                         	OS Version : N/A
+                    	</span>
+                    {% else %}
+                    <span class="label label-default addtl-info-label">
+                        {{ticket.os_version}} {% if  ticket.os_version_name %} {{ticket.os_version_name}} {% endif %}
+                    </span>
+                    {% endif %}
+                    {% if products %}
+                    {% for p in products%}
+                        <span class="label label-default addtl-info-label">{{p.product}} {{p.product_version}}</span>
+                        {% if p.product_os_version == 'Both' %}
+                        <span class="label label-default addtl-info-label">Android {{p.product_os_version_name}}</span>
+                        <span class="label label-default addtl-info-label">iOS {{p.ios_version_name}}</span>
+                        {% else %}
+                        <span class="label label-default addtl-info-label">{{p.product_os_version}} {{p.product_os_version_name}}</span>
+                        {% endif %}
+                    {% endfor %}
+                    {% endif %}
+
+                </div>
+                {% endif %}
+                <div class="panel-footer">
+                    <div class="pull-left">
+                        <span id="ticket_status" class="label label-{{ticket.status|slugify|lower}}">{{ticket.status}}</span>
+                        {% if user.is_admin or ticket.owned_by == user %}
+                            <span class="label label-{{ticket.privacy}}">{{ticket.privacy}}</span>
+                        {% endif %}
+                    </div>
+                    <div class="pull-right" style="position:relative;">
+                        {% if user.is_authenticated %}
                             {% if documents %}
-                                <div class="attachments">
                                 {% for doc in documents %}
-                                        <div class="uploaded"> <a href="{% url 'download_attachment' doc.id %}" title="{{doc.file.filename}}"><span class="glyphicon glyphicon-file"></span><span class="label label-default">{% if documents|length > 1 %}{{forloop.counter}}{% else %}{{doc.filename}}{% endif %}</span></a>{% if user == ticket.owned_by %}<span data-id="{{ doc.id }}" class=" remove_file glyphicon glyphicon-remove"></span>{% endif %}</div>
+                                    <a class="btn btn-default btn-xs filename" target="_blank" title="{{doc.file.filename}}" href="{% url 'download_attachment' doc.id %}"><span class="glyphicon glyphicon-file"></span>{% if documents|length > 1 %}{{forloop.counter}}{% else %}{{doc.filename}}{% endif %}</a>
                                 {% endfor %}
-                                </div>
                             {% endif %}
                             {% if ticket.link_url %}
-                                <div class="attachments">
-                                    <a class="btn btn-default btn-xs" target="_blank" href="{{ticket.link_url|safe}}"><span class="glyphicon glyphicon-link"></span> Link</a>
-                                </div>
+                                <a class="btn btn-default btn-xs" target="_blank" href="{{ticket.link_url|safe}}"><span class="glyphicon glyphicon-link"></span> Link</a>
                             {% endif %}
 
-                        </div>
+                            {% if has_delete_rights %}
+                                <a type="button" onclick="if (confirm('Are you sure that you want to delete this ticket?') == true){return true;}else{return false}" href="{% url 'delete_ticket' ticket.id %}" class="btn btn-xs btn-danger"><span class="glyphicon glyphicon-remove"></span> {% trans 'Delete' %}</a>
+                            {% endif %}
+
+                            {% if has_edit_rights %}
+                                <a type="button"  href="{% url 'edit_ticket' ticket.id %}" style="margin-left:5px;" class="btn btn-xs btn-primary"><span class="glyphicon glyphicon-edit"></span> {% trans 'Edit' %}</a>
+                            {% endif %}
+
+                            {% if ticket.status != 'Closed' and user != ticket.owned_by and user != ticket.assigned_to %}
+                                {% if is_alerts_assigned %}
+
+                                    <a class="btn btn-primary btn-xs" id="send_alerts" data-pk="{{ticket.id}}"><span class="glyphicon glyphicon-ban-circle"></span> Remove me from alerts</a>
+                                {% else %}
+
+                                    <a class="btn btn-primary btn-xs" id="send_alerts" data-pk="{{ticket.id}}" target="_blank"><span class="glyphicon glyphicon-envelope" ></span> Send me alerts</a>
+                                {% endif %}
+                                {% if ticket.status != 'Closed' %}
+                                    <a href="#reply" class="btn btn-xs btn-default"><span class="glyphicon glyphicon-retweet"></span> {% trans 'Reply' %}</a>
+                                {% endif %}
+                            {% endif %}
+
                         {% endif %}
                     </div>
                     <div class="clearfix"></div>
-
                 </div>
 
             </div>
-        <div class="page-header answer">
+        <div class="page-header">
             <h4>{% trans 'Answers' %}</h4>
         </div>
-        <div class="main-reply-sec">
         {% if answers %}
-            {% for a in answers %}
 
+            {% for a in answers %}
+                {% if forloop.last %}
+                    <div id='last-answer-anchor'></div>
+                {% endif %}
                 <div class="clearfix"></div>
                 <a class="anchor" name="at{{a.id}}"></a>
-
-                    <div class="panel panel-default  panel ticket-details-sec reply-sec answer-{{a.id}}">
-                        <div class="clearfix"></div>
-                        <div class="panel-body">
+                <div class="panel panel-default answer-{{a.id}}">
+                    <div class="panel-heading">
                         <div class="pull-left">
-                            <img src="{% get_gravatar a.created_by.email  %}" alt="{{a.created_by}} gravatar" />
-                        </div>
-                        <div class="ticket-description">
                             <h1 class="panel-title">
-                               {{a.created_by}}
+                                {% trans 'By' %} {{a.created_by}}
                                     {% if user.is_admin and not a.created_by.staff %}
-                                        <span class = "glyphicon glyphicon-info-sign icon"  data-toggle="tooltip"
+                                        <span class = "glyphicon glyphicon-info-sign icon"  data-toggle="tooltips"
                                               title=" Company: {{a.created_by.company}}<br/>
                                                       Email: {{a.created_by.email}} <a href='javascript:void(0);' class='btn btn-sm info-icon'
                                                       style='background-color: #f5f5f5; color:black; margin-left: 5px; padding: 3px; padding-bottom: 0px; padding-top: 0px; font-size:9px;'>Copy</a><br/>
-                                                      Support Level: {{a.support_plan}}">
+                                                      Support Level: {{a.support_plan}}
+                                                      ">
                                         </span>
 					                    <span class="copy-email" style="display:none">{{a.created_by.email}}</span>
                                     {% endif %}
@@ -201,102 +184,78 @@
                                 {% else %}
                                 <span class="label label-{{a.created_by.get_type}}">{{a.created_by.get_type}}</span>
                                 {% endif %}
-                                {% if user.is_authenticated %}
-                                <div class="description-function">
-                                    {% if user.is_admin or user == a.created_by %}
-                                    <a href="javascript:void(0)" class="edit_delete_answer"><span class="glyphicon glyphicon-option-vertical"></span></a>
-                                    <div class="function-list" style="display:none;">
-
-                                        <a class="btn btn-default btn-xs inline_delete" data-pk="{{a.id}}"><span class="glyphicon glyphicon-trash"></span> Delete</a>
-                                        <a class="btn btn-primary btn-xs inline_edit" data-pk="{{a.id}}"><span class="glyphicon glyphicon-edit"></span> Edit</a>
-                                    </div>
-                                    {% endif %}
-                                </div>
-                                {% endif %}
                                 <span class="header_date">{{a.date_added|date:"d M Y"}} at {{a.date_added|date:"P T"}}</span>
                             </h1>
-                            <div class="inline-{{a.id}}">{{a.answer|markdownify|safe}}</div>
-
-                            <div class="panel-footer">
-                                 {% if a.documents %}
-                                    <div class="attachments">
-                                    {% for doc in a.documents %}
-                                        <div class="uploaded"><a href="{% url 'download_attachment' doc.id %}" title="{{doc.file.filename}}"><span class="glyphicon glyphicon-file"></span><span class="label label-default">{% if documents|length > 1 %}{{forloop.counter}}{% else %}{{doc.filename}}{% endif %}</span></a>{% if user == a.created_by %}<span data-id="{{ doc.id }}" class=" remove_file glyphicon glyphicon-remove"></span>{% endif %}</div>
-                                    {% endfor %}
-                                    </div>
-                                 {% endif %}
-                                 {% if a.link_url %}
-                                    <div class="attachments">
-                                        <a class="btn btn-default btn-xs" target="_blank" href="{{a.link_url|safe}}"><span class="glyphicon glyphicon-link"></span> Video or screenshot link</a>
-                                    </div>
-                                {% endif %}
-                                <div class="pull-right">
-                                    <a class="btn btn-default btn-xs copy_answer_poss" data-pk="{{a.id}}" data-toggle="tooltip" title="Copy answer position (CTRL+C)"><span class="glyphicon glyphicon-copy"></span></a>
-                                </div>
-                            </div>
+                        </div>
+                        <div class="pull-right">
+                            <a class="btn btn-default btn-xs copy_answer_poss" data-pk="{{a.id}}" data-toggle="tooltip" title="Copy answer position (CTRL+C)"><span class="glyphicon glyphicon-copy"></span> Copy</a>
                         </div>
                         <div class="clearfix"></div>
                     </div>
-
+                    <div class="panel-body">
+                        <div class="pull-left">
+                            <img src="{% get_gravatar a.created_by.email  %}" alt="{{a.created_by}} gravatar" />
+                        </div>
+                        <div class="ticket-description answer-description inline-{{a.id}}">{{a.answer}}</div>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="panel-footer">
+                        <div class="pull-left">
+                        {% if user.is_admin or user == a.created_by or user.is_named %}
+                            <span class="label label-{% if a.privacy == 'inherit' %}{{ticket.privacy}}{% else %}{{a.privacy}}{% endif %}">{% if a.privacy == 'inherit' %}{{ticket.privacy}}{% else %}{{a.privacy}}{% endif %}</span>
+                        {% endif %}
+                        </div>
+                        <div class="pull-right">
+                            {% if a.documents %}
+                                {% for doc in a.documents %}
+                                    <a class="btn btn-default btn-xs filename" target="_blank" title="{{doc.file.filename}}" href="{% url 'download_attachment' doc.id %}"><span class="glyphicon glyphicon-file"></span>{% if documents|length > 1 %}{{forloop.counter}}{% else %}{{doc.filename}}{% endif %}</a>
+                                {% endfor %}
+                            {% endif %}
+                            {% if a.link_url %}
+                                <a class="btn btn-default btn-xs" target="_blank" href="{{a.link_url|safe}}"><span class="glyphicon glyphicon-link"></span> Video or screenshot link</a>
+                            {% endif %}
+                            {% if user.is_admin or user == a.created_by %}
+                                <a class="btn btn-default btn-xs inline_delete" data-pk="{{a.id}}"><span class="glyphicon glyphicon-remove"></span> Delete</a>
+                                <a class="btn btn-primary btn-xs inline_edit" data-pk="{{a.id}}"><span class="glyphicon glyphicon-edit"></span> Edit</a>
+                            {% endif %}
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
                 </div>
-            {% if forloop.last %}
-                    <div id='last-answer-anchor'></div>
-            {% endif %}
 
             {% endfor %}
-
 
         {% else %}
             <div class="alert alert-warning" role="alert">{% trans 'No answers for this question' %}!</div>
         {% endif %}
-        </div>
+
         {% if ticket %}
             <a name="reply"></a>
-            {% if user.is_authenticated %}
-            <div class="page-header answer ans-header_post">
+            <div class="page-header">
                 <h4>Post an answer</h4>
             </div>
-            {% endif %}
-            <div class="panel panel-default post-answer">
+            <div class="panel panel-default">
                 <div class="panel-body" id="answer_form_box">
                     {% if user.is_authenticated %}
                         {% crispy answer_form %}
                     {% else %}
                         <div class="alert alert-warning" role="alert">
-                            <a href="{% url 'social:begin' 'gluu' %}?next={{ request.path }}" class="alert-link">Sign In</a> to post a response
+                            You need to <a href="{% url 'profile:authorize' %}?next={{ request.path }}" class="alert-link">Login</a> in order to post an answer
                         </div>
                     {% endif %}
                 </div>
             </div>
         {% endif %}
-                {%  if user.is_authenticated %}
-                {% else %}
-                <div class="supporting-role">
-                    <div class="col-md-6">
-                        <h1>Community Support</h1>
-                        <p><a href="/register/">Register as a community</a> user for free! if your organization is already gluu customer,register with your work email address.</p>
-                        <div class="buttons">
-                            <a href="/register/">Register for support</a>
-                        </div>
-                    </div>
-                    <div class="col-md-6 vip">
-                        <h1>VIP Support</h1>
-                        <p>If you need guaranteed responses consultative meetings and priority access to Gluu's staff, check our <a href="https://www.gluu.org/gluu-server/pricing/">VIP Support Plans</a> .</p>
-                        <div class="buttons">
-                            <a href="https://www.gluu.org/gluu-server/pricing/">View Pricing</a>
-                        </div>
-                    </div>
-                </div>
-                {% endif %}
-            </div>
-        </div>
     </div>
+</div>
 </div>
 {% endblock content %}
 
 {% block js %}
 <script>
     App.pageName = 'view_ticket';
+</script>
+<script>    
     id = {{ ticket.owned_by.id }}
     var map = [];
     var listItems = $("#sub_div li");
@@ -326,91 +285,37 @@
 
 <script src="/static/js/file_management.js" language="javascript" type="text/javascript"></script>
 
-<script src="/static/js/view_ticket.js" language="javascript" type="text/javascript"></script>
+<script src="/static/js/view_ticket.js?v=2" language="javascript" type="text/javascript"></script>
 
-<script src="/static/js/edit_ticket.js" language="javascript" type="text/javascript"></script>
 
+
+
+
+
+<script src="{{STATIC_URL}}js/simplemde.min.js" language="javascript" type="text/javascript"></script>
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css">
+<link rel="stylesheet" href="{{STATIC_URL}}css/simplemde.min.css">
+<script src="/static/js/marked.js?v=1"></script>
 <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-
-<script type="text/template" id="qq-template-manual-trigger">
-    <div class="qq-uploader-selector border-class qq-uploader" qq-drop-area-text="Drop files here">
-        <div class="qq-total-progress-bar-container-selector qq-total-progress-bar-container">
-            <div role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" class="qq-total-progress-bar-selector qq-progress-bar qq-total-progress-bar"></div>
-        </div>
-        <div class="qq-upload-drop-area-selector qq-upload-drop-area" qq-hide-dropzone>
-            <span class="qq-upload-drop-area-text-selector"></span>
-        </div>
-        <div class="buttons">
-            <div class="qq-upload-button-selector qq-upload-button">
-                <div>Select files</div>
-            </div>
-            <p>Add up to 4 files. Valid file types are png, jpg, docx, xlxs, pdf, ppt, zip and rar.</p>
-
-        </div>
-        <span class="qq-drop-processing-selector qq-drop-processing">
-            <span>Processing dropped files...</span>
-            <span class="qq-drop-processing-spinner-selector qq-drop-processing-spinner"></span>
-        </span>
-        <ul class="qq-upload-list-selector qq-upload-list qq-hide" aria-live="polite" aria-relevant="additions removals">
-            <li>
-                <div class="qq-progress-bar-container-selector">
-                    <div role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" class="qq-progress-bar-selector qq-progress-bar"></div>
-                </div>
-                <span class="qq-upload-spinner-selector qq-upload-spinner"></span>
-                <img class="qq-thumbnail-selector" name="image_src" qq-max-size="100" qq-server-scale>
-                <span class="qq-upload-file-selector qq-upload-file"></span>
-                <span class="qq-edit-filename-icon-selector qq-edit-filename-icon" aria-label="Edit filename"></span>
-                <input class="qq-edit-filename-selector qq-edit-filename" tabindex="0" type="text">
-                <div class="qq-hide qq-cancel"><button type="button" class="qq-btn  qq-upload-cancel"></button></div>
-                <button type="button" class="qq-btn qq-upload-retry-selector qq-hide qq-upload-retry"></button>
-                <span role="status" class="qq-upload-status-text-selector qq-upload-status-text"></span>
-            </li>
-        </ul>
-
-        <dialog class="qq-alert-dialog-selector">
-            <div class="qq-dialog-message-selector"></div>
-            <div class="qq-dialog-buttons">
-                <button type="button" class="qq-cancel-button-selector">Close</button>
-            </div>
-        </dialog>
-
-        <dialog class="qq-confirm-dialog-selector">
-            <div class="qq-dialog-message-selector"></div>
-            <div class="qq-dialog-buttons">
-                <button type="button" class="qq-cancel-button-selector">No</button>
-                <button type="button" class="qq-ok-button-selector">Yes</button>
-            </div>
-        </dialog>
-
-        <dialog class="qq-prompt-dialog-selector">
-            <div class="qq-dialog-message-selector"></div>
-            <input type="text">
-            <div class="qq-dialog-buttons">
-                <button type="button" class="qq-cancel-button-selector">Cancel</button>
-                <button type="button" class="qq-ok-button-selector">Ok</button>
-            </div>
-        </dialog>
-    </div>
-</script>
+<script src="https://cdn.jsdelivr.net/sweetalert2/6.4.1/sweetalert2.js"></script>
 <script>
-    var manualUploader = new qq.FineUploader({
-        element: document.getElementById('fine-uploader-manual-trigger'),
-        template: 'qq-template-manual-trigger',
 
-        request: {
-            endpoint:'../../../tickets/files/'
-        },
-        thumbnails: {
-            placeholders: {
-                waitingPath: '/static/img/waiting-generic.png',
-                notAvailablePath: '/static/img/not_available-generic.png'
-            }
-        },
-
-        autoUpload: true,
-        debug: true
-    });
-
+   var simplemde = new SimpleMDE({
+   autofocus: true,
+    element: document.getElementById("id_answer"),
+    insertTexts: {
+        horizontalRule: ["", "\n\n-----\n\n"],
+        image: ["![](http://", ")"],
+        link: ["[", "](http://)"],
+        table: ["", "\n\n Column 1 | Column 2 | Column 3 \n -- | -- | -- \n Text  | Text | Text \n\n"],
+    },
+    placeholder: "Add your response to this ticket here...",
+    shortcuts: {
+        drawTable: "Cmd-Alt-T"
+    },
+    showIcons: ["code", "table"],
+});
+$( ".CodeMirror" ).resizable({maxWidth:"534",minWidth:"534"});
 
 </script>
 

@@ -103,7 +103,7 @@ class TicketsAdmin(admin.ModelAdmin):
         (_('Installation Info'), {
             'fields': (
                 ('os_type', 'ram'),
-                ('os_version', 'os_version_comments'),
+                ('os_version'),
                 ('gluu_server_version', 'gluu_server_version_comments')
             )
         }),

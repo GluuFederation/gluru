@@ -138,6 +138,11 @@ urlpatterns = [
         name='autocomplete_search'
     ),
     url(
+        r'^ws/autocomplete-users/$',
+        t_view.autocomplete_users,
+        name='autocomplete_users'
+    ),
+    url(
         r'^ws/inline/support-plan/(?P<user_id>[a-z0-9\-_]+)/$',
         t_view.retrieve_support_plan,
         name='retrieve_support_plan'

@@ -27,7 +27,7 @@
         <h3>Related Tickets</h3>
         <hr/>
         <ul>
-          <li><span>Enter a title to check relevant tickets</span></li>
+            <li><span>Enter a title to check relevant tickets</span></li>
         </ul>
         <a href="javascript:void(0);"  class="hidden"  id="view_more_tickets">View More Tickets</a>
       </div>
@@ -54,7 +54,7 @@
 {% endblock content %}
 
 {% block js %}
-<script src="/static/js/bootstrap-tagsinput.js" language="javascript" type="text/javascript"></script>
+
 <script src="/static/js/add_ticket.js" language="javascript" type="text/javascript"></script>
 <script src="/static/js/file_management.js" language="javascript" type="text/javascript"></script>
 <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
@@ -122,9 +122,8 @@
     var manualUploader = new qq.FineUploader({
         element: document.getElementById('fine-uploader-manual-trigger'),
         template: 'qq-template-manual-trigger',
-
         request: {
-            endpoint:'../../tickets/files/'
+            endpoint: '../../tickets/files/'
         },
         thumbnails: {
             placeholders: {
@@ -132,13 +131,87 @@
                 notAvailablePath: '/static/img/not_available-generic.png'
             }
         },
-
         autoUpload: true,
         debug: true
     });
 
 
 </script>
+<script src="{{STATIC_URL}}js/simplemde.min.js" language="javascript" type="text/javascript"></script>
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css">
+<link rel="stylesheet" href="{{STATIC_URL}}css/simplemde.min.css">
+
+<script>
+  $(".os_version").on("change", function(){
+        if($(this).val() == "Other"){
+            $("#div_id_os_name").removeClass("hidden");
+            $("#div_id_gluu_server_version").removeClass("col-md-4");
+            $("#div_id_gluu_server_version").addClass("col-md-3");
+            $("#div_id_os_version").removeClass("col-md-4");
+            $("#div_id_os_version").addClass("col-md-3");
+            $("#div_id_os_version_name").removeClass("col-md-4");
+            $("#div_id_os_version_name").addClass("col-md-3");
+            $("#div_id_os_name").removeClass("col-md-4");
+            $("#div_id_os_name").addClass("col-md-3");
+        }else{
+            $("#div_id_os_name").addClass("hidden");
+            $("#id_os_name").val("N/A");
+            $("#div_id_gluu_server_version").addClass("col-md-4");
+            $("#div_id_gluu_server_version").removeClass("col-md-3");
+            $("#div_id_os_version").addClass("col-md-4");
+            $("#div_id_os_version").removeClass("col-md-3");
+            $("#div_id_os_version_name").addClass("col-md-4");
+            $("#div_id_os_version_name").removeClass("col-md-3");
+            $("#div_id_os_name").addClass("col-md-4");
+            $("#div_id_os_name").removeClass("col-md-3");
+        }
+    });
+    if( $("#id_os_version").val() == "" && $("#id_os_version").val() == null )
+        $("#div_id_os_name").removeClass("hidden");
+    else{
+        if($("#id_os_version").val() == "Other"){
+            $("#div_id_os_name").removeClass("hidden");
+            $("#div_id_gluu_server_version").removeClass("col-md-4");
+            $("#div_id_gluu_server_version").addClass("col-md-3");
+            $("#div_id_os_version").removeClass("col-md-4");
+            $("#div_id_os_version").addClass("col-md-3");
+            $("#div_id_os_version_name").removeClass("col-md-4");
+            $("#div_id_os_version_name").addClass("col-md-3");
+            $("#div_id_os_name").removeClass("col-md-4");
+            $("#div_id_os_name").addClass("col-md-3");
+        }else{
+            $("#div_id_os_name").addClass("hidden");
+            $("#id_os_name").val("N/A");
+            $("#div_id_gluu_server_version").addClass("col-md-4");
+            $("#div_id_gluu_server_version").removeClass("col-md-3");
+            $("#div_id_os_version").addClass("col-md-4");
+            $("#div_id_os_version").removeClass("col-md-3");
+            $("#div_id_os_version_name").addClass("col-md-4");
+            $("#div_id_os_version_name").removeClass("col-md-3");
+            $("#div_id_os_name").addClass("col-md-4");
+            $("#div_id_os_name").removeClass("col-md-3");
+        }
+    }
+
+   var simplemde = new SimpleMDE({
+   autofocus: true,
+    element: document.getElementById("id_description"),
+    insertTexts: {
+        horizontalRule: ["", "\n\n-----\n\n"],
+        image: ["![](http://", ")"],
+        link: ["[", "](http://)"],
+        table: ["", "\n\n Column 1 | Column 2 | Column 3 \n -- | -- | -- \n Text  | Text | Text \n\n"],
+    },
+    placeholder: "## Expected behavior\n\n## Actual behavior\n\n## Minimized example \n *Minimal, complete configuration that reproduces the behavior.* \n\n ## Configuration and Log files\n *Config and logs for the minimized example, provided as attachments or linked to a service like pastebin.*",
+    shortcuts: {
+        drawTable: "Cmd-Alt-T"
+    },
+    showIcons: ["code", "table"],
+
+});
+$( ".CodeMirror" ).resizable({maxWidth:"728",minWidth:"728"});
+</script>
+
 
 
 {% endblock js %}
