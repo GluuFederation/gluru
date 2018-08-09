@@ -147,6 +147,11 @@ class Ticket(models.Model):
         verbose_name=_('Default Gluu'),
     )
 
+    is_notified = models.BooleanField(
+        default=False,
+        help_text=_('Indicate this ticket would be notified to admin')
+    )
+    
     created_at = models.DateTimeField(
         auto_now_add=True,
         editable=False
