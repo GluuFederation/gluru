@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import NotficationContact, TicketUnsubscriber
+from .models import NotficationContact, TicketNotification
 
 
 @admin.register(NotficationContact)
@@ -9,6 +9,6 @@ class NotficationContactAdmin(admin.ModelAdmin):
     )
 
 
-@admin.register(TicketUnsubscriber)
-class TicketUnsubscriberAdmin(admin.ModelAdmin):
+@admin.register(TicketNotification)
+class TicketNotificationAdmin(admin.ModelAdmin):
     pass

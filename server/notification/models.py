@@ -39,7 +39,7 @@ class NotficationContact(models.Model):
         ordering = ['priority']
 
 
-class TicketUnsubscriber(models.Model):
+class TicketNotification(models.Model):
 
     ticket = models.ForeignKey(
         Ticket,
@@ -47,9 +47,14 @@ class TicketUnsubscriber(models.Model):
         related_name='blacklist',
     )
 
-    unsubscriber = models.CharField(
+    user = models.CharField(
         max_length=UUID_MAX_LENGTH,
-        help_text=_('User that has been unsubscribed from notification')
+        help_text=_('User associated with this ticket notification')
+    )
+
+    is_subscribed = models.BooleanField(
+        default=True,
+        help_text=_('Indicate whether user subscribe to notification')
     )
 
     created_at = models.DateTimeField(
@@ -58,5 +63,5 @@ class TicketUnsubscriber(models.Model):
     )
 
     class Meta:
-        unique_together = ('ticket', 'unsubscriber')
+        unique_together = ('ticket', 'user')
         ordering = ['-created_at']
