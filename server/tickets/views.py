@@ -7,7 +7,6 @@ from rest_framework.permissions import (
 
 from tickets.models import Ticket, Answer
 from tickets.serializers import TicketSerializer, AnswerSerializer
-from tickets import constants
 
 from django.db.models import Q
 
@@ -85,7 +84,6 @@ class AnswerViewSet(mixins.CreateModelMixin,
     serializer_class = AnswerSerializer
 
     def get_queryset(self):
-        print(self.kwargs)
         return Answer.objects.filter(ticket=self.kwargs['ticket_pk'])
 
     def create(self, request, ticket_pk=None):
@@ -115,19 +113,3 @@ class AnswerViewSet(mixins.CreateModelMixin,
         answer.delete()
 
         return Response(None, status=status.HTTP_204_NO_CONTENT)
-
-
-# This constants data is over 1Kbytes.
-# We can create same constant variable on frontend side for better performance.
-# It seems to be a little hard to maintain for duplicate the contant variable.
-# But if the constant don't change frequently, it is okay.
-# class ConstantsView(APIView):
-#     def get(self, request):
-#         content = {
-#             'serverVersions': constants.GLUU_SERVER_VERSION,
-#             'os': constants.OS_VERSION,
-#             'issueTypes': constants.ISSUE_TYPE,
-#             'categories': constants.ISSUE_CATEGORY,
-#             'status': constants.TICKET_STATUS
-#         }
-#         return Response(content)
