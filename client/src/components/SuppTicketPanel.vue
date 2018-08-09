@@ -35,6 +35,10 @@
         <b-button variant="info" v-on:click="deleteAnswer(ticketId, data.id)">
           <icon name="trash-alt"></icon>Delete
         </b-button>
+        <simplert :useRadius="true"
+                  :useIcon="false"
+                  ref="simplert">
+        </simplert>
         <b-button variant="info" v-on:click="editAnswer(ticketId, data.id)">
           <icon name="edit"></icon>Edit
         </b-button>
@@ -44,6 +48,7 @@
 </template>
 
 <script>
+import Simplert from 'vue2-simplert'
 import 'vue-awesome/icons/info-circle'
 import 'vue-awesome/icons/copy'
 import 'vue-awesome/icons/edit'
@@ -56,6 +61,9 @@ import {
 
 export default {
   name: 'SuppTicketPanel',
+  components: {
+    Simplert
+  },
   props: {
     isTicket: {
       type: Boolean,
@@ -72,7 +80,18 @@ export default {
   },
   methods: {
     deleteAnswer (ticketId, answerId) {
-      this.$store.dispatch(ANSWER_DELETE, { ticketId, answerId })
+      let confirmFn = function() {
+        this.$store.dispatch(ANSWER_DELETE, { ticketId, answerId })
+      }
+      let obj = {
+        title: 'Confirmation',
+        message: 'Are you sure that you want to delete this ticket?',
+        type: 'info',
+        useConfirmBtn: true,
+        disableOverlayClick: true,
+        onConfirm: confirmFn
+      }
+      this.$refs.simplert.openSimplert(obj)
     },
     editAnswer (ticketId, answerId) {
       console.log(ticketId, answerId)
