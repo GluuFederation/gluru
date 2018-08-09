@@ -10,7 +10,7 @@ const AnswerAPIService = {
 
   post (slug, payload) {
     return APIService.post(
-      `tickets/${slug}/answers`, { answer: payload })
+      `tickets/${slug}/answers/`, { answer: payload })
   },
 
   update (ticketId, answerId, payload) {

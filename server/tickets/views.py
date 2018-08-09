@@ -1,8 +1,6 @@
-from django.shortcuts import render
 from rest_framework import viewsets, generics, mixins, status
 from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
-from rest_framework.views import APIView
 from rest_framework.permissions import (
     IsAuthenticatedOrReadOnly
 )
@@ -78,45 +76,39 @@ class TicketViewSet(mixins.CreateModelMixin,
         pass
 
 
-class AnswerListCreateAPIView(generics.ListCreateAPIView):
+class AnswerViewSet(mixins.CreateModelMixin,
+                    mixins.ListModelMixin,
+                    mixins.UpdateModelMixin,
+                    mixins.DestroyModelMixin,
+                    viewsets.GenericViewSet):
 
-    # permission_classes = (IsAuthenticatedOrReadOnly, )
-    queryset = Answer.objects.select_related(
-        'ticket'
-    )
     serializer_class = AnswerSerializer
 
-    def create(self, request, ticket_id=None):
+    def get_queryset(self):
+        print(self.kwargs)
+        return Answer.objects.filter(ticket=self.kwargs['ticket_pk'])
+
+    def create(self, request, ticket_pk=None):
         serializer_data = request.data.get('answer', {})
         context = {}
+
         try:
-            context['ticket'] = Ticket.objects.get(pk=ticket_id)
+            context['ticket'] = Ticket.objects.get(pk=ticket_pk)
         except Ticket.DoesNotExist:
             raise NotFound('A ticket with this id does not exist')
-        
+
         serializer = self.serializer_class(
             data=serializer_data,
             context=context
         )
-        print(serializer_data)
-        try:
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-        except Exception as e:
-            print('error occured while saveing')
-            print(e)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-
-class AnswerDestroyAPIView(generics.DestroyAPIView):
-
-    # permission_classes = (IsAuthenticatedOrReadOnly, )
-    queryset = Answer.objects.all()
-
-    def destroy(self, request, ticket_id=None, answer_id=None):
+    def destroy(self, request, ticket_pk=None, pk=None):
         try:
-            answer = Answer.objects.get(pk=answer_id)
+            answer = Answer.objects.get(pk=pk)
         except Answer.DoesNotExist:
             raise NotFound('An answer with this ID does not exist')
 
