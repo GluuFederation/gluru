@@ -13,11 +13,14 @@ class AnswerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Answer
-        fields = '__all__'
+        fields = (
+            'body',
+            'created_by',
+            'privacy'
+        )
 
     def create(self, valdiated_data):
         ticket = self.context['ticket']
-
         return Answer.objects.create(
             ticket=ticket,
             **valdiated_data

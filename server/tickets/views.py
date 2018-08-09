@@ -52,7 +52,6 @@ class TicketViewSet(mixins.CreateModelMixin,
 
     def create(self, request):
         serializer_data = request.data.get('ticket', {})
-        print(serializer_data)
         serializer = self.serializer_class(
             data=serializer_data
         )
@@ -81,23 +80,31 @@ class TicketViewSet(mixins.CreateModelMixin,
 
 class AnswerListCreateAPIView(generics.ListCreateAPIView):
 
-    permission_classes = (IsAuthenticatedOrReadOnly, )
+    # permission_classes = (IsAuthenticatedOrReadOnly, )
     queryset = Answer.objects.select_related(
         'ticket'
     )
     serializer_class = AnswerSerializer
 
     def create(self, request, ticket_id=None):
-        data = request.data.get('answer', {})
+        serializer_data = request.data.get('answer', {})
         context = {}
         try:
             context['ticket'] = Ticket.objects.get(pk=ticket_id)
         except Ticket.DoesNotExist:
             raise NotFound('A ticket with this id does not exist')
-
-        serializer = self.serializer_class(data=data, context=context)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
+        
+        serializer = self.serializer_class(
+            data=serializer_data,
+            context=context
+        )
+        print(serializer_data)
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+        except Exception as e:
+            print('error occured while saveing')
+            print(e)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 

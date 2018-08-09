@@ -84,8 +84,8 @@ export const actions = {
 
   [ANSWER_CREATE] (context, payload) {
     return AnswerAPIService
-      .post(payload.slug, payload.comment)
-      .then(() => { context.dispatch(FETCH_ANSWERS, payload.slug) })
+      .post(payload.ticketId, payload.answer)
+      .then(() => { context.dispatch(FETCH_ANSWERS, payload.ticketId) })
   },
 
   [ANSWER_UPDATE] (context, payload) {

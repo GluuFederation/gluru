@@ -38,6 +38,7 @@ ISSUE_CATEGORY = (
 )
 
 ANSWER_PRIVACY = (
+    ('', _('---------')),
     ('IH', _('Inherit')),
     ('PU', _('Public')),
     ('PR', _('Private')),

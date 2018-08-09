@@ -1,38 +1,45 @@
 <template>
   <div>
     <b-card>
-      <form>
+      <form @submit.prevent="onSubmit">
         <div class="form-group row">
             <label for="answer" class="col-sm-2 col-form-label text-right">Answer</label>
             <div class="col-sm-8">
             <mavon-editor style="z-index:10;"
-                            language="en"
-                            defaultOpen="edit"
-                            placeholder="Add your response to this ticket here..."
-                            v-model="value"
-                            v-bind:boxShadow=false
-                            v-bind:toolbars="toolbars"/>
+                          language="en"
+                          defaultOpen="edit"
+                          placeholder="Add your response to this ticket here..."
+                          v-model="body"
+                          v-bind:boxShadow=false
+                          v-bind:toolbars="toolbars"
+                          name="body"
+                          v-validate="'required'"/>
+            <span v-show="errors.has('body')" class="errors">{{ errors.first('body') }}</span>
             </div>
         </div>
 
         <div class="form-group row">
             <label for="assignee" class="col-sm-2 col-form-label text-right">Assigned to</label>
             <div class="col-sm-8">
-            <Select2 name="serverVersion" v-model="selected" :options="options" :settings="{ theme: 'bootstrap4' }"/>
+              <Select2 name="assignee" v-model="assignee" :options="options" :settings="{ theme: 'bootstrap4' }"
+                v-validate="'required'" :class="{ 'errors': errors.has('assignee')}"/>
+              <span v-show="errors.has('assignee')" class="errors">{{ errors.first('assignee') }}</span>
             </div>
         </div>
 
         <div class="form-group row">
             <label for="ticketStatus" class="col-sm-2 col-form-label text-right">Ticket Status</label>
             <div class="col-sm-8">
-            <b-form-select v-model="statusSelected" :options="statusOptions" class="mb-3" />
+              <b-form-select name="status" v-model="status" :options="statusOptions" class="mb-3"
+                v-validate="'required'" :class="{ 'errors': errors.has('status')}"/>
+              <span v-show="errors.has('status')" class="errors">{{ errors.first('status') }}</span>
             </div>
         </div>
 
         <div class="form-group row">
             <label for="privacy" class="col-sm-2 col-form-label text-right">Privacy</label>
             <div class="col-sm-8">
-            <b-form-select v-model="privacySelected" :options="privacyOptions" class="mb-3" />
+            <b-form-select v-model="privacy" :options="privacyOptions" class="mb-3" />
             </div>
         </div>
 
@@ -90,6 +97,9 @@
 <script>
 import Vue from 'vue'
 import mavonEditor from 'mavon-editor'
+import {
+  ANSWER_CREATE
+} from '@/store/actions.type'
 import 'mavon-editor/dist/css/index.css'
 
 import 'vue-awesome/icons/info-circle'
@@ -106,29 +116,35 @@ export default {
   components: {
     Select2
   },
+  props: {
+    ticketId: {
+      type: Number,
+      required: true
+    }
+  },
   data () {
     return {
-      value: '',
-      selected: 1,
+      body: '',
+      assignee: 1,
       options: [
         { id: 1, text: 'foo' },
         { id: 2, text: 'foo2' }
       ],
-      statusSelected: null,
+      status: '',
       statusOptions: [
-        { value: null, text: 'Select a Status' },
+        { value: '', text: 'Select a Status' },
         { value: 'new', text: 'New' },
         { value: 'assigned', text: 'Assigned' },
         { value: 'inprogress', text: 'In Progress' },
         { value: 'pending', text: 'Pending Input' },
         { value: 'closed', text: 'Closed' }
       ],
-      privacySelected: null,
+      privacy: '',
       privacyOptions: [
-        { value: 'null', text: '---------' },
-        { value: 'inherit', text: 'Inherit' },
-        { value: 'public', text: 'Public' },
-        { value: 'private', text: 'Private' }
+        { value: '', text: '---------' },
+        { value: 'IH', text: 'Inherit' },
+        { value: 'PU', text: 'Public' },
+        { value: 'PR', text: 'Private' }
       ],
       toolbars: {
         bold: true,
@@ -148,8 +164,25 @@ export default {
       },
       file: null
     }
+  },
+  methods: {
+    onSubmit () {
+      this.$validator.validate().then(result => {
+        if (!result) {
+          return
+        }
+        this.$store.dispatch(ANSWER_CREATE, {
+          ticketId: this.ticketId,
+          answer: {
+            body: this.body,
+            createdBy: this.assignee,
+            // status: this.status,
+            privacy: this.privacy
+          }
+        })
+      })
+    }
   }
-
 }
 </script>
 

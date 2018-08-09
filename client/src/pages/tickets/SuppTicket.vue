@@ -13,7 +13,9 @@
       :data="answer"
       :key="index">
     </supp-ticket-panel>
-    <supp-ticket-answer-edit></supp-ticket-answer-edit>
+    <supp-ticket-answer-edit
+      :ticketId="ticketId">
+    </supp-ticket-answer-edit>
   </div>
 </template>
 

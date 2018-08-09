@@ -240,7 +240,6 @@ class Answer(models.Model):
     privacy = models.CharField(
         max_length=constants.CHOICE_MAX_LENGTH,
         choices=constants.ANSWER_PRIVACY,
-        default='IH',
         blank=True
     )
 
