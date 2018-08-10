@@ -3,6 +3,11 @@ from django.utils.translation import ugettext as _
 from tickets import constants
 
 
+class TicketManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(is_deleted=False)
+
+
 class Ticket(models.Model):
 
     WATCHING_FIELDS = (
@@ -247,6 +252,11 @@ class TicketProduct(models.Model):
     )
 
 
+class AnswerManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(is_deleted=False)
+
+
 class Answer(models.Model):
 
     body = models.TextField()
@@ -297,6 +307,8 @@ class Answer(models.Model):
         auto_now=True
     )
 
+    objects = AnswerManager()
+
     def __str__(self):
         return self.ticket.title
 
@@ -339,6 +351,11 @@ class TicketHistory(models.Model):
         verbose_name_plural = 'Tickets History'
 
 
+class TicketAttachmentManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(is_deleted=False)
+
+
 class TicketAttachment(models.Model):
 
     file = models.FileField(
@@ -367,8 +384,8 @@ class TicketAttachment(models.Model):
     )
 
     file_src = models.TextField(
-        blank = True,
-        verbose_name= _('File Source')
+        blank=True,
+        verbose_name=_('File Source')
     )
 
     is_deleted = models.BooleanField(
@@ -382,6 +399,8 @@ class TicketAttachment(models.Model):
         auto_now_add=True,
         editable=False
     )
+
+    objects = TicketAttachmentManager()
 
     class Meta:
         ordering = ['created_at']

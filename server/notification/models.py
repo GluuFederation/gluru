@@ -4,6 +4,11 @@ from tickets.models import Ticket
 from tickets.constants import UUID_MAX_LENGTH
 
 
+class NotficationAvailableContact(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(enabled=True)
+
+
 class NotficationContact(models.Model):
 
     PRIORITY_HIGH = 'H'
@@ -35,8 +40,21 @@ class NotficationContact(models.Model):
         verbose_name=_('Is Enabled?')
     )
 
+    objects = models.Manager()
+    availables = NotficationAvailableContact()
+
     class Meta:
         ordering = ['priority']
+
+
+class TicketNotificationSubscriberManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(is_subscribed=True)
+
+
+class TicketNotificationUnSubscriberManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(is_subscribed=False)
 
 
 class TicketNotification(models.Model):
@@ -61,6 +79,10 @@ class TicketNotification(models.Model):
         auto_now_add=True,
         editable=False,
     )
+
+    objects = models.Manager()
+    subscribers = TicketNotificationSubscriberManager()
+    unsubscribers = TicketNotificationUnSubscriberManager()
 
     class Meta:
         unique_together = ('ticket', 'user')
