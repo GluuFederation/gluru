@@ -70,7 +70,6 @@ class TicketViewSet(mixins.CreateModelMixin,
         return self.get_paginated_response(serializer.data)
 
     def update(self, request, pk=None):
-
         try:
             serializer_instance = self.queryset.get(pk=pk)
         except Ticket.DoesNotExist:
@@ -117,6 +116,24 @@ class AnswerViewSet(mixins.CreateModelMixin,
         serializer.save()
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def update(self, request, ticket_pk=None, pk=None):
+        try:
+            serializer_instance = Answer.objects.get(pk=pk)
+        except Answer.DoesNotExist:
+            raise NotFound('An answer with this id does not exist.')
+            
+        serializer_data = request.data.get('answer', {})
+
+        serializer = self.serializer_class(
+            serializer_instance,
+            data=serializer_data, 
+            partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def destroy(self, request, ticket_pk=None, pk=None):
         try:
