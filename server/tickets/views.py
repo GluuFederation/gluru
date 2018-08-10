@@ -76,12 +76,12 @@ class TicketViewSet(mixins.CreateModelMixin,
             serializer_instance = self.queryset.get(pk=pk)
         except Ticket.DoesNotExist:
             raise NotFound('A ticket with this id does not exist.')
-            
+
         serializer_data = request.data.get('ticket', {})
 
         serializer = self.serializer_class(
             serializer_instance,
-            data=serializer_data, 
+            data=serializer_data,
             partial=True
         )
         serializer.is_valid(raise_exception=True)
@@ -134,12 +134,12 @@ class AnswerViewSet(mixins.CreateModelMixin,
             serializer_instance = Answer.objects.get(pk=pk)
         except Answer.DoesNotExist:
             raise NotFound('An answer with this id does not exist.')
-            
+
         serializer_data = request.data.get('answer', {})
 
         serializer = self.serializer_class(
             serializer_instance,
-            data=serializer_data, 
+            data=serializer_data,
             partial=True
         )
         serializer.is_valid(raise_exception=True)
