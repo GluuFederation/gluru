@@ -15,6 +15,7 @@ class TicketViewSet(mixins.CreateModelMixin,
                     mixins.ListModelMixin,
                     mixins.UpdateModelMixin,
                     mixins.RetrieveModelMixin,
+                    mixins.DestroyModelMixin,
                     viewsets.GenericViewSet):
 
     # permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -87,6 +88,16 @@ class TicketViewSet(mixins.CreateModelMixin,
         serializer.save()
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def destroy(self, request, pk=None):
+        try:
+            ticket = Ticket.objects.get(pk=pk)
+        except Ticket.DoesNotExist:
+            raise NotFound('An ticket with this ID does not exist')
+
+        ticket.delete()
+
+        return Response(None, status=status.HTTP_204_NO_CONTENT)
 
 
 class AnswerViewSet(mixins.CreateModelMixin,
