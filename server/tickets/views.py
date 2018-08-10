@@ -13,7 +13,7 @@ from django.db.models import Q
 
 class TicketViewSet(mixins.CreateModelMixin,
                     mixins.ListModelMixin,
-                    mixins.RetrieveModelMixin,
+                    mixins.UpdateModelMixin,
                     viewsets.GenericViewSet):
 
     # permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -45,6 +45,7 @@ class TicketViewSet(mixins.CreateModelMixin,
                 Q(title__icontains=search_string) |
                 Q(description__icontains=search_string)
             )
+
         return queryset
 
     def create(self, request):
@@ -68,11 +69,24 @@ class TicketViewSet(mixins.CreateModelMixin,
 
         return self.get_paginated_response(serializer.data)
 
-    # def retrieve(self, request):
-    #     pass
+    def update(self, request, pk=None):
 
-    def update(self, request):
-        pass
+        try:
+            serializer_instance = self.queryset.get(pk=pk)
+        except Ticket.DoesNotExist:
+            raise NotFound('A ticket with this id does not exist.')
+            
+        serializer_data = request.data.get('ticket', {})
+
+        serializer = self.serializer_class(
+            serializer_instance,
+            data=serializer_data, 
+            partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class AnswerViewSet(mixins.CreateModelMixin,
