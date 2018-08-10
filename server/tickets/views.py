@@ -14,6 +14,7 @@ from django.db.models import Q
 class TicketViewSet(mixins.CreateModelMixin,
                     mixins.ListModelMixin,
                     mixins.UpdateModelMixin,
+                    mixins.RetrieveModelMixin,
                     viewsets.GenericViewSet):
 
     # permission_classes = (IsAuthenticatedOrReadOnly,)
