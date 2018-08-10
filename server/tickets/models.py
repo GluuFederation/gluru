@@ -14,8 +14,7 @@ class Ticket(models.Model):
     category = models.CharField(
         max_length=constants.CHOICE_MAX_LENGTH,
         choices=constants.ISSUE_CATEGORY,
-        default='IN',
-        verbose_name=_('Category')
+        default=''
     )
 
     created_by = models.CharField(
@@ -51,7 +50,7 @@ class Ticket(models.Model):
     status = models.CharField(
         max_length=constants.CHOICE_MAX_LENGTH,
         choices=constants.TICKET_STATUS,
-        default='NW'
+        default=''
     )
 
     issue_type = models.CharField(
@@ -151,7 +150,7 @@ class Ticket(models.Model):
         default=False,
         help_text=_('Indicate this ticket would be notified to admin')
     )
-    
+
     created_at = models.DateTimeField(
         auto_now_add=True,
         editable=False

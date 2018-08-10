@@ -22,6 +22,7 @@ ISSUE_TYPE = (
 )
 
 ISSUE_CATEGORY = (
+    ('','Select a category'),
     ('IN', 'Installation'),
     ('OA', 'Outages'),
     ('SO', 'Single Sign-On'),
