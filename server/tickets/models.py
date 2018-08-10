@@ -275,3 +275,38 @@ class Answer(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+
+
+class TicketHistory(models.Model):
+
+    ticket = models.ForeignKey(
+        Ticket,
+        on_delete=models.CASCADE,
+        related_name='history'
+    )
+
+    changed_by = models.CharField(
+        max_length=constants.UUID_MAX_LENGTH
+    )
+
+    changed_field = models.CharField(
+        max_length=100
+    )
+
+    before_value = models.TextField(
+        null=True
+    )
+
+    after_value = models.TextField(
+        null=True
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        editable=False
+    )
+
+    class Meta:
+        ordering = ['created_at']
+        verbose_name = 'Ticket History'
+        verbose_name_plural = 'Tickets History'

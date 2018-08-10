@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Ticket, Answer, TicketProduct
+from .models import Ticket, Answer, TicketProduct, TicketHistory
 
 
 @admin.register(Ticket)
@@ -19,3 +19,10 @@ class AnswerAdmin(admin.ModelAdmin):
         'updated_at', 'is_deleted'
     )
 
+
+@admin.register(TicketHistory)
+class TicketHistoryAdmin(admin.ModelAdmin):
+    readonly_fields = (
+        'ticket', 'changed_by', 'changed_field',
+        'before_value', 'after_value'
+    )
