@@ -337,3 +337,51 @@ class TicketHistory(models.Model):
         ordering = ['created_at']
         verbose_name = 'Ticket History'
         verbose_name_plural = 'Tickets History'
+
+
+class TicketAttachment(models.Model):
+
+    file = models.FileField(
+        max_length=255,
+        upload_to='upload/'
+    )
+
+    created_by = models.CharField(
+        max_length=constants.UUID_MAX_LENGTH
+    )
+
+    ticket = models.ForeignKey(
+        Ticket,
+        on_delete=models.CASCADE,
+        related_name='files',
+        blank=True,
+        null=True
+    )
+
+    answer = models.ForeignKey(
+        Answer,
+        on_delete=models.CASCADE,
+        related_name='files',
+        blank=True,
+        null=True
+    )
+
+    file_src = models.TextField(
+        blank = True,
+        verbose_name= _('File Source')
+    )
+
+    is_deleted = models.BooleanField(
+        blank=True,
+        default=False,
+        verbose_name=_('Deleted'),
+        help_text=_('The document has been deleted?')
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        editable=False
+    )
+
+    class Meta:
+        ordering = ['created_at']
