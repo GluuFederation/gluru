@@ -8,16 +8,13 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponseRedirect, HttpResponse
 from profiles.models import UserProfile
-
+from django.core.cache import cache
 
 __author__ = 'centroxy'
 
 
-logger = logging.getLogger('idp')
-
-this_dir = os.path.dirname(os.path.realpath(__file__))
-config_location = os.path.join(this_dir, 'gluu.cfg')
-
+logger = logging.getLogger(__name__)
+config_location = os.path.join(os.path.dirname(os.path.realpath(__file__)), settings.OXD_CFG)
 
 class Struct:
     def __init__(self, **kwargs):
@@ -26,7 +23,6 @@ class Struct:
 class AuthBackend:
 
     def authenticate(self, access_token, password=False):
-
         oxc = oxdpython.Client(config_location)
         response = oxc.get_user_info(access_token)
         user_details = get_user_details(response)
@@ -44,18 +40,20 @@ def authorize(request):
     oxc = oxdpython.Client(config_location)
     config = configparser.ConfigParser()
     config.read(config_location)
-    client_token = oxc.get_client_token()
-    authorization_url = oxc.get_authorization_url(client_token)
-    del oxc
+    if cache.get(settings.OXD_CLIENT_TOKEN) is None:
+        client_token = oxc.get_client_token(auto_update=False)
+        cache.set(settings.OXD_CLIENT_TOKEN, client_token, timeout=settings.OXD_CLIENT_TOKEN_TIMEOUT)
 
+    authorization_url = oxc.get_authorization_url()
+    del oxc
     return redirect(authorization_url)
 
 
 def callback(request):
     try:
+        oxc = oxdpython.Client(config_location)
         code = request.GET.get('code')
         state = request.GET.get('state')
-        oxc = oxdpython.Client(config_location)
         tokens = oxc.get_tokens_by_code(code, state)
         del oxc
     except:
@@ -78,7 +76,9 @@ def get_user_details(response):
 
 def get_logout(request):
     oxc = oxdpython.Client(config_location)
-    client_token = oxc.get_client_token()
+    if cache.get(settings.OXD_CLIENT_TOKEN) is None:
+        client_token = oxc.get_client_token(auto_update=False)
+        cache.set(settings.OXD_CLIENT_TOKEN, client_token, timeout=settings.OXD_CLIENT_TOKEN_TIMEOUT)
     logout_url = oxc.get_logout_uri()
     del oxc
     logout(request)
@@ -87,9 +87,9 @@ def get_logout(request):
 
 
 def setup_client(request, render_page=True):
+    oxc = oxdpython.Client(config_location)
     response = {}
     if request.method == 'POST':
-        oxc = oxdpython.Client(config_location)
         try:
             client = oxc.setup_client()
             response = get_client(client)
@@ -109,10 +109,10 @@ def get_client(response):
     return {
         'oxd_id': response['oxd_id'],
         'setup_client_oxd_id':response['setup_client_oxd_id'],
-		'client_id': response['client_id'],
+	'client_id': response['client_id'],
         'client_secret': response['client_secret'],
         'client_secret_expires_at': response['client_secret_expires_at'],
-		'status': status,
+	'status': status,
         'message': message
     }
 
@@ -124,11 +124,11 @@ def registered_client():
     client_secret = oxc.config.get("client", "client_secret")
     client_secret_expires_at = oxc.config.get("client","client_secret_expires_at")
     del oxc
-
     if oxd_id and client_id and client_secret:
         return {'oxd_id': oxd_id,
                 'client_id': client_id,
                 'client_secret': client_secret,
-				'client_secret_expires_at': client_secret_expires_at,
+		'client_secret_expires_at': client_secret_expires_at,
                 'status': "exists",
                 'message': "Client registered"}
+

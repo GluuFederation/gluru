@@ -372,6 +372,7 @@ EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '587'))
 
 # Cache
 CACHE_TIMEOUT = 14400 # 4 hours in seconds
+CACHE_TOKEN_TIMEOUT = 280 # in seconds
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
@@ -406,3 +407,8 @@ UMA_OBTAIN_RPT='https://<your-domain>/oxauth/seam/resource/restv1/requester/rpt'
 #Keys for captcha
 RECAPTCHA_PUBLIC_KEY = "Your Captcha Public Key"
 RECAPTCHA_PRIVATE_KEY = "Your Captcha Private Key"
+
+# OXD CLIENT TOKEN
+OXD_CFG = 'Cfg file name'
+OXD_CLIENT_TOKEN = 'client token name'
+OXD_CLIENT_TOKEN_TIMEOUT = 'Timeout in seconds'
